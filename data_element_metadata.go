@@ -12,7 +12,7 @@ type DataElementMetadataService struct {
 
 // GetDataElementMetadata Get Data Element Metadata
 func (s *DataElementMetadataService) GetDataElementMetadata(ctx context.Context, datasourceId string, dataElementId string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId) + "/metadata"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId) + "/metadata"
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -28,7 +28,7 @@ func (s *DataElementMetadataService) GetDataElementMetadata(ctx context.Context,
 
 // UpdateDataElementMetadata Update Data Element Metadata
 func (s *DataElementMetadataService) UpdateDataElementMetadata(ctx context.Context, datasourceId string, dataElementId string, body DataElementMetadata) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId) + "/metadata"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId) + "/metadata"
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -45,7 +45,7 @@ func (s *DataElementMetadataService) UpdateDataElementMetadata(ctx context.Conte
 
 // GetDataElementMetadataResult Get Data Element Metadata Result
 func (s *DataElementMetadataService) GetDataElementMetadataResult(ctx context.Context, datasourceId string, dataElementId string, requestId string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId) + "/metadata/result/" + fmt.Sprintf("%v", requestId)
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId) + "/metadata/result/" + fmt.Sprintf("%v", requestId)
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{

@@ -24,7 +24,7 @@ type ListContentOptions struct {
 
 // ListContent List Content
 func (s *ContentService) ListContent(ctx context.Context, datasourceId string, opts *ListContentOptions) *PageIterator[string] {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
 	query := url.Values{}
 	if opts != nil && opts.Prefix != nil {
 		query.Set("prefix", fmt.Sprintf("%v", opts.Prefix))
@@ -42,8 +42,8 @@ func (s *ContentService) ListContent(ctx context.Context, datasourceId string, o
 		}
 
 		var resp struct {
-			Items []string `json:"items"`
-			NextCursor string `json:"next_cursor"`
+			Items      []string `json:"items"`
+			NextCursor string   `json:"next_cursor"`
 		}
 
 		err := s.client.http.Do(ctx, RequestOptions{
@@ -64,7 +64,7 @@ func (s *ContentService) ListContent(ctx context.Context, datasourceId string, o
 
 // UploadContent Upload Content
 func (s *ContentService) UploadContent(ctx context.Context, datasourceId string, file io.Reader, fileName string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
 
 	var result string
 	files := []UploadField{
@@ -85,7 +85,7 @@ func (s *ContentService) UploadContent(ctx context.Context, datasourceId string,
 
 // StreamUploadProgress Stream Upload Progress
 func (s *ContentService) StreamUploadProgress(ctx context.Context, uploadId string) error {
-	path := "/v2/uploads/" + fmt.Sprintf("%v", uploadId) + "/progress"
+	path := "/uploads/" + fmt.Sprintf("%v", uploadId) + "/progress"
 
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "GET",
@@ -100,7 +100,7 @@ func (s *ContentService) StreamUploadProgress(ctx context.Context, uploadId stri
 
 // GetContentMetadata Get Content Metadata
 func (s *ContentService) GetContentMetadata(ctx context.Context, datasourceId string, path string) (*string, error) {
-	reqPath := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content/" + fmt.Sprintf("%v", path) + "/metadata"
+	reqPath := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content/" + fmt.Sprintf("%v", path) + "/metadata"
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -116,7 +116,7 @@ func (s *ContentService) GetContentMetadata(ctx context.Context, datasourceId st
 
 // DownloadContent Download Content
 func (s *ContentService) DownloadContent(ctx context.Context, datasourceId string, path string) error {
-	reqPath := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content/" + fmt.Sprintf("%v", path) + "/download"
+	reqPath := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content/" + fmt.Sprintf("%v", path) + "/download"
 
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "GET",
@@ -131,7 +131,7 @@ func (s *ContentService) DownloadContent(ctx context.Context, datasourceId strin
 
 // TriggerIngest Trigger Ingest
 func (s *ContentService) TriggerIngest(ctx context.Context, datasourceId string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/trigger-ingest"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/trigger-ingest"
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -147,7 +147,7 @@ func (s *ContentService) TriggerIngest(ctx context.Context, datasourceId string)
 
 // DeleteContent Delete Content
 func (s *ContentService) DeleteContent(ctx context.Context, datasourceId string, path string) (*string, error) {
-	reqPath := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content/" + fmt.Sprintf("%v", path)
+	reqPath := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content/" + fmt.Sprintf("%v", path)
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{

@@ -9,23 +9,15 @@ import (
 type MeibelgoClient struct {
 	http *HTTPClient
 
-	Blueprints *BlueprintsService
-	BlueprintsExecutions *BlueprintsExecutionsService
-	BlueprintsInstances *BlueprintsInstancesService
-	ConfidenceScoring *ConfidenceScoringService
-	Content *ContentService
-	DataElementMetadata *DataElementMetadataService
-	DataElements *DataElementsService
-	Datasources *DatasourcesService
-	DatasourcesContent *DatasourcesContentService
-	DatasourcesDataelements *DatasourcesDataelementsService
-	DatasourcesMetadataModelCatalog *DatasourcesMetadataModelCatalogService
-	DatasourcesRag *DatasourcesRagService
-	DatasourcesTag *DatasourcesTagService
-	Documents *DocumentsService
+	ConfidenceScoring     *ConfidenceScoringService
+	Content               *ContentService
+	DataElementMetadata   *DataElementMetadataService
+	DataElements          *DataElementsService
+	Datasources           *DatasourcesService
+	Documents             *DocumentsService
 	MetadataConfiguration *MetadataConfigurationService
-	MetadataModelCatalog *MetadataModelCatalogService
-	TagDescriptions *TagDescriptionsService
+	MetadataModelCatalog  *MetadataModelCatalogService
+	TagDescriptions       *TagDescriptionsService
 }
 
 // ClientOption is a function that configures the client.
@@ -40,7 +32,7 @@ type clientOptions struct {
 
 func defaultClientOptions() *clientOptions {
 	return &clientOptions{
-		baseURL: "https://api.meibel.ai/v1",
+		baseURL: "https://api.meibel.ai/v2",
 		timeout: 30 * time.Second,
 		headers: make(map[string]string),
 	}
@@ -106,19 +98,11 @@ func NewClient(opts ...ClientOption) *MeibelgoClient {
 		http: httpClient,
 	}
 
-	c.Blueprints = &BlueprintsService{client: c}
-	c.BlueprintsExecutions = &BlueprintsExecutionsService{client: c}
-	c.BlueprintsInstances = &BlueprintsInstancesService{client: c}
 	c.ConfidenceScoring = &ConfidenceScoringService{client: c}
 	c.Content = &ContentService{client: c}
 	c.DataElementMetadata = &DataElementMetadataService{client: c}
 	c.DataElements = &DataElementsService{client: c}
 	c.Datasources = &DatasourcesService{client: c}
-	c.DatasourcesContent = &DatasourcesContentService{client: c}
-	c.DatasourcesDataelements = &DatasourcesDataelementsService{client: c}
-	c.DatasourcesMetadataModelCatalog = &DatasourcesMetadataModelCatalogService{client: c}
-	c.DatasourcesRag = &DatasourcesRagService{client: c}
-	c.DatasourcesTag = &DatasourcesTagService{client: c}
 	c.Documents = &DocumentsService{client: c}
 	c.MetadataConfiguration = &MetadataConfigurationService{client: c}
 	c.MetadataModelCatalog = &MetadataModelCatalogService{client: c}

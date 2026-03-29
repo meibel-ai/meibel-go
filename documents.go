@@ -28,7 +28,7 @@ type GetDocumentResultOptions struct {
 //
 // Upload a document for asynchronous parsing. Returns a job ID to track progress.
 func (s *DocumentsService) ParseDocument(ctx context.Context, file io.Reader, fileName string) (*ParseDocumentResponse, error) {
-	path := "/v2/documents"
+	path := "/documents"
 
 	var result ParseDocumentResponse
 	files := []UploadField{
@@ -51,7 +51,7 @@ func (s *DocumentsService) ParseDocument(ctx context.Context, file io.Reader, fi
 //
 // Upload a document and block until parsing is complete. Returns the full parsed result.
 func (s *DocumentsService) ProcessDocument(ctx context.Context, file io.Reader, fileName string, opts *ProcessDocumentOptions) (*ProcessDocumentResponse, error) {
-	path := "/v2/documents/process"
+	path := "/documents/process"
 	query := url.Values{}
 	if opts != nil && opts.Format != nil {
 		query.Set("format", fmt.Sprintf("%v", *opts.Format))
@@ -79,7 +79,7 @@ func (s *DocumentsService) ProcessDocument(ctx context.Context, file io.Reader, 
 //
 // Check the status of a document parsing job, including progress statistics.
 func (s *DocumentsService) GetDocumentStatus(ctx context.Context, jobId string) (*DocumentStatus, error) {
-	path := "/v2/documents/" + fmt.Sprintf("%v", jobId)
+	path := "/documents/" + fmt.Sprintf("%v", jobId)
 
 	var result DocumentStatus
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -97,7 +97,7 @@ func (s *DocumentsService) GetDocumentStatus(ctx context.Context, jobId string) 
 //
 // Download the parsed result of a completed document parsing job.
 func (s *DocumentsService) GetDocumentResult(ctx context.Context, jobId string, opts *GetDocumentResultOptions) (*string, error) {
-	path := "/v2/documents/" + fmt.Sprintf("%v", jobId) + "/result"
+	path := "/documents/" + fmt.Sprintf("%v", jobId) + "/result"
 	query := url.Values{}
 	if opts != nil && opts.Format != nil {
 		query.Set("format", fmt.Sprintf("%v", *opts.Format))
@@ -120,7 +120,7 @@ func (s *DocumentsService) GetDocumentResult(ctx context.Context, jobId string, 
 //
 // For container files (ZIP, TAR, EML), list the child documents extracted from the container.
 func (s *DocumentsService) ListDocumentChildren(ctx context.Context, jobId string) *PageIterator[string] {
-	path := "/v2/documents/" + fmt.Sprintf("%v", jobId) + "/children"
+	path := "/documents/" + fmt.Sprintf("%v", jobId) + "/children"
 	query := url.Values{}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[string], error) {
@@ -129,8 +129,8 @@ func (s *DocumentsService) ListDocumentChildren(ctx context.Context, jobId strin
 		}
 
 		var resp struct {
-			Items []string `json:"items"`
-			NextCursor string `json:"next_cursor"`
+			Items      []string `json:"items"`
+			NextCursor string   `json:"next_cursor"`
 		}
 
 		err := s.client.http.Do(ctx, RequestOptions{
@@ -153,7 +153,7 @@ func (s *DocumentsService) ListDocumentChildren(ctx context.Context, jobId strin
 //
 // Subscribe to real-time parsing progress via Server-Sent Events.
 func (s *DocumentsService) StreamDocumentTrace(ctx context.Context, jobId string) (*EventStream[interface{}], error) {
-	path := "/v2/documents/" + fmt.Sprintf("%v", jobId) + "/trace"
+	path := "/documents/" + fmt.Sprintf("%v", jobId) + "/trace"
 
 	resp, err := s.client.http.DoStream(ctx, RequestOptions{
 		Method: "GET",

@@ -18,7 +18,7 @@ type ListMetadataModelCatalogOptions struct {
 
 // ListMetadataModelCatalog List Metadata Model Catalog
 func (s *MetadataModelCatalogService) ListMetadataModelCatalog(ctx context.Context, opts *ListMetadataModelCatalogOptions) *PageIterator[MetadataModelCatalogEntry] {
-	path := "/v2/metadata-model-catalog"
+	path := "/metadata-model-catalog"
 	query := url.Values{}
 	if opts != nil && opts.Scope != nil {
 		query.Set("scope", fmt.Sprintf("%v", opts.Scope))
@@ -30,8 +30,8 @@ func (s *MetadataModelCatalogService) ListMetadataModelCatalog(ctx context.Conte
 		}
 
 		var resp struct {
-			Models []MetadataModelCatalogEntry `json:"models"`
-			NextCursor string `json:"next_cursor"`
+			Models     []MetadataModelCatalogEntry `json:"models"`
+			NextCursor string                      `json:"next_cursor"`
 		}
 
 		err := s.client.http.Do(ctx, RequestOptions{
@@ -52,7 +52,7 @@ func (s *MetadataModelCatalogService) ListMetadataModelCatalog(ctx context.Conte
 
 // GetMetadataModelCatalogEntry Get Metadata Model Catalog Entry
 func (s *MetadataModelCatalogService) GetMetadataModelCatalogEntry(ctx context.Context, modelId string) (*MetadataModelCatalogEntry, error) {
-	path := "/v2/metadata-model-catalog/" + fmt.Sprintf("%v", modelId)
+	path := "/metadata-model-catalog/" + fmt.Sprintf("%v", modelId)
 
 	var result MetadataModelCatalogEntry
 	err := s.client.http.Do(ctx, RequestOptions{

@@ -13,7 +13,7 @@ type DatasourcesService struct {
 
 // ListDatasources List Datasources
 func (s *DatasourcesService) ListDatasources(ctx context.Context) *PageIterator[DatasourceResponse] {
-	path := "/v2/datasources"
+	path := "/datasources"
 	query := url.Values{}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[DatasourceResponse], error) {
@@ -23,7 +23,7 @@ func (s *DatasourcesService) ListDatasources(ctx context.Context) *PageIterator[
 
 		var resp struct {
 			Datasources []DatasourceResponse `json:"datasources"`
-			NextCursor string `json:"next_cursor"`
+			NextCursor  string               `json:"next_cursor"`
 		}
 
 		err := s.client.http.Do(ctx, RequestOptions{
@@ -44,7 +44,7 @@ func (s *DatasourcesService) ListDatasources(ctx context.Context) *PageIterator[
 
 // CreateDatasource Create Datasource
 func (s *DatasourcesService) CreateDatasource(ctx context.Context, body CreateDatasourceRequest) (*DatasourceResponse, error) {
-	path := "/v2/datasources"
+	path := "/datasources"
 
 	var result DatasourceResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -61,7 +61,7 @@ func (s *DatasourcesService) CreateDatasource(ctx context.Context, body CreateDa
 
 // GetDatasource Get Datasource
 func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId string) (*DatasourceResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId)
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
 
 	var result DatasourceResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -76,8 +76,8 @@ func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId str
 }
 
 // UpdateDatasource Update Datasource
-func (s *DatasourcesService) UpdateDatasource(ctx context.Context, datasourceId string, body GatewayServiceV2ModelsDatasourcesUpdateDatasourceRequest) (*DatasourceResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId)
+func (s *DatasourcesService) UpdateDatasource(ctx context.Context, datasourceId string, body UpdateDatasourceRequest) (*DatasourceResponse, error) {
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
 
 	var result DatasourceResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -94,7 +94,7 @@ func (s *DatasourcesService) UpdateDatasource(ctx context.Context, datasourceId 
 
 // DeleteDatasource Delete Datasource
 func (s *DatasourcesService) DeleteDatasource(ctx context.Context, datasourceId string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId)
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{

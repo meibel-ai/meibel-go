@@ -12,7 +12,7 @@ type MetadataConfigurationService struct {
 
 // GetMetadataConfig Get Metadata Config
 func (s *MetadataConfigurationService) GetMetadataConfig(ctx context.Context, datasourceId string) (*MetadataConfigResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/metadata-config"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/metadata-config"
 
 	var result MetadataConfigResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -28,7 +28,7 @@ func (s *MetadataConfigurationService) GetMetadataConfig(ctx context.Context, da
 
 // UpdateMetadataConfig Update Metadata Config
 func (s *MetadataConfigurationService) UpdateMetadataConfig(ctx context.Context, datasourceId string, body MetadataConfigRequest) (*MetadataConfigResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/metadata-config"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/metadata-config"
 
 	var result MetadataConfigResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -45,7 +45,7 @@ func (s *MetadataConfigurationService) UpdateMetadataConfig(ctx context.Context,
 
 // ReprocessMetadata Reprocess Metadata
 func (s *MetadataConfigurationService) ReprocessMetadata(ctx context.Context, datasourceId string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/reprocess-metadata"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/reprocess-metadata"
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -61,7 +61,7 @@ func (s *MetadataConfigurationService) ReprocessMetadata(ctx context.Context, da
 
 // GetReprocessMetadataStatus Get Reprocess Metadata Status
 func (s *MetadataConfigurationService) GetReprocessMetadataStatus(ctx context.Context, datasourceId string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/reprocess-metadata/status"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/reprocess-metadata/status"
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{

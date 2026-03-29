@@ -13,7 +13,7 @@ type DataElementsService struct {
 
 // ListDataElements List Data Elements
 func (s *DataElementsService) ListDataElements(ctx context.Context, datasourceId string) *PageIterator[string] {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements"
 	query := url.Values{}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[string], error) {
@@ -22,8 +22,8 @@ func (s *DataElementsService) ListDataElements(ctx context.Context, datasourceId
 		}
 
 		var resp struct {
-			Items []string `json:"items"`
-			NextCursor string `json:"next_cursor"`
+			Items      []string `json:"items"`
+			NextCursor string   `json:"next_cursor"`
 		}
 
 		err := s.client.http.Do(ctx, RequestOptions{
@@ -44,7 +44,7 @@ func (s *DataElementsService) ListDataElements(ctx context.Context, datasourceId
 
 // CreateDataElement Create Data Element
 func (s *DataElementsService) CreateDataElement(ctx context.Context, datasourceId string, body CreateDataElementRequest) (*DataElementResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements"
 
 	var result DataElementResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -61,7 +61,7 @@ func (s *DataElementsService) CreateDataElement(ctx context.Context, datasourceI
 
 // GetDataElement Get Data Element
 func (s *DataElementsService) GetDataElement(ctx context.Context, datasourceId string, dataElementId string) (*DataElementResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
 
 	var result DataElementResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -76,8 +76,8 @@ func (s *DataElementsService) GetDataElement(ctx context.Context, datasourceId s
 }
 
 // UpdateDataElement Update Data Element
-func (s *DataElementsService) UpdateDataElement(ctx context.Context, datasourceId string, dataElementId string, body GatewayServiceV2ModelsDataElementsUpdateDataElementRequest) (*DataElementResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
+func (s *DataElementsService) UpdateDataElement(ctx context.Context, datasourceId string, dataElementId string, body UpdateDataElementRequest) (*DataElementResponse, error) {
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
 
 	var result DataElementResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -94,7 +94,7 @@ func (s *DataElementsService) UpdateDataElement(ctx context.Context, datasourceI
 
 // DeleteDataElement Delete Data Element
 func (s *DataElementsService) DeleteDataElement(ctx context.Context, datasourceId string, dataElementId string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -110,7 +110,7 @@ func (s *DataElementsService) DeleteDataElement(ctx context.Context, datasourceI
 
 // SearchDataElements Search Data Elements
 func (s *DataElementsService) SearchDataElements(ctx context.Context, datasourceId string, body DataElementSearchRequest) (*[]DataElementResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/search"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/search"
 
 	var result []DataElementResponse
 	err := s.client.http.Do(ctx, RequestOptions{

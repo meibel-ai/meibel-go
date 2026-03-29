@@ -13,7 +13,7 @@ type TagDescriptionsService struct {
 
 // ListTagTables List Tag Tables
 func (s *TagDescriptionsService) ListTagTables(ctx context.Context, datasourceId string) *PageIterator[string] {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tag-tables"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tag-tables"
 	query := url.Values{}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[string], error) {
@@ -22,8 +22,8 @@ func (s *TagDescriptionsService) ListTagTables(ctx context.Context, datasourceId
 		}
 
 		var resp struct {
-			Items []string `json:"items"`
-			NextCursor string `json:"next_cursor"`
+			Items      []string `json:"items"`
+			NextCursor string   `json:"next_cursor"`
 		}
 
 		err := s.client.http.Do(ctx, RequestOptions{
@@ -44,7 +44,7 @@ func (s *TagDescriptionsService) ListTagTables(ctx context.Context, datasourceId
 
 // ListTagColumns List Tag Columns
 func (s *TagDescriptionsService) ListTagColumns(ctx context.Context, datasourceId string, tableName string) *PageIterator[string] {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tag-tables/" + fmt.Sprintf("%v", tableName) + "/columns"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tag-tables/" + fmt.Sprintf("%v", tableName) + "/columns"
 	query := url.Values{}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[string], error) {
@@ -53,8 +53,8 @@ func (s *TagDescriptionsService) ListTagColumns(ctx context.Context, datasourceI
 		}
 
 		var resp struct {
-			Items []string `json:"items"`
-			NextCursor string `json:"next_cursor"`
+			Items      []string `json:"items"`
+			NextCursor string   `json:"next_cursor"`
 		}
 
 		err := s.client.http.Do(ctx, RequestOptions{
@@ -75,7 +75,7 @@ func (s *TagDescriptionsService) ListTagColumns(ctx context.Context, datasourceI
 
 // UpdateTagTableDescription Update Tag Table Description
 func (s *TagDescriptionsService) UpdateTagTableDescription(ctx context.Context, datasourceId string, tableName string, body UpdateTagDescriptionRequest) (*TagTable, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tag-tables/" + fmt.Sprintf("%v", tableName)
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tag-tables/" + fmt.Sprintf("%v", tableName)
 
 	var result TagTable
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -92,7 +92,7 @@ func (s *TagDescriptionsService) UpdateTagTableDescription(ctx context.Context, 
 
 // UpdateTagColumnDescription Update Tag Column Description
 func (s *TagDescriptionsService) UpdateTagColumnDescription(ctx context.Context, datasourceId string, tableName string, columnName string, body UpdateTagDescriptionRequest) (*TagColumn, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tag-tables/" + fmt.Sprintf("%v", tableName) + "/columns/" + fmt.Sprintf("%v", columnName)
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tag-tables/" + fmt.Sprintf("%v", tableName) + "/columns/" + fmt.Sprintf("%v", columnName)
 
 	var result TagColumn
 	err := s.client.http.Do(ctx, RequestOptions{
