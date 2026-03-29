@@ -11,13 +11,13 @@ type DatasourcesMetadataModelCatalogService struct {
 	client *MeibelgoClient
 }
 
-// ListMetadataModelCatalogOptions contains optional parameters for ListMetadataModelCatalog.
-type ListMetadataModelCatalogOptions struct {
+// DatasourcesListMetadataModelCatalogOptions contains optional parameters for ListMetadataModelCatalog.
+type DatasourcesListMetadataModelCatalogOptions struct {
 	Scope interface{}
 }
 
 // ListMetadataModelCatalog List Metadata Model Catalog
-func (s *DatasourcesMetadataModelCatalogService) ListMetadataModelCatalog(ctx context.Context, opts *ListMetadataModelCatalogOptions) *PageIterator[MetadataModelCatalogEntry] {
+func (s *DatasourcesMetadataModelCatalogService) ListMetadataModelCatalog(ctx context.Context, opts *DatasourcesListMetadataModelCatalogOptions) *PageIterator[MetadataModelCatalogEntry] {
 	path := "/metadata_model_catalog"
 	query := url.Values{}
 	if opts != nil && opts.Scope != nil {

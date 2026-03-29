@@ -13,11 +13,9 @@ type MeibelgoClient struct {
 	BlueprintsExecutions *BlueprintsExecutionsService
 	BlueprintsInstances *BlueprintsInstancesService
 	ConfidenceScoring *ConfidenceScoringService
-	ConfidenceScoring *ConfidenceScoringService
 	Content *ContentService
 	DataElementMetadata *DataElementMetadataService
 	DataElements *DataElementsService
-	Datasources *DatasourcesService
 	Datasources *DatasourcesService
 	DatasourcesContent *DatasourcesContentService
 	DatasourcesDataelements *DatasourcesDataelementsService
@@ -112,11 +110,9 @@ func NewClient(opts ...ClientOption) *MeibelgoClient {
 	c.BlueprintsExecutions = &BlueprintsExecutionsService{client: c}
 	c.BlueprintsInstances = &BlueprintsInstancesService{client: c}
 	c.ConfidenceScoring = &ConfidenceScoringService{client: c}
-	c.ConfidenceScoring = &ConfidenceScoringService{client: c}
 	c.Content = &ContentService{client: c}
 	c.DataElementMetadata = &DataElementMetadataService{client: c}
 	c.DataElements = &DataElementsService{client: c}
-	c.Datasources = &DatasourcesService{client: c}
 	c.Datasources = &DatasourcesService{client: c}
 	c.DatasourcesContent = &DatasourcesContentService{client: c}
 	c.DatasourcesDataelements = &DatasourcesDataelementsService{client: c}
