@@ -6,57 +6,25 @@ import (
 	"net/url"
 )
 
-// DataElementsService handles Data Elements operations.
+// DataElementsService handles DataElements operations.
 type DataElementsService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
-// ListDataElements List Data Elements
-func (s *DataElementsService) ListDataElements(ctx context.Context, datasourceId string) *PageIterator[string] {
-	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements"
-	query := url.Values{}
-
-	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[string], error) {
-		if cursor != "" {
-			query.Set("offset", cursor)
-		}
-
-		var resp struct {
-			Items      []string `json:"items"`
-			NextCursor string   `json:"next_cursor"`
-		}
-
-		err := s.client.http.Do(ctx, RequestOptions{
-			Method: "GET",
-			Path:   path,
-			Query:  query,
-		}, &resp)
-		if err != nil {
-			return nil, err
-		}
-
-		return &Page[string]{
-			Items:      resp.Items,
-			NextCursor: resp.NextCursor,
-		}, nil
-	})
+// ListDataElementsOptions contains optional parameters for ListDataElements.
+type ListDataElementsOptions struct {
+	// Cursor for pagination
+	Cursor interface{}
+	// Maximum items to return
+	Limit *int64
 }
 
-// CreateDataElement Create Data Element
-func (s *DataElementsService) CreateDataElement(ctx context.Context, datasourceId string, body CreateDataElementRequest) (*DataElementResponse, error) {
-	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements"
-
-	var result DataElementResponse
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "POST",
-		Path:   path,
-		Body:   body,
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+// SearchDataElementsOptions contains optional parameters for SearchDataElements.
+type SearchDataElementsOptions struct {
+	// Cursor for pagination
+	Cursor interface{}
+	// Maximum items to return
+	Limit *int64
 }
 
 // GetDataElement Get Data Element
@@ -92,30 +60,59 @@ func (s *DataElementsService) UpdateDataElement(ctx context.Context, datasourceI
 	return &result, nil
 }
 
-// DeleteDataElement Delete Data Element
-func (s *DataElementsService) DeleteDataElement(ctx context.Context, datasourceId string, dataElementId string) (*string, error) {
-	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
-
-	var result string
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "DELETE",
-		Path:   path,
-	}, &result)
-	if err != nil {
-		return nil, err
+// ListDataElements List Data Elements
+func (s *DataElementsService) ListDataElements(ctx context.Context, datasourceId string, opts *ListDataElementsOptions) *PageIterator[DataElementResponse] {
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements"
+	query := url.Values{}
+	if opts != nil && opts.Cursor != nil {
+		query.Set("cursor", fmt.Sprintf("%v", opts.Cursor))
+	}
+	if opts != nil && opts.Limit != nil {
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
 	}
 
-	return &result, nil
+	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[DataElementResponse], error) {
+		if cursor != "" {
+			query.Set("cursor", cursor)
+		}
+
+		var resp struct {
+			Items []DataElementResponse `json:"items"`
+			NextCursor string `json:"next_cursor"`
+		}
+
+		err := s.client.http.Do(ctx, RequestOptions{
+			Method: "GET",
+			Path:   path,
+			Query:  query,
+		}, &resp)
+		if err != nil {
+			return nil, err
+		}
+
+		return &Page[DataElementResponse]{
+			Items:      resp.Items,
+			NextCursor: resp.NextCursor,
+		}, nil
+	})
 }
 
 // SearchDataElements Search Data Elements
-func (s *DataElementsService) SearchDataElements(ctx context.Context, datasourceId string, body DataElementSearchRequest) (*[]DataElementResponse, error) {
+func (s *DataElementsService) SearchDataElements(ctx context.Context, datasourceId string, body DataElementSearchRequest, opts *SearchDataElementsOptions) (*DataElementListResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/search"
+	query := url.Values{}
+	if opts != nil && opts.Cursor != nil {
+		query.Set("cursor", fmt.Sprintf("%v", opts.Cursor))
+	}
+	if opts != nil && opts.Limit != nil {
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
+	}
 
-	var result []DataElementResponse
+	var result DataElementListResponse
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
+		Query:  query,
 		Body:   body,
 	}, &result)
 	if err != nil {

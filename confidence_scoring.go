@@ -6,22 +6,22 @@ import (
 	"net/url"
 )
 
-// ConfidenceScoringService handles Confidence Scoring operations.
+// ConfidenceScoringService handles ConfidenceScoring operations.
 type ConfidenceScoringService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
 // ListScoringJobsOptions contains optional parameters for ListScoringJobs.
 type ListScoringJobsOptions struct {
-	AgentName                interface{}
-	AgentVersion             interface{}
-	AgentExecutionId         interface{}
-	AgentWorkflowName        interface{}
-	AgentWorkflowVersion     interface{}
+	AgentName interface{}
+	AgentVersion interface{}
+	AgentExecutionId interface{}
+	AgentWorkflowName interface{}
+	AgentWorkflowVersion interface{}
 	AgentWorkflowExecutionId interface{}
-	ToolId                   interface{}
-	ToolInstanceId           interface{}
-	ToolExecutionId          interface{}
+	ToolId interface{}
+	ToolInstanceId interface{}
+	ToolExecutionId interface{}
 }
 
 // GetScoringJobsSummaryOptions contains optional parameters for GetScoringJobsSummary.
@@ -46,7 +46,7 @@ func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId stri
 }
 
 // ListScoringJobs List Scoring Jobs
-func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *ListScoringJobsOptions) *PageIterator[string] {
+func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *ListScoringJobsOptions) (*string, error) {
 	path := "/confidence-scoring/jobs"
 	query := url.Values{}
 	if opts != nil && opts.AgentName != nil {
@@ -77,30 +77,17 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Li
 		query.Set("tool_execution_id", fmt.Sprintf("%v", opts.ToolExecutionId))
 	}
 
-	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[string], error) {
-		if cursor != "" {
-			query.Set("offset", cursor)
-		}
+	var result string
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+		Query:  query,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
 
-		var resp struct {
-			Items      []string `json:"items"`
-			NextCursor string   `json:"next_cursor"`
-		}
-
-		err := s.client.http.Do(ctx, RequestOptions{
-			Method: "GET",
-			Path:   path,
-			Query:  query,
-		}, &resp)
-		if err != nil {
-			return nil, err
-		}
-
-		return &Page[string]{
-			Items:      resp.Items,
-			NextCursor: resp.NextCursor,
-		}, nil
-	})
+	return &result, nil
 }
 
 // GetScoringJobsSummary Get Scoring Jobs Summary

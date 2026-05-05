@@ -8,38 +8,29 @@ import (
 
 // DatasourcesService handles Datasources operations.
 type DatasourcesService struct {
-	client *MeibelgoClient
+	client *MeibelClient
+}
+
+// GetDatasourceOptions contains optional parameters for GetDatasource.
+type GetDatasourceOptions struct {
+	// Include table and column details (structured datasources only)
+	IncludeTables *bool
 }
 
 // ListDatasources List Datasources
-func (s *DatasourcesService) ListDatasources(ctx context.Context) *PageIterator[DatasourceResponse] {
+func (s *DatasourcesService) ListDatasources(ctx context.Context) (*DatasourceListResponse, error) {
 	path := "/datasources"
-	query := url.Values{}
 
-	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[DatasourceResponse], error) {
-		if cursor != "" {
-			query.Set("offset", cursor)
-		}
+	var result DatasourceListResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
 
-		var resp struct {
-			Datasources []DatasourceResponse `json:"datasources"`
-			NextCursor  string               `json:"next_cursor"`
-		}
-
-		err := s.client.http.Do(ctx, RequestOptions{
-			Method: "GET",
-			Path:   path,
-			Query:  query,
-		}, &resp)
-		if err != nil {
-			return nil, err
-		}
-
-		return &Page[DatasourceResponse]{
-			Items:      resp.Datasources,
-			NextCursor: resp.NextCursor,
-		}, nil
-	})
+	return &result, nil
 }
 
 // CreateDatasource Create Datasource
@@ -60,13 +51,18 @@ func (s *DatasourcesService) CreateDatasource(ctx context.Context, body CreateDa
 }
 
 // GetDatasource Get Datasource
-func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId string) (*DatasourceResponse, error) {
+func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId string, opts *GetDatasourceOptions) (*DatasourceResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
+	query := url.Values{}
+	if opts != nil && opts.IncludeTables != nil {
+		query.Set("include_tables", fmt.Sprintf("%v", *opts.IncludeTables))
+	}
 
 	var result DatasourceResponse
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "GET",
 		Path:   path,
+		Query:  query,
 	}, &result)
 	if err != nil {
 		return nil, err

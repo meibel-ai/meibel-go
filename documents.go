@@ -9,7 +9,7 @@ import (
 
 // DocumentsService handles Documents operations.
 type DocumentsService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
 // ProcessDocumentOptions contains optional parameters for ProcessDocument.
@@ -119,34 +119,19 @@ func (s *DocumentsService) GetDocumentResult(ctx context.Context, jobId string, 
 // ListDocumentChildren List child documents
 //
 // For container files (ZIP, TAR, EML), list the child documents extracted from the container.
-func (s *DocumentsService) ListDocumentChildren(ctx context.Context, jobId string) *PageIterator[string] {
+func (s *DocumentsService) ListDocumentChildren(ctx context.Context, jobId string) (*[]DocumentChild, error) {
 	path := "/documents/" + fmt.Sprintf("%v", jobId) + "/children"
-	query := url.Values{}
 
-	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[string], error) {
-		if cursor != "" {
-			query.Set("offset", cursor)
-		}
+	var result []DocumentChild
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
 
-		var resp struct {
-			Items      []string `json:"items"`
-			NextCursor string   `json:"next_cursor"`
-		}
-
-		err := s.client.http.Do(ctx, RequestOptions{
-			Method: "GET",
-			Path:   path,
-			Query:  query,
-		}, &resp)
-		if err != nil {
-			return nil, err
-		}
-
-		return &Page[string]{
-			Items:      resp.Items,
-			NextCursor: resp.NextCursor,
-		}, nil
-	})
+	return &result, nil
 }
 
 // StreamDocumentTrace Stream document parsing trace
