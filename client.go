@@ -9,10 +9,13 @@ import (
 type MeibelClient struct {
 	http *HTTPClient
 
+	Agents *AgentsService
+	ArtifactSchemas *ArtifactSchemasService
 	ConfidenceScoring *ConfidenceScoringService
 	Datasources *DatasourcesService
 	Documents *DocumentsService
 	MetadataModelCatalog *MetadataModelCatalogService
+	Prompts *PromptsService
 	Sessions *SessionsService
 }
 
@@ -28,7 +31,7 @@ type clientOptions struct {
 
 func defaultClientOptions() *clientOptions {
 	return &clientOptions{
-		baseURL: "https://api.meibel.ai/v1",
+		baseURL: "https://api.meibel.ai/v2",
 		timeout: 30 * time.Second,
 		headers: make(map[string]string),
 	}
@@ -94,13 +97,19 @@ func NewClient(opts ...ClientOption) *MeibelClient {
 		http: httpClient,
 	}
 
+	c.Agents = &AgentsService{client: c}
+	c.ArtifactSchemas = &ArtifactSchemasService{client: c}
 	c.ConfidenceScoring = &ConfidenceScoringService{client: c}
 	c.Datasources = &DatasourcesService{client: c}
 	c.Documents = &DocumentsService{client: c}
 	c.MetadataModelCatalog = &MetadataModelCatalogService{client: c}
+	c.Prompts = &PromptsService{client: c}
 	c.Sessions = &SessionsService{client: c}
+	c.Agents.Sessions = &AgentsSessionsService{client: c}
 	c.Datasources.Content = &ContentService{client: c}
 	c.Datasources.DataElements = &DataElementsService{client: c}
+	c.Datasources.Downloads = &DownloadsService{client: c}
+	c.Datasources.TableDescriptions = &TableDescriptionsService{client: c}
 
 	return c
 }

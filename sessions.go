@@ -10,9 +10,41 @@ type SessionsService struct {
 	client *MeibelClient
 }
 
+// GetSession Get Session
+func (s *SessionsService) GetSession(ctx context.Context, sessionId string) (*AgentExecutionDetailsResponse, error) {
+	path := "/sessions/" + fmt.Sprintf("%v", sessionId)
+
+	var result AgentExecutionDetailsResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// GetSessionMessages Get Session Messages
+func (s *SessionsService) GetSessionMessages(ctx context.Context, sessionId string) (*SessionMessagesResponse, error) {
+	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/messages"
+
+	var result SessionMessagesResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 // SendChatMessage Send Chat Message
-func (s *SessionsService) SendChatMessage(ctx context.Context, blueprintInstanceId string, body ChatMessageRequest) (*ChatMessageResponse, error) {
-	path := "/" + fmt.Sprintf("%v", blueprintInstanceId) + "/chat"
+func (s *SessionsService) SendChatMessage(ctx context.Context, sessionId string, body ChatMessageRequest) (*ChatMessageResponse, error) {
+	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/chat"
 
 	var result ChatMessageResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -28,19 +60,17 @@ func (s *SessionsService) SendChatMessage(ctx context.Context, blueprintInstance
 }
 
 // SendChatMessageStream Send a chat message and stream the response via SSE
-//
-// Send a chat message to a running chat agent workflow and stream the response as Server-Sent Events.
-func (s *SessionsService) SendChatMessageStream(ctx context.Context, blueprintInstanceId string, body ChatMessageRequest) error {
-	path := "/" + fmt.Sprintf("%v", blueprintInstanceId) + "/chat/stream"
+func (s *SessionsService) SendChatMessageStream(ctx context.Context, sessionId string, body ChatMessageRequest) (*EventStream[interface{}], error) {
+	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/chat/stream"
 
-	err := s.client.http.Do(ctx, RequestOptions{
+	resp, err := s.client.http.DoStream(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
 		Body:   body,
-	}, nil)
+	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return JSONEventStream[interface{}](resp), nil
 }

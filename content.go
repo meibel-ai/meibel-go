@@ -22,34 +22,20 @@ type ListContentOptions struct {
 	Limit *int64
 }
 
-// StreamUploadProgress Stream upload progress events
-//
-// Subscribe to real-time upload progress updates via Server-Sent Events
-func (s *ContentService) StreamUploadProgress(ctx context.Context, uploadId string) error {
-	path := "/uploads/" + fmt.Sprintf("%v", uploadId) + "/progress"
+// UploadContent Upload Content (async)
+func (s *ContentService) UploadContent(ctx context.Context, file io.Reader, fileName string) (*UploadContentResponse, error) {
+	path := "/datasources/uploads"
 
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "GET",
-		Path:   path,
-	}, nil)
-	if err != nil {
-		return err
+	var result UploadContentResponse
+	files := []UploadField{
+		{FieldName: "file", Reader: file, FileName: fileName},
 	}
+	formFields := map[string]string{}
 
-	return nil
-}
-
-// TriggerIngest Trigger ingest
-//
-// Trigger ingestion for a datasource
-func (s *ContentService) TriggerIngest(ctx context.Context, datasourceId string) (*string, error) {
-	path := "/datasource/" + fmt.Sprintf("%v", datasourceId) + "/trigger-ingest"
-
-	var result string
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "GET",
+	err := s.client.http.DoUpload(ctx, RequestOptions{
+		Method: "POST",
 		Path:   path,
-	}, &result)
+	}, files, formFields, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -57,38 +43,11 @@ func (s *ContentService) TriggerIngest(ctx context.Context, datasourceId string)
 	return &result, nil
 }
 
-// ListContent List Content
-func (s *ContentService) ListContent(ctx context.Context, datasourceId string, opts *ListContentOptions) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
-	query := url.Values{}
-	if opts != nil && opts.Prefix != nil {
-		query.Set("prefix", fmt.Sprintf("%v", opts.Prefix))
-	}
-	if opts != nil && opts.ContinuationToken != nil {
-		query.Set("continuation_token", fmt.Sprintf("%v", opts.ContinuationToken))
-	}
-	if opts != nil && opts.Limit != nil {
-		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
-	}
+// UploadAndListContent Upload Content (sync)
+func (s *ContentService) UploadAndListContent(ctx context.Context, file io.Reader, fileName string) (*FileUploadSyncResponse, error) {
+	path := "/datasources/uploads/process"
 
-	var result string
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "GET",
-		Path:   path,
-		Query:  query,
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// UploadContent Upload Content
-func (s *ContentService) UploadContent(ctx context.Context, datasourceId string, file io.Reader, fileName string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
-
-	var result string
+	var result FileUploadSyncResponse
 	files := []UploadField{
 		{FieldName: "file", Reader: file, FileName: fileName},
 	}
@@ -106,27 +65,83 @@ func (s *ContentService) UploadContent(ctx context.Context, datasourceId string,
 }
 
 // StreamUploadProgress Stream Upload Progress
-func (s *ContentService) StreamUploadProgress(ctx context.Context, uploadId string) error {
-	path := "/v2/uploads/" + fmt.Sprintf("%v", uploadId) + "/progress"
+func (s *ContentService) StreamUploadProgress(ctx context.Context, uploadId string) (*EventStream[interface{}], error) {
+	path := "/datasources/uploads/" + fmt.Sprintf("%v", uploadId) + "/progress"
 
-	err := s.client.http.Do(ctx, RequestOptions{
+	resp, err := s.client.http.DoStream(ctx, RequestOptions{
 		Method: "GET",
 		Path:   path,
-	}, nil)
+	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return JSONEventStream[interface{}](resp), nil
+}
+
+// ListContent List Content
+func (s *ContentService) ListContent(ctx context.Context, datasourceId string, opts *ListContentOptions) *PageIterator[ContentItem] {
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
+	query := url.Values{}
+	if opts != nil && opts.Prefix != nil {
+		query.Set("prefix", fmt.Sprintf("%v", opts.Prefix))
+	}
+	if opts != nil && opts.ContinuationToken != nil {
+		query.Set("continuation_token", fmt.Sprintf("%v", opts.ContinuationToken))
+	}
+	if opts != nil && opts.Limit != nil {
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
+	}
+
+	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[ContentItem], error) {
+		if cursor != "" {
+			query.Set("continuation_token", cursor)
+		}
+
+		var resp struct {
+			Items []ContentItem `json:"items"`
+			NextCursor string `json:"next_cursor"`
+		}
+
+		err := s.client.http.Do(ctx, RequestOptions{
+			Method: "GET",
+			Path:   path,
+			Query:  query,
+		}, &resp)
+		if err != nil {
+			return nil, err
+		}
+
+		return &Page[ContentItem]{
+			Items:      resp.Items,
+			NextCursor: resp.NextCursor,
+		}, nil
+	})
 }
 
 // TriggerIngest Trigger Ingest
 func (s *ContentService) TriggerIngest(ctx context.Context, datasourceId string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId) + "/trigger-ingest"
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/trigger-ingest"
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "POST",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// GetIngestStatus Get Ingest Status
+func (s *ContentService) GetIngestStatus(ctx context.Context, datasourceId string) (*IngestStatusResponse, error) {
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/ingest-status"
+
+	var result IngestStatusResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
 		Path:   path,
 	}, &result)
 	if err != nil {

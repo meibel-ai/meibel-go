@@ -3,6 +3,7 @@ package meibelgo
 import (
 	"context"
 	"fmt"
+	"net/url"
 )
 
 // DatasourcesService handles Datasources operations.
@@ -10,60 +11,19 @@ type DatasourcesService struct {
 	client *MeibelClient
 	Content *ContentService
 	DataElements *DataElementsService
+	Downloads *DownloadsService
+	TableDescriptions *TableDescriptionsService
 }
 
-// GetDatasource Get Datasource
-func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId string) (*Datasource, error) {
-	path := "/datasource/" + fmt.Sprintf("%v", datasourceId)
-
-	var result Datasource
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "GET",
-		Path:   path,
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// UpdateDatasource Update Datasource
-func (s *DatasourcesService) UpdateDatasource(ctx context.Context, datasourceId string, body DatasourceServiceClientModelsUpdateDatasourceRequestUpdateDatasourceRequest) (*UpdateDatasourceResponse, error) {
-	path := "/datasource/" + fmt.Sprintf("%v", datasourceId)
-
-	var result UpdateDatasourceResponse
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "PUT",
-		Path:   path,
-		Body:   body,
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// DeleteDatasource Delete Datasource
-func (s *DatasourcesService) DeleteDatasource(ctx context.Context, datasourceId string) (*DeleteDatasourceResponse, error) {
-	path := "/datasource/" + fmt.Sprintf("%v", datasourceId)
-
-	var result DeleteDatasourceResponse
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "DELETE",
-		Path:   path,
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+// GetDatasourceOptions contains optional parameters for GetDatasource.
+type GetDatasourceOptions struct {
+	// Include table and column details (structured datasources only)
+	IncludeTables *bool
 }
 
 // ListDatasources List Datasources
 func (s *DatasourcesService) ListDatasources(ctx context.Context) (*DatasourceListResponse, error) {
-	path := "/v2/datasources"
+	path := "/datasources"
 
 	var result DatasourceListResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -79,7 +39,7 @@ func (s *DatasourcesService) ListDatasources(ctx context.Context) (*DatasourceLi
 
 // CreateDatasource Create Datasource
 func (s *DatasourcesService) CreateDatasource(ctx context.Context, body CreateDatasourceRequest) (*DatasourceResponse, error) {
-	path := "/v2/datasources"
+	path := "/datasources"
 
 	var result DatasourceResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -95,13 +55,18 @@ func (s *DatasourcesService) CreateDatasource(ctx context.Context, body CreateDa
 }
 
 // GetDatasource Get Datasource
-func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId string) (*DatasourceResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId)
+func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId string, opts *GetDatasourceOptions) (*DatasourceResponse, error) {
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
+	query := url.Values{}
+	if opts != nil && opts.IncludeTables != nil {
+		query.Set("include_tables", fmt.Sprintf("%v", *opts.IncludeTables))
+	}
 
 	var result DatasourceResponse
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "GET",
 		Path:   path,
+		Query:  query,
 	}, &result)
 	if err != nil {
 		return nil, err
@@ -111,8 +76,8 @@ func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId str
 }
 
 // UpdateDatasource Update Datasource
-func (s *DatasourcesService) UpdateDatasource(ctx context.Context, datasourceId string, body GatewayServiceV2ModelsDatasourcesUpdateDatasourceRequest) (*DatasourceResponse, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId)
+func (s *DatasourcesService) UpdateDatasource(ctx context.Context, datasourceId string, body UpdateDatasourceRequest) (*DatasourceResponse, error) {
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
 
 	var result DatasourceResponse
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -129,7 +94,7 @@ func (s *DatasourcesService) UpdateDatasource(ctx context.Context, datasourceId 
 
 // DeleteDatasource Delete Datasource
 func (s *DatasourcesService) DeleteDatasource(ctx context.Context, datasourceId string) (*string, error) {
-	path := "/v2/datasources/" + fmt.Sprintf("%v", datasourceId)
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
 
 	var result string
 	err := s.client.http.Do(ctx, RequestOptions{
