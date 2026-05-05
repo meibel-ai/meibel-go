@@ -11,6 +11,11 @@ type ConfidenceScoringService struct {
 	client *MeibelClient
 }
 
+// GetScoringJobsSummaryOptions contains optional parameters for GetScoringJobsSummary.
+type GetScoringJobsSummaryOptions struct {
+	Secondary interface{}
+}
+
 // ListScoringJobsOptions contains optional parameters for ListScoringJobs.
 type ListScoringJobsOptions struct {
 	AgentName interface{}
@@ -30,6 +35,8 @@ type GetScoringJobsSummaryOptions struct {
 }
 
 // GetScoringJob Get Scoring Job
+//
+// Get a scoring job by ID. Returns 403 if the job does not belong to the caller's customer.
 func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId string) (*string, error) {
 	path := "/confidence-scoring/job/" + fmt.Sprintf("%v", jobId)
 
@@ -45,9 +52,53 @@ func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId stri
 	return &result, nil
 }
 
+// GetScoringJobsSummary Get Scoring Jobs Summary
+//
+// Get aggregated scoring summary for the caller's customer.
+// 
+// primary: Required filter in format 'field:value' (e.g., 'agent_execution_id:exec_123').
+// secondary: Optional secondary filter in format 'field:value' (e.g., 'agent_name:my_agent').
+// Results are always scoped to the caller's customer_id.
+func (s *ConfidenceScoringService) GetScoringJobsSummary(ctx context.Context, primary string, opts *GetScoringJobsSummaryOptions) (*ScoreSummary, error) {
+	path := "/confidence-scoring/summary"
+	query := url.Values{}
+	query.Set("primary", fmt.Sprintf("%v", primary))
+	if opts != nil && opts.Secondary != nil {
+		query.Set("secondary", fmt.Sprintf("%v", opts.Secondary))
+	}
+
+	var result ScoreSummary
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+		Query:  query,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// GetScoringJob Get Scoring Job
+func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId string) (*string, error) {
+	path := "/v2/confidence-scoring/job/" + fmt.Sprintf("%v", jobId)
+
+	var result string
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 // ListScoringJobs List Scoring Jobs
 func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *ListScoringJobsOptions) (*string, error) {
-	path := "/confidence-scoring/jobs"
+	path := "/v2/confidence-scoring/jobs"
 	query := url.Values{}
 	if opts != nil && opts.AgentName != nil {
 		query.Set("agent_name", fmt.Sprintf("%v", opts.AgentName))
@@ -92,7 +143,7 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Li
 
 // GetScoringJobsSummary Get Scoring Jobs Summary
 func (s *ConfidenceScoringService) GetScoringJobsSummary(ctx context.Context, primary string, opts *GetScoringJobsSummaryOptions) (*ScoreSummary, error) {
-	path := "/confidence-scoring/summary"
+	path := "/v2/confidence-scoring/summary"
 	query := url.Values{}
 	query.Set("primary", fmt.Sprintf("%v", primary))
 	if opts != nil && opts.Secondary != nil {
