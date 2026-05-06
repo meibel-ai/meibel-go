@@ -5,18 +5,12 @@ import (
 	"time"
 )
 
-// MeibelClient is the main client for the meibel-ai-api API.
-type MeibelClient struct {
+// MeibelgoClient is the main client for the meibel API.
+type MeibelgoClient struct {
 	http *HTTPClient
 
-	Agents *AgentsService
-	ArtifactSchemas *ArtifactSchemasService
-	ConfidenceScoring *ConfidenceScoringService
+	Blueprints *BlueprintsService
 	Datasources *DatasourcesService
-	Documents *DocumentsService
-	MetadataModelCatalog *MetadataModelCatalogService
-	Prompts *PromptsService
-	Sessions *SessionsService
 }
 
 // ClientOption is a function that configures the client.
@@ -31,7 +25,7 @@ type clientOptions struct {
 
 func defaultClientOptions() *clientOptions {
 	return &clientOptions{
-		baseURL: "https://api.meibel.ai/v2",
+		baseURL: "https://api.meibel.ai/v1",
 		timeout: 30 * time.Second,
 		headers: make(map[string]string),
 	}
@@ -79,8 +73,8 @@ func WithHeader(key, value string) ClientOption {
 	}
 }
 
-// NewClient creates a new MeibelClient with the given options.
-func NewClient(opts ...ClientOption) *MeibelClient {
+// NewClient creates a new MeibelgoClient with the given options.
+func NewClient(opts ...ClientOption) *MeibelgoClient {
 	cfg := defaultClientOptions()
 	for _, opt := range opts {
 		opt(cfg)
@@ -93,23 +87,18 @@ func NewClient(opts ...ClientOption) *MeibelClient {
 		HTTPClient: cfg.httpClient,
 	})
 
-	c := &MeibelClient{
+	c := &MeibelgoClient{
 		http: httpClient,
 	}
 
-	c.Agents = &AgentsService{client: c}
-	c.ArtifactSchemas = &ArtifactSchemasService{client: c}
-	c.ConfidenceScoring = &ConfidenceScoringService{client: c}
+	c.Blueprints = &BlueprintsService{client: c}
 	c.Datasources = &DatasourcesService{client: c}
-	c.Documents = &DocumentsService{client: c}
-	c.MetadataModelCatalog = &MetadataModelCatalogService{client: c}
-	c.Prompts = &PromptsService{client: c}
-	c.Sessions = &SessionsService{client: c}
-	c.Agents.Sessions = &AgentsSessionsService{client: c}
+	c.Blueprints.Executions = &ExecutionsService{client: c}
+	c.Blueprints.Instances = &InstancesService{client: c}
 	c.Datasources.Content = &ContentService{client: c}
-	c.Datasources.DataElements = &DataElementsService{client: c}
-	c.Datasources.Downloads = &DownloadsService{client: c}
-	c.Datasources.TableDescriptions = &TableDescriptionsService{client: c}
+	c.Datasources.Dataelements = &DataelementsService{client: c}
+	c.Datasources.Rag = &RagService{client: c}
+	c.Datasources.Tag = &TagService{client: c}
 
 	return c
 }

@@ -1,3 +1,3 @@
-module github.com/meibel-ai/meibel-go/v2
+module github.com/meibel-ai/meibel-go
 
 go 1.21

@@ -3,85 +3,29 @@ package meibelgo
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/url"
 )
 
-// ContentService handles Content operations.
+// ContentService handles content operations.
 type ContentService struct {
-	client *MeibelClient
+	client *MeibelgoClient
 }
 
-// ListContentOptions contains optional parameters for ListContent.
-type ListContentOptions struct {
+// ListDatasourceContentOptions contains optional parameters for ListDatasourceContent.
+type ListDatasourceContentOptions struct {
 	// Filter content by path prefix
 	Prefix interface{}
-	// Token for pagination
+	// Token for pagination to get next page of results
 	ContinuationToken interface{}
-	// Maximum items to return
+	// Maximum number of items to return (1-10000)
 	Limit *int64
 }
 
-// UploadContent Upload Content (async)
-func (s *ContentService) UploadContent(ctx context.Context, file io.Reader, fileName string) (*UploadContentResponse, error) {
-	path := "/datasources/uploads"
-
-	var result UploadContentResponse
-	files := []UploadField{
-		{FieldName: "file", Reader: file, FileName: fileName},
-	}
-	formFields := map[string]string{}
-
-	err := s.client.http.DoUpload(ctx, RequestOptions{
-		Method: "POST",
-		Path:   path,
-	}, files, formFields, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// UploadAndListContent Upload Content (sync)
-func (s *ContentService) UploadAndListContent(ctx context.Context, file io.Reader, fileName string) (*FileUploadSyncResponse, error) {
-	path := "/datasources/uploads/process"
-
-	var result FileUploadSyncResponse
-	files := []UploadField{
-		{FieldName: "file", Reader: file, FileName: fileName},
-	}
-	formFields := map[string]string{}
-
-	err := s.client.http.DoUpload(ctx, RequestOptions{
-		Method: "POST",
-		Path:   path,
-	}, files, formFields, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// StreamUploadProgress Stream Upload Progress
-func (s *ContentService) StreamUploadProgress(ctx context.Context, uploadId string) (*EventStream[interface{}], error) {
-	path := "/datasources/uploads/" + fmt.Sprintf("%v", uploadId) + "/progress"
-
-	resp, err := s.client.http.DoStream(ctx, RequestOptions{
-		Method: "GET",
-		Path:   path,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return JSONEventStream[interface{}](resp), nil
-}
-
-// ListContent List Content
-func (s *ContentService) ListContent(ctx context.Context, datasourceId string, opts *ListContentOptions) *PageIterator[ContentItem] {
-	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
+// ListDatasourceContent List datasource content
+//
+// List files and directories in a datasource with optional filtering and pagination
+func (s *ContentService) ListDatasourceContent(ctx context.Context, datasourceId string, opts *ListDatasourceContentOptions) (*ListContentResponse, error) {
+	path := "/datasource/" + fmt.Sprintf("%v", datasourceId) + "/content"
 	query := url.Values{}
 	if opts != nil && opts.Prefix != nil {
 		query.Set("prefix", fmt.Sprintf("%v", opts.Prefix))
@@ -93,37 +37,30 @@ func (s *ContentService) ListContent(ctx context.Context, datasourceId string, o
 		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
 	}
 
-	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[ContentItem], error) {
-		if cursor != "" {
-			query.Set("continuation_token", cursor)
-		}
+	var result ListContentResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+		Query:  query,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
 
-		var resp struct {
-			Items []ContentItem `json:"items"`
-			NextCursor string `json:"next_cursor"`
-		}
-
-		err := s.client.http.Do(ctx, RequestOptions{
-			Method: "GET",
-			Path:   path,
-			Query:  query,
-		}, &resp)
-		if err != nil {
-			return nil, err
-		}
-
-		return &Page[ContentItem]{
-			Items:      resp.Items,
-			NextCursor: resp.NextCursor,
-		}, nil
-	})
+	return &result, nil
 }
 
-// TriggerIngest Trigger Ingest
-func (s *ContentService) TriggerIngest(ctx context.Context, datasourceId string) (*string, error) {
-	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/trigger-ingest"
+// UploadDatasourceContent Upload Content
+//
+// Proxy upload with zero-copy streaming.
+// 
+// This endpoint maintains the multipart form data structure and streams
+// it directly to the backend service without buffering files in memory.
+// The multipart parsing happens on the backend service side.
+func (s *ContentService) UploadDatasourceContent(ctx context.Context, datasourceId string) (*UploadContentResponse, error) {
+	path := "/datasource/" + fmt.Sprintf("%v", datasourceId) + "/content"
 
-	var result string
+	var result UploadContentResponse
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
@@ -135,11 +72,30 @@ func (s *ContentService) TriggerIngest(ctx context.Context, datasourceId string)
 	return &result, nil
 }
 
-// GetIngestStatus Get Ingest Status
-func (s *ContentService) GetIngestStatus(ctx context.Context, datasourceId string) (*IngestStatusResponse, error) {
-	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/ingest-status"
+// StreamUploadProgress Stream upload progress events
+//
+// Subscribe to real-time upload progress updates via Server-Sent Events
+func (s *ContentService) StreamUploadProgress(ctx context.Context, uploadId string) error {
+	path := "/uploads/" + fmt.Sprintf("%v", uploadId) + "/progress"
 
-	var result IngestStatusResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetDatasourceUploadStatus Get upload status
+//
+// Get the current status of a content upload operation
+func (s *ContentService) GetDatasourceUploadStatus(ctx context.Context, datasourceId string, uploadId string) (*string, error) {
+	path := "/datasource/" + fmt.Sprintf("%v", datasourceId) + "/content/upload-status/" + fmt.Sprintf("%v", uploadId)
+
+	var result string
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "GET",
 		Path:   path,
@@ -149,4 +105,74 @@ func (s *ContentService) GetIngestStatus(ctx context.Context, datasourceId strin
 	}
 
 	return &result, nil
+}
+
+// StreamDatasourceUploadProgress Stream upload progress events (legacy)
+//
+// Subscribe to real-time upload progress updates via Server-Sent Events. Consider using /uploads/{upload_id}/progress instead.
+func (s *ContentService) StreamDatasourceUploadProgress(ctx context.Context, datasourceId string, uploadId string) error {
+	path := "/datasource/" + fmt.Sprintf("%v", datasourceId) + "/content/upload-progress/" + fmt.Sprintf("%v", uploadId)
+
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetDatasourceContentMetadata Get content metadata
+//
+// Get metadata information for a file or directory in the datasource
+func (s *ContentService) GetDatasourceContentMetadata(ctx context.Context, datasourceId string, path string) (*GetContentResponse, error) {
+	reqPath := "/datasource/" + fmt.Sprintf("%v", datasourceId) + "/content/" + fmt.Sprintf("%v", path)
+
+	var result GetContentResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   reqPath,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// DeleteDatasourceContent Delete content
+//
+// Delete a file or directory from the datasource
+func (s *ContentService) DeleteDatasourceContent(ctx context.Context, datasourceId string, path string) (*DeleteContentResponse, error) {
+	reqPath := "/datasource/" + fmt.Sprintf("%v", datasourceId) + "/content/" + fmt.Sprintf("%v", path)
+
+	var result DeleteContentResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "DELETE",
+		Path:   reqPath,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// DownloadDatasourceContent Download content file
+//
+// Download a file from the datasource with streaming support for large files
+func (s *ContentService) DownloadDatasourceContent(ctx context.Context, datasourceId string, path string) error {
+	reqPath := "/datasource/" + fmt.Sprintf("%v", datasourceId) + "/content/" + fmt.Sprintf("%v", path) + "/download"
+
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   reqPath,
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
