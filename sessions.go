@@ -41,36 +41,3 @@ func (s *SessionsService) GetSessionMessages(ctx context.Context, sessionId stri
 
 	return &result, nil
 }
-
-// SendChatMessage Send Chat Message
-func (s *SessionsService) SendChatMessage(ctx context.Context, sessionId string, body ChatMessageRequest) (*ChatMessageResponse, error) {
-	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/chat"
-
-	var result ChatMessageResponse
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "POST",
-		Path:   path,
-		Body:   body,
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// SendChatMessageStream Send a chat message and stream the response via SSE
-func (s *SessionsService) SendChatMessageStream(ctx context.Context, sessionId string, body ChatMessageRequest) (*EventStream[interface{}], error) {
-	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/chat/stream"
-
-	resp, err := s.client.http.DoStream(ctx, RequestOptions{
-		Method: "POST",
-		Path:   path,
-		Body:   body,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return JSONEventStream[interface{}](resp), nil
-}
