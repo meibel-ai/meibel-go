@@ -1,215 +1,126 @@
 package meibelgo
 
-// Activity Activity
-type Activity struct {
-	Id interface{} `json:"id,omitempty"`
-	BlueprintInstanceId string `json:"blueprint_instance_id"`
-	ActivityType string `json:"activity_type"`
-	Status interface{} `json:"status,omitempty"`
-	StartTime interface{} `json:"start_time,omitempty"`
-	EndTime interface{} `json:"end_time,omitempty"`
-	InputData interface{} `json:"input_data,omitempty"`
-	OutputData interface{} `json:"output_data,omitempty"`
-	Error interface{} `json:"error,omitempty"`
-	GroupId interface{} `json:"group_id,omitempty"`
-	TaskMetadata interface{} `json:"task_metadata,omitempty"`
-}
-
-// ActivityStatus represents the possible values for ActivityStatus.
-type ActivityStatus string
-
-const (
-	ActivityStatusPending ActivityStatus = "pending"
-	ActivityStatusRunning ActivityStatus = "running"
-	ActivityStatusWaiting ActivityStatus = "waiting"
-	ActivityStatusCompleted ActivityStatus = "completed"
-	ActivityStatusFailed ActivityStatus = "failed"
+import (
+	"time"
 )
 
-// AddActivityRequest AddActivityRequest
-type AddActivityRequest struct {
-	ActivityType string `json:"activity_type"`
-	InputData interface{} `json:"input_data,omitempty"`
-	OutputData interface{} `json:"output_data,omitempty"`
-	GroupId interface{} `json:"group_id,omitempty"`
-	TaskMetadata interface{} `json:"task_metadata,omitempty"`
-	Status interface{} `json:"status,omitempty"`
-}
-
-// AddActivityResponse AddActivityResponse
-type AddActivityResponse struct {
+// AgentDetailResponse represents the AgentDetailResponse type.
+type AgentDetailResponse struct {
 	Id string `json:"id"`
-}
-
-// AddBlueprintInstanceRequest AddBlueprintInstanceRequest
-type AddBlueprintInstanceRequest struct {
-	BlueprintId interface{} `json:"blueprint_id,omitempty"`
-	WorkflowType interface{} `json:"workflow_type,omitempty"`
-	TaskQueue interface{} `json:"task_queue,omitempty"`
-	InstanceMetadata interface{} `json:"instance_metadata,omitempty"`
-	ParentId interface{} `json:"parent_id,omitempty"`
-}
-
-// AddBlueprintInstanceResponse AddBlueprintInstanceResponse
-type AddBlueprintInstanceResponse struct {
-	Id string `json:"id"`
-}
-
-// AddBlueprintRequest AddBlueprintRequest
-type AddBlueprintRequest struct {
 	Name string `json:"name"`
-	ExecutionMode interface{} `json:"execution_mode,omitempty"`
-	Version interface{} `json:"version,omitempty"`
+	DisplayName string `json:"display_name"`
+	CatalogUrn string `json:"catalog_urn"`
+	Version string `json:"version"`
+	ParentVersion interface{} `json:"parent_version,omitempty"`
+	Type string `json:"type"`
 	Description interface{} `json:"description,omitempty"`
-	DslDefinition DslDefinition `json:"dsl_definition"`
-	YamlSpecContent interface{} `json:"yaml_spec_content,omitempty"`
-	JsonSpecContent interface{} `json:"json_spec_content,omitempty"`
-	WorkflowType interface{} `json:"workflow_type,omitempty"`
-	WorkflowTaskQueue interface{} `json:"workflow_task_queue,omitempty"`
-	InitInput interface{} `json:"init_input,omitempty"`
+	LlmModel string `json:"llm_model"`
+	FallbackModels []string `json:"fallback_models"`
+	Datasources []string `json:"datasources"`
+	Instructions string `json:"instructions"`
+	Tools []string `json:"tools"`
+	Artifacts []string `json:"artifacts"`
+	ConfidenceConfigs []string `json:"confidence_configs"`
+	Temperature interface{} `json:"temperature"`
+	MaxTokens interface{} `json:"max_tokens,omitempty"`
+	Tags []string `json:"tags"`
+	Icon interface{} `json:"icon,omitempty"`
+	CreatedBy interface{} `json:"created_by,omitempty"`
+	CreatedAt interface{} `json:"created_at,omitempty"`
+	LastExecutionStatus interface{} `json:"last_execution_status,omitempty"`
+	LastExecutionTime interface{} `json:"last_execution_time,omitempty"`
 }
 
-// AddBlueprintResponse AddBlueprintResponse
-type AddBlueprintResponse struct {
-	Id string `json:"id"`
+// AgentExecutionDetailsResponse AgentExecutionDetailsResponse
+type AgentExecutionDetailsResponse struct {
+	AgentId interface{} `json:"agent_id"`
+	AgentName interface{} `json:"agent_name"`
+	Version interface{} `json:"version"`
+	Status string `json:"status"`
+	Messages []MessageEntry `json:"messages"`
+	ToolActivity []ToolActivityEntry `json:"tool_activity"`
+	TokenUsage []interface{} `json:"token_usage"`
+	FileParsing []FileParseEntry `json:"file_parsing"`
+	Result []ArtifactEntry `json:"result"`
 }
 
-// AddBlueprintTaskRequest AddBlueprintTaskRequest
-type AddBlueprintTaskRequest struct {
-	Name string `json:"name"`
-	Type interface{} `json:"type,omitempty"`
-	Description interface{} `json:"description,omitempty"`
-	InputSchema string `json:"input_schema"`
-	OutputSchema string `json:"output_schema"`
-	ConfigSchema interface{} `json:"config_schema,omitempty"`
-	ToolSchema interface{} `json:"tool_schema,omitempty"`
-}
-
-// AddChunkingStrategyRequest AddChunkingStrategyRequest
-type AddChunkingStrategyRequest struct {
-	CodeSplitter interface{} `json:"code_splitter,omitempty"`
-	HtmlNodeParser interface{} `json:"html_node_parser,omitempty"`
-	JsonNodeParser interface{} `json:"json_node_parser,omitempty"`
-	MarkdownNodeParser interface{} `json:"markdown_node_parser,omitempty"`
-	SemanticSplitterNodeParser interface{} `json:"semantic_splitter_node_parser,omitempty"`
-	SentenceSplitter interface{} `json:"sentence_splitter,omitempty"`
-	TokenTextSplitter interface{} `json:"token_text_splitter,omitempty"`
-}
-
-// AddChunkingStrategyResponse AddChunkingStrategyResponse
-type AddChunkingStrategyResponse struct {
-	Message string `json:"message"`
-}
-
-// AddDataElementRequest AddDataElementRequest
-type AddDataElementRequest struct {
-	Description interface{} `json:"description"`
-	Name string `json:"name"`
-	Path string `json:"path"`
-	MediaType string `json:"media_type"`
-	DiscoveryRecord interface{} `json:"discovery_record"`
-	ParentDataElementId interface{} `json:"parent_data_element_id,omitempty"`
-}
-
-// AddDataElementResponse AddDataElementResponse
-type AddDataElementResponse struct {
-	Id string `json:"id"`
-}
-
-// AddDatasourceRequest AddDatasourceRequest
-type AddDatasourceRequest struct {
+// AgentIdentityContext Identity context for agent execution.  Contains only immutable identity fields that answer: - WHO: customer_id, project_id (tenant identity) - WHAT: agent_name, agent_version, agent_execution_id (agent identity, optional) - WHERE: agent_workflow_name, agent_workflow_version, agent_workflow_execution_id (parent workflow, optional) - WHICH TOOL: tool_id, tool_instance_id, tool_execution_id (tool identity, optional)  This model is FLAT - no inheritance, all fields in one model. Agent, workflow, and tool fields are optional, making this suitable for all execution contexts.  This model does NOT contain: - Configuration (see AgentExecutionConfig in agent-platform) - Runtime state (see AgentExecutionState in agent-platform)  Design Pattern - Progressive Enhancement: - Callers provide only tenant/project identity - FSMWorkflow fills in agent_workflow_* fields from AgentWorkflowSpec - ReactAgent fills in agent_* fields from AgentSpec and workflow.info().workflow_id - Tool activities add tool_* fields via model_copy() - Context gains fields as it flows through the system  Examples:     # Starting FSMWorkflow (caller provides minimal context)     context = AgentIdentityContext(         customer_id="cust_123",         project_id="proj_456"     )     # FSM fills in workflow identity     context = context.model_copy(update={         "agent_workflow_name": "support_fsm",         "agent_workflow_version": "3.0.0",         "agent_workflow_execution_id": workflow.info().workflow_id     })      # Starting ReactAgent standalone (caller provides minimal context)     context = AgentIdentityContext(         customer_id="cust_123",         project_id="proj_456"     )     # ReactAgent fills in agent identity     context = context.model_copy(update={         "agent_name": "sales_assistant",         "agent_version": "2.0.0",         "agent_execution_id": workflow.info().workflow_id     })      # ReactAgent as FSM child (inherits workflow context, adds agent identity)     child_context = parent_context.model_copy(update={         "agent_name": "router",         "agent_version": "1.0.0",         "agent_execution_id": workflow.info().workflow_id         # agent_workflow_* fields inherited from parent     })      # Tool execution (adds tool identity to agent context)     tool_context = context.model_copy(update={         'tool_id': "tool_xyz",         'tool_instance_id': "tool_inst_123",         'tool_execution_id': "tool_exec_456"     })
+type AgentIdentityContext struct {
+	// Customer/tenant identifier
 	CustomerId string `json:"customer_id"`
+	// Project identifier
 	ProjectId string `json:"project_id"`
+	AgentName interface{} `json:"agent_name,omitempty"`
+	AgentVersion interface{} `json:"agent_version,omitempty"`
+	AgentExecutionId interface{} `json:"agent_execution_id,omitempty"`
+	AgentWorkflowName interface{} `json:"agent_workflow_name,omitempty"`
+	AgentWorkflowVersion interface{} `json:"agent_workflow_version,omitempty"`
+	AgentWorkflowExecutionId interface{} `json:"agent_workflow_execution_id,omitempty"`
+	ToolId interface{} `json:"tool_id,omitempty"`
+	ToolInstanceId interface{} `json:"tool_instance_id,omitempty"`
+	ToolExecutionId interface{} `json:"tool_execution_id,omitempty"`
+}
+
+// AgentListResponse represents the AgentListResponse type.
+type AgentListResponse struct {
+	Data []AgentSummary `json:"data"`
+	Total int64 `json:"total"`
+}
+
+// AgentSummary represents the AgentSummary type.
+type AgentSummary struct {
+	Id string `json:"id"`
+	Name interface{} `json:"name,omitempty"`
+	DisplayName string `json:"display_name"`
+	LlmModel string `json:"llm_model"`
+	ToolCount int64 `json:"tool_count"`
+	DatasourceCount int64 `json:"datasource_count"`
+	LastExecutionStatus interface{} `json:"last_execution_status,omitempty"`
+	LastExecutionTime interface{} `json:"last_execution_time,omitempty"`
+}
+
+// AgentToolDefinition AgentToolDefinition
+type AgentToolDefinition struct {
+	// Instance name - what the LLM sees and calls
 	Name string `json:"name"`
-	Description string `json:"description"`
-	Recurrence string `json:"recurrence"`
-	ObjectStorageConfig interface{} `json:"object_storage_config,omitempty"`
-	WebConfig interface{} `json:"web_config,omitempty"`
-	ConnectorConfig interface{} `json:"connector_config,omitempty"`
+	// Tool type: rag_search, database_query, etc.
+	Type string `json:"type"`
+	// Description shown to LLM
+	Description interface{} `json:"description,omitempty"`
+	// Tool config passed to activity via tool_context (datasource_id, base_prompt, etc.)
+	Config interface{} `json:"config,omitempty"`
+	// Optional override for the tool's parameters schema
+	ParametersSchema interface{} `json:"parameters_schema,omitempty"`
+	// When to use this tool (injected into system prompt)
+	UseFor interface{} `json:"use_for,omitempty"`
+	// When NOT to use this tool (injected into system prompt)
+	AvoidFor interface{} `json:"avoid_for,omitempty"`
+	// If true, workflow pauses for human approval before executing this tool
+	RequireApproval interface{} `json:"require_approval,omitempty"`
+	// Message to display when requesting approval (supports {{variable}} templates)
+	ApprovalMessage interface{} `json:"approval_message,omitempty"`
 }
 
-// AddDatasourceResponse AddDatasourceResponse
-type AddDatasourceResponse struct {
+// AgentVersionListResponse represents the AgentVersionListResponse type.
+type AgentVersionListResponse struct {
+	Data []AgentVersionSummary `json:"data"`
+	Total int64 `json:"total"`
+}
+
+// AgentVersionSummary represents the AgentVersionSummary type.
+type AgentVersionSummary struct {
 	Id string `json:"id"`
-}
-
-// AddEventResponse AddEventResponse
-type AddEventResponse struct {
-	Id string `json:"id"`
-}
-
-// AddRagConfigRequest AddRagConfigRequest
-type AddRagConfigRequest struct {
+	DisplayName string `json:"display_name"`
+	Version string `json:"version"`
+	ParentVersion interface{} `json:"parent_version,omitempty"`
 	Description interface{} `json:"description,omitempty"`
-	CollectionId string `json:"collection_id"`
-	ExtractorModel interface{} `json:"extractor_model,omitempty"`
-	EmbeddingModel interface{} `json:"embedding_model,omitempty"`
-	SparseEmbeddingModel interface{} `json:"sparse_embedding_model,omitempty"`
-	CollectMetadata interface{} `json:"collect_metadata,omitempty"`
-	MetadataOptions interface{} `json:"metadata_options,omitempty"`
+	LlmModel string `json:"llm_model"`
+	CreatedAt interface{} `json:"created_at,omitempty"`
+	CreatedBy interface{} `json:"created_by,omitempty"`
+	IsPublished bool `json:"is_published"`
+	PublishedAt interface{} `json:"published_at,omitempty"`
+	CommitMessage interface{} `json:"commit_message,omitempty"`
 }
-
-// AddRagConfigResponse AddRagConfigResponse
-type AddRagConfigResponse struct {
-	Message string `json:"message"`
-}
-
-// AddTagColumnRequest AddTagColumnRequest
-type AddTagColumnRequest struct {
-	Description interface{} `json:"description,omitempty"`
-	Dtype interface{} `json:"dtype,omitempty"`
-	IsKey interface{} `json:"is_key,omitempty"`
-	IsIndexed interface{} `json:"is_indexed,omitempty"`
-	EngineeredFeatures interface{} `json:"engineered_features,omitempty"`
-}
-
-// AddTagColumnResponse AddTagColumnResponse
-type AddTagColumnResponse struct {
-	Message string `json:"message"`
-}
-
-// AddTagConfigRequest AddTagConfigRequest
-type AddTagConfigRequest struct {
-	Description interface{} `json:"description,omitempty"`
-	LogicalGroupRegex interface{} `json:"logical_group_regex,omitempty"`
-	WorkingBucket string `json:"working_bucket"`
-	WorkingPlatform interface{} `json:"working_platform,omitempty"`
-	DbPath interface{} `json:"db_path,omitempty"`
-	DatabaseConfig interface{} `json:"database_config,omitempty"`
-}
-
-// AddTagConfigResponse AddTagConfigResponse
-type AddTagConfigResponse struct {
-	Message string `json:"message"`
-}
-
-// AddTagTableRequest AddTagTableRequest
-type AddTagTableRequest struct {
-	Description interface{} `json:"description,omitempty"`
-}
-
-// AddTagTableResponse AddTagTableResponse
-type AddTagTableResponse struct {
-	Message string `json:"message"`
-}
-
-// AirbyteConfig AirbyteConfig
-type AirbyteConfig struct {
-	SourceId string `json:"source_id"`
-	DestinationId string `json:"destination_id"`
-	ConnectionId interface{} `json:"connection_id,omitempty"`
-}
-
-// AllowedDataElementFilterKeys represents the possible values for AllowedDataElementFilterKeys.
-type AllowedDataElementFilterKeys string
-
-const (
-	AllowedDataElementFilterKeysId AllowedDataElementFilterKeys = "id"
-	AllowedDataElementFilterKeysName AllowedDataElementFilterKeys = "name"
-	AllowedDataElementFilterKeysPath AllowedDataElementFilterKeys = "path"
-	AllowedDataElementFilterKeysMediaType AllowedDataElementFilterKeys = "media_type"
-	AllowedDataElementFilterKeysParentDataElementId AllowedDataElementFilterKeys = "parent_data_element_id"
-)
 
 // Artifact A generated artifact/file from the chat agent.
 type Artifact struct {
@@ -222,74 +133,81 @@ type Artifact struct {
 	CreatedAt interface{} `json:"created_at,omitempty"`
 }
 
-// BasicWebAuth BasicWebAuth
-type BasicWebAuth struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-// Blueprint Blueprint
-type Blueprint struct {
-	Id interface{} `json:"id,omitempty"`
+// ArtifactEntry ArtifactEntry
+type ArtifactEntry struct {
 	Name string `json:"name"`
-	ExecutionMode interface{} `json:"execution_mode,omitempty"`
-	ChatSignal interface{} `json:"chat_signal,omitempty"`
-	Version interface{} `json:"version,omitempty"`
-	Description interface{} `json:"description,omitempty"`
-	DslDefinition DslDefinition `json:"dsl_definition"`
-	YamlSpecContent interface{} `json:"yaml_spec_content,omitempty"`
-	JsonSpecContent interface{} `json:"json_spec_content,omitempty"`
+	Content interface{} `json:"content,omitempty"`
+	FileType interface{} `json:"file_type"`
+}
+
+// ArtifactSchemaListResponse represents the ArtifactSchemaListResponse type.
+type ArtifactSchemaListResponse struct {
+	Data []ArtifactSchemaSummary `json:"data"`
+	Total int64 `json:"total"`
+}
+
+// ArtifactSchemaResponse represents the ArtifactSchemaResponse type.
+type ArtifactSchemaResponse struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+	DisplayName string `json:"display_name"`
+	Version string `json:"version"`
+	ParentVersion interface{} `json:"parent_version,omitempty"`
+	Type string `json:"type"`
+	Description string `json:"description"`
+	Required bool `json:"required"`
+	SchemaDef string `json:"schema_def"`
+	MaxSizeBytes interface{} `json:"max_size_bytes,omitempty"`
+	StorageStrategy string `json:"storage_strategy"`
 	CreatedBy interface{} `json:"created_by,omitempty"`
-	UpdatedBy interface{} `json:"updated_by,omitempty"`
 	CreatedAt interface{} `json:"created_at,omitempty"`
-	UpdatedAt interface{} `json:"updated_at,omitempty"`
-	CustomerId string `json:"customer_id"`
-	ProjectId string `json:"project_id"`
-	WorkflowType interface{} `json:"workflow_type,omitempty"`
-	WorkflowTaskQueue interface{} `json:"workflow_task_queue,omitempty"`
-	InitInput interface{} `json:"init_input,omitempty"`
 }
 
-// BlueprintExecutionMode represents the possible values for BlueprintExecutionMode.
-type BlueprintExecutionMode string
-
-const (
-	BlueprintExecutionModeChat BlueprintExecutionMode = "CHAT"
-	BlueprintExecutionModeWorkflow BlueprintExecutionMode = "WORKFLOW"
-)
-
-// BlueprintInstance BlueprintInstance
-type BlueprintInstance struct {
-	Id interface{} `json:"id,omitempty"`
-	BlueprintId interface{} `json:"blueprint_id,omitempty"`
-	WorkflowType interface{} `json:"workflow_type,omitempty"`
-	TaskQueue interface{} `json:"task_queue,omitempty"`
-	WorkflowRunId interface{} `json:"workflow_run_id,omitempty"`
-	Status interface{} `json:"status,omitempty"`
-	StartTime interface{} `json:"start_time,omitempty"`
-	EndTime interface{} `json:"end_time,omitempty"`
-	InstanceMetadata interface{} `json:"instance_metadata,omitempty"`
-	ParentId interface{} `json:"parent_id,omitempty"`
-	Children interface{} `json:"children,omitempty"`
-	Activities interface{} `json:"activities,omitempty"`
-	Events interface{} `json:"events,omitempty"`
+// ArtifactSchemaSummary represents the ArtifactSchemaSummary type.
+type ArtifactSchemaSummary struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Description string `json:"description"`
+	Type string `json:"type"`
+	FieldsSummary []FieldSummary `json:"fields_summary"`
 }
 
-// BlueprintInstanceStatus represents the possible values for BlueprintInstanceStatus.
-type BlueprintInstanceStatus string
+// ArtifactStorageStrategy represents the possible values for ArtifactStorageStrategy.
+type ArtifactStorageStrategy string
 
 const (
-	BlueprintInstanceStatusCreated BlueprintInstanceStatus = "created"
-	BlueprintInstanceStatusRunning BlueprintInstanceStatus = "running"
-	BlueprintInstanceStatusCompleted BlueprintInstanceStatus = "completed"
-	BlueprintInstanceStatusCancelled BlueprintInstanceStatus = "cancelled"
-	BlueprintInstanceStatusFailed BlueprintInstanceStatus = "failed"
+	ArtifactStorageStrategyInline ArtifactStorageStrategy = "inline"
+	ArtifactStorageStrategyGcs ArtifactStorageStrategy = "gcs"
+	ArtifactStorageStrategyAuto ArtifactStorageStrategy = "auto"
 )
+
+// ArtifactType represents the possible values for ArtifactType.
+type ArtifactType string
+
+const (
+	ArtifactTypeJson ArtifactType = "json"
+	ArtifactTypeMarkdown ArtifactType = "markdown"
+	ArtifactTypeCsv ArtifactType = "csv"
+	ArtifactTypeYaml ArtifactType = "yaml"
+	ArtifactTypeText ArtifactType = "text"
+	ArtifactTypeHtml ArtifactType = "html"
+	ArtifactTypePdf ArtifactType = "pdf"
+)
+
+// BoundingBox represents the BoundingBox type.
+type BoundingBox struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+	Width float64 `json:"width"`
+	Height float64 `json:"height"`
+	Page int64 `json:"page"`
+}
 
 // CallToAction An action the user can take.
 type CallToAction struct {
 	Label string `json:"label"`
 	Action string `json:"action"`
+	// Optional override for the tool's parameters schema
 	ActionData interface{} `json:"action_data,omitempty"`
 }
 
@@ -297,8 +215,11 @@ type CallToAction struct {
 type ChatMessageRequest struct {
 	// The user's chat message
 	UserMessage string `json:"user_message"`
+	// Maximum time to wait for response (seconds)
 	TimeoutSeconds interface{} `json:"timeout_seconds,omitempty"`
+	// Whether to include thinking content in response
 	IncludeThinking interface{} `json:"include_thinking,omitempty"`
+	// Whether to include tool call/result activity
 	IncludeToolActivity interface{} `json:"include_tool_activity,omitempty"`
 }
 
@@ -310,8 +231,11 @@ type ChatMessageResponse struct {
 	Response ChatResponse `json:"response"`
 	// The assistant response in text-format
 	AssistantResponse string `json:"assistant_response"`
+	// Tool calls made during response generation
 	ToolActivity interface{} `json:"tool_activity,omitempty"`
+	// LLM thinking/reasoning content
 	Thinking interface{} `json:"thinking,omitempty"`
+	// Token usage statistics
 	TokenUsage interface{} `json:"token_usage,omitempty"`
 }
 
@@ -324,322 +248,326 @@ type ChatResponse struct {
 	Artifacts interface{} `json:"artifacts,omitempty"`
 }
 
-// ClickhouseConfig ClickhouseConfig
-type ClickhouseConfig struct {
-	DatabaseType interface{} `json:"database_type,omitempty"`
-	DatabaseName string `json:"database_name"`
+// CloudStorageConnector Connect to a cloud storage bucket.
+type CloudStorageConnector struct {
+	// Cloud storage provider
+	Provider string `json:"provider"`
+	// Bucket name
+	Bucket string `json:"bucket"`
+	// Key prefix to scope the datasource
+	Prefix interface{} `json:"prefix,omitempty"`
+	// AWS IAM role ARN (S3 only)
+	RoleArn interface{} `json:"role_arn,omitempty"`
+	// AWS region (S3 only)
+	Region interface{} `json:"region,omitempty"`
 }
 
-// CodeChunking CodeChunking
-type CodeChunking struct {
-	ChunkLines interface{} `json:"chunk_lines,omitempty"`
-	ChunkLinesOverlap interface{} `json:"chunk_lines_overlap,omitempty"`
-	MaxChars interface{} `json:"max_chars,omitempty"`
-}
-
-// CompleteBlueprintInstanceRequest CompleteBlueprintInstanceRequest
-type CompleteBlueprintInstanceRequest struct {
-	Result interface{} `json:"result,omitempty"`
-}
-
-// ContentItem ContentItem
-type ContentItem struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
-	Type ContentType `json:"type"`
-	Size interface{} `json:"size,omitempty"`
-	MediaType interface{} `json:"media_type,omitempty"`
-	LastModified interface{} `json:"last_modified,omitempty"`
-	Etag interface{} `json:"etag,omitempty"`
-}
-
-// ContentType represents the possible values for ContentType.
-type ContentType string
+// CloudStorageConnectorProvider represents the possible values for provider.
+type CloudStorageConnectorProvider string
 
 const (
-	ContentTypeFile ContentType = "file"
-	ContentTypeDirectory ContentType = "directory"
+	CloudStorageConnectorProviderS3 CloudStorageConnectorProvider = "s3"
+	CloudStorageConnectorProviderGcs CloudStorageConnectorProvider = "gcs"
 )
 
-// CustomEventRequest CustomEventRequest
-type CustomEventRequest struct {
-	ActivityId interface{} `json:"activity_id,omitempty"`
-	// Name of the custom event being logged.
-	EventName string `json:"event_name"`
-	Details interface{} `json:"details,omitempty"`
-	GroupId interface{} `json:"group_id,omitempty"`
-	IsSignal interface{} `json:"is_signal,omitempty"`
-	IsInternal interface{} `json:"is_internal,omitempty"`
-	OriginatingSignalId interface{} `json:"originating_signal_id,omitempty"`
+// ConfidenceScoringConfig Simplified configuration wrapper that separates module name from config.  This model is shared between confidence-scoring-service and confidence-framework to ensure type consistency without OpenAPI Generator wrapper issues.
+type ConfidenceScoringConfig struct {
+	Module string `json:"module"`
+	Config Config `json:"config"`
 }
 
-// DataElement DataElement
-type DataElement struct {
-	Id interface{} `json:"id"`
+// Config Config
+type Config struct {
+	AnyofSchema_1Validator interface{} `json:"anyof_schema_1_validator,omitempty"`
+	AnyofSchema_2Validator interface{} `json:"anyof_schema_2_validator,omitempty"`
+	AnyofSchema_3Validator interface{} `json:"anyof_schema_3_validator,omitempty"`
+	AnyofSchema_4Validator interface{} `json:"anyof_schema_4_validator,omitempty"`
+	ActualInstance *string `json:"actual_instance,omitempty"`
+	AnyOfSchemas []string `json:"any_of_schemas,omitempty"`
+}
+
+// ConnectorConfig Datasource connection configuration. Exactly one connector type must be set.
+type ConnectorConfig struct {
+	// Connector type — set the matching config object: 'database' → database, 'cloud_storage' → cloud_storage, 'web_crawl' → web_crawl
+	Type string `json:"type"`
+	Database interface{} `json:"database,omitempty"`
+	CloudStorage interface{} `json:"cloud_storage,omitempty"`
+	WebCrawl interface{} `json:"web_crawl,omitempty"`
+}
+
+// ConnectorConfigType represents the possible values for type.
+type ConnectorConfigType string
+
+const (
+	ConnectorConfigTypeDatabase ConnectorConfigType = "database"
+	ConnectorConfigTypeCloudStorage ConnectorConfigType = "cloud_storage"
+	ConnectorConfigTypeWebCrawl ConnectorConfigType = "web_crawl"
+)
+
+// CreateAgentArtifactRequest Request model for creating a new agent artifact.
+type CreateAgentArtifactRequest struct {
+	// Human-readable name of the artifact (letters, numbers, and spaces only). Converted to kebab-case internally.
+	DisplayName string `json:"display_name"`
+	// Artifact type (json, markdown, csv, yaml, text, html, pdf)
+	Type ArtifactType `json:"type"`
+	// Description of the artifact
+	Description interface{} `json:"description,omitempty"`
+	// Whether agent must produce this artifact
+	Required interface{} `json:"required,omitempty"`
+	// Schema definition
+	SchemaDef string `json:"schema_def"`
+	// Maximum artifact size in bytes
+	MaxSizeBytes interface{} `json:"max_size_bytes,omitempty"`
+	// Storage strategy (inline, gcs, auto)
+	StorageStrategy interface{} `json:"storage_strategy,omitempty"`
+	AdditionalProperties *string `json:"additional_properties,omitempty"`
+}
+
+// CreateAgentDefinitionRequest Request model for creating a new agent definition.
+type CreateAgentDefinitionRequest struct {
+	// Human-readable name of the agent (letters, numbers, and spaces only). Converted to kebab-case internally.
+	DisplayName string `json:"display_name"`
+	// System prompt/instructions for the agent
+	Instructions string `json:"instructions"`
+	// Agent type
+	Type interface{} `json:"type,omitempty"`
+	// Description of the agent
+	Description interface{} `json:"description,omitempty"`
+	// LLM model to use
+	LlmModel interface{} `json:"llm_model,omitempty"`
+	// List of fallback models
+	FallbackModels interface{} `json:"fallback_models,omitempty"`
+	// Datasource IDs the agent has access to
+	Datasources interface{} `json:"datasources,omitempty"`
+	// Tools configuration
+	Tools interface{} `json:"tools,omitempty"`
+	// Catalog URNs of artifacts the agent produces
+	Artifacts interface{} `json:"artifacts,omitempty"`
+	// Confidence scoring module names to apply during execution
+	ConfidenceConfigs interface{} `json:"confidence_configs,omitempty"`
+	// LLM temperature
+	Temperature interface{} `json:"temperature,omitempty"`
+	// Maximum tokens in response
+	MaxTokens interface{} `json:"max_tokens,omitempty"`
+	// Tags for categorization
+	Tags interface{} `json:"tags,omitempty"`
+	// UI icon identifier
+	Icon interface{} `json:"icon,omitempty"`
+	AdditionalProperties *string `json:"additional_properties,omitempty"`
+}
+
+// CreateAgentPromptRequest Request model for creating a new agent prompt.
+type CreateAgentPromptRequest struct {
+	// Human-readable name of the prompt (letters, numbers, and spaces only). Converted to kebab-case internally.
+	DisplayName string `json:"display_name"`
+	// Prompt text
+	Prompt string `json:"prompt"`
+}
+
+// CreateAgentResponse represents the CreateAgentResponse type.
+type CreateAgentResponse struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+	DisplayName string `json:"display_name"`
+	Version string `json:"version"`
+}
+
+// CreateArtifactSchemaResponse represents the CreateArtifactSchemaResponse type.
+type CreateArtifactSchemaResponse struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+	DisplayName string `json:"display_name"`
+	Version string `json:"version"`
+}
+
+// CreateDatasourceRequest represents the CreateDatasourceRequest type.
+type CreateDatasourceRequest struct {
+	// Human-readable datasource name
+	Name string `json:"name"`
+	// What this datasource contains
+	Description *string `json:"description,omitempty"`
+	// Connection configuration
+	Connector ConnectorConfig `json:"connector"`
+	// Optional metadata extraction config to apply after creation
+	MetadataConfig interface{} `json:"metadata_config,omitempty"`
+}
+
+// CreatePromptResponse represents the CreatePromptResponse type.
+type CreatePromptResponse struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+	DisplayName string `json:"display_name"`
+	Version string `json:"version"`
+}
+
+// CreateSessionRequest represents the CreateSessionRequest type.
+type CreateSessionRequest struct {
+	Prompt interface{} `json:"prompt,omitempty"`
+	InitialContext interface{} `json:"initial_context,omitempty"`
+	MaxIterationsPerUserMessage interface{} `json:"max_iterations_per_user_message,omitempty"`
+}
+
+// CreateSessionResponse represents the CreateSessionResponse type.
+type CreateSessionResponse struct {
+	SessionId string `json:"session_id"`
+}
+
+// DataElementListResponse represents the DataElementListResponse type.
+type DataElementListResponse struct {
+	Items []DataElementResponse `json:"items"`
+	NextCursor interface{} `json:"next_cursor,omitempty"`
+	HasNext *bool `json:"has_next,omitempty"`
+}
+
+// DataElementResponse represents the DataElementResponse type.
+type DataElementResponse struct {
+	Id string `json:"id"`
 	DatasourceId string `json:"datasource_id"`
 	Name string `json:"name"`
-	Path string `json:"path"`
-	MediaType string `json:"media_type"`
-	DiscoveryRecord interface{} `json:"discovery_record"`
-	Description interface{} `json:"description"`
-	ParentDataElementId interface{} `json:"parent_data_element_id,omitempty"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	Description interface{} `json:"description,omitempty"`
+	MediaType interface{} `json:"media_type,omitempty"`
+	Metadata interface{} `json:"metadata,omitempty"`
+	CreatedAt interface{} `json:"created_at,omitempty"`
+	UpdatedAt interface{} `json:"updated_at,omitempty"`
 }
 
-// DataElementCondition represents the possible values for DataElementCondition.
-type DataElementCondition string
-
-const (
-	DataElementConditionEquals DataElementCondition = "equals"
-	DataElementConditionContains DataElementCondition = "contains"
-	DataElementConditionNotContains DataElementCondition = "not_contains"
-	DataElementConditionStartsWith DataElementCondition = "starts_with"
-	DataElementConditionEndsWith DataElementCondition = "ends_with"
-	DataElementConditionIn DataElementCondition = "in"
-	DataElementConditionRegexGroupMatch DataElementCondition = "regex_group_match"
-)
-
-// DataElementDiscoveryRecord DataElementDiscoveryRecord
-type DataElementDiscoveryRecord struct {
-	DiscoveryTime string `json:"discovery_time"`
-	LastModifiedTime string `json:"last_modified_time"`
-	Size interface{} `json:"size"`
-	ElementHash string `json:"element_hash"`
-	FileId interface{} `json:"file_id,omitempty"`
-	FileCreatedAt interface{} `json:"file_created_at,omitempty"`
-	FileModifiedAt interface{} `json:"file_modified_at,omitempty"`
-	// Connector-specific extra metadata
-	Extra interface{} `json:"extra,omitempty"`
+// DataElementSearchRequest represents the DataElementSearchRequest type.
+type DataElementSearchRequest struct {
+	// Regex pattern to filter by name
+	RegexFilter interface{} `json:"regex_filter,omitempty"`
+	// Filter by MIME types
+	MediaTypeFilters interface{} `json:"media_type_filters,omitempty"`
 }
 
-// DataElementFilter DataElementFilter
-type DataElementFilter struct {
-	Key AllowedDataElementFilterKeys `json:"key"`
-	Condition interface{} `json:"condition,omitempty"`
-	Value interface{} `json:"value"`
+// DatabaseConnector Connect to a relational database.
+type DatabaseConnector struct {
+	// Database host address
+	Host string `json:"host"`
+	// Database port
+	Port int64 `json:"port"`
+	// Database name
+	Database string `json:"database"`
+	// Schema name (defaults to public)
+	SchemaName interface{} `json:"schema_name,omitempty"`
 }
 
-// DataElementFilterRequest DataElementFilterRequest
-type DataElementFilterRequest struct {
-	Filters interface{} `json:"filters,omitempty"`
+// DatasourceListResponse represents the DatasourceListResponse type.
+type DatasourceListResponse struct {
+	Datasources []DatasourceResponse `json:"datasources"`
 }
 
-// DatabaseConfigInput DatabaseConfig
-type DatabaseConfigInput struct {
-	AnyofSchema_1Validator interface{} `json:"anyof_schema_1_validator,omitempty"`
-	AnyofSchema_2Validator interface{} `json:"anyof_schema_2_validator,omitempty"`
-	AnyofSchema_3Validator interface{} `json:"anyof_schema_3_validator,omitempty"`
-	ActualInstance *string `json:"actual_instance,omitempty"`
-	AnyOfSchemas []string `json:"any_of_schemas,omitempty"`
-}
-
-// DatabaseConfigOutput DatabaseConfig
-type DatabaseConfigOutput struct {
-	AnyofSchema_1Validator interface{} `json:"anyof_schema_1_validator,omitempty"`
-	AnyofSchema_2Validator interface{} `json:"anyof_schema_2_validator,omitempty"`
-	AnyofSchema_3Validator interface{} `json:"anyof_schema_3_validator,omitempty"`
-	ActualInstance *string `json:"actual_instance,omitempty"`
-	AnyOfSchemas []string `json:"any_of_schemas,omitempty"`
-}
-
-// DatabaseType represents the possible values for DatabaseType.
-type DatabaseType string
-
-const (
-	DatabaseTypeClickhouse DatabaseType = "clickhouse"
-	DatabaseTypeDuckdb DatabaseType = "duckdb"
-	DatabaseTypePostgres DatabaseType = "postgres"
-)
-
-// Datasource Datasource
-type Datasource struct {
-	Id interface{} `json:"id"`
-	CustomerId string `json:"customer_id"`
-	ProjectId string `json:"project_id"`
+// DatasourceResponse represents the DatasourceResponse type.
+type DatasourceResponse struct {
+	Id string `json:"id"`
 	Name string `json:"name"`
 	Description string `json:"description"`
-	Recurrence interface{} `json:"recurrence"`
-	CreatedBy string `json:"created_by"`
+	Connector ConnectorConfig `json:"connector"`
 	CreatedAt string `json:"created_at"`
-	UpdatedBy string `json:"updated_by"`
 	UpdatedAt string `json:"updated_at"`
-	ObjectStorageConfig interface{} `json:"object_storage_config"`
-	WebConfig interface{} `json:"web_config"`
-	ConnectorConfig interface{} `json:"connector_config"`
+	LastSyncAt interface{} `json:"last_sync_at,omitempty"`
+	LastSyncStatus interface{} `json:"last_sync_status,omitempty"`
+	TotalIngestedFiles interface{} `json:"total_ingested_files,omitempty"`
+	MetadataConfig interface{} `json:"metadata_config,omitempty"`
+	Files interface{} `json:"files,omitempty"`
+	IngestCounts interface{} `json:"ingest_counts,omitempty"`
+	Tables interface{} `json:"tables,omitempty"`
 }
 
-// DatasourceConnectorConfig DatasourceConnectorConfig
-type DatasourceConnectorConfig struct {
-	ConnectorId string `json:"connector_id"`
-	AirbyteConfig interface{} `json:"airbyte_config,omitempty"`
-	SourceConfig interface{} `json:"source_config,omitempty"`
+// DocumentChild Child document from container (ZIP/TAR/EML).
+type DocumentChild struct {
+	JobId string `json:"job_id"`
+	Filename string `json:"filename"`
+	Status string `json:"status"`
+	MediaType string `json:"media_type"`
 }
 
-// DatasourceWebConfig DatasourceWebConfig
-type DatasourceWebConfig struct {
-	BaseUrl string `json:"baseURL"`
-	JavascriptRender bool `json:"javascriptRender"`
-	WaitForSelector interface{} `json:"waitForSelector"`
-	Domains interface{} `json:"domains"`
-	Authentication interface{} `json:"authentication"`
+// DocumentElement A structural element in a parsed document.
+type DocumentElement struct {
+	// heading | paragraph | table | list_item | image | code_block | ...
+	Type string `json:"type"`
+	Text interface{} `json:"text,omitempty"`
+	// Heading level (1-6)
+	Level interface{} `json:"level,omitempty"`
+	Table interface{} `json:"table,omitempty"`
+	Bbox interface{} `json:"bbox,omitempty"`
+	Confidence interface{} `json:"confidence,omitempty"`
+	Page interface{} `json:"page,omitempty"`
 }
 
-// DeleteChunkingStrategyResponse DeleteChunkingStrategyResponse
-type DeleteChunkingStrategyResponse struct {
-	Message string `json:"message"`
-}
-
-// DeleteContentResponse DeleteContentResponse
-type DeleteContentResponse struct {
-	Success bool `json:"success"`
-	DeletedPaths []string `json:"deleted_paths"`
-}
-
-// DeleteDataElementResponse DeleteDataElementResponse
-type DeleteDataElementResponse struct {
-	Id string `json:"id"`
-}
-
-// DeleteDatasourceResponse DeleteDatasourceResponse
-type DeleteDatasourceResponse struct {
-	Id string `json:"id"`
-}
-
-// DeleteTagTableResponse DeleteTagTableResponse
-type DeleteTagTableResponse struct {
-	Message string `json:"message"`
-}
-
-// DslDefinition represents the possible values for DslDefinition.
-type DslDefinition string
-
-const (
-	DslDefinitionServerlessWorkflowV1_0_0 DslDefinition = "serverless-workflow_v1.0.0"
-)
-
-// DuckDbConfig DuckDBConfig
-type DuckDbConfig struct {
-	DatabaseType interface{} `json:"database_type,omitempty"`
-	DatabaseFilepath interface{} `json:"database_filepath,omitempty"`
-	DatabaseName interface{} `json:"database_name,omitempty"`
-	DatabaseSchema interface{} `json:"database_schema,omitempty"`
-}
-
-// EmbeddingModel EmbeddingModel
-type EmbeddingModel struct {
-	Name string `json:"name"`
-	Endpoint string `json:"endpoint"`
-	Dimensions int64 `json:"dimensions"`
-}
-
-// Event Event
-type Event struct {
-	Id interface{} `json:"id,omitempty"`
-	ActivityId interface{} `json:"activity_id,omitempty"`
-	BlueprintInstanceId string `json:"blueprint_instance_id"`
-	EventType interface{} `json:"event_type,omitempty"`
-	Timestamp interface{} `json:"timestamp,omitempty"`
-	Details interface{} `json:"details,omitempty"`
-	GroupId interface{} `json:"group_id,omitempty"`
-	IsSignal interface{} `json:"is_signal,omitempty"`
-	IsInternal interface{} `json:"is_internal,omitempty"`
-	OriginatingSignalId interface{} `json:"originating_signal_id,omitempty"`
-}
-
-// EventType represents the possible values for EventType.
-type EventType string
-
-const (
-	EventTypeInstanceStarted EventType = "instance_started"
-	EventTypeInstanceCompleted EventType = "instance_completed"
-	EventTypeInstanceFailed EventType = "instance_failed"
-	EventTypeInstanceCancelled EventType = "instance_cancelled"
-	EventTypeActivityStarted EventType = "activity_started"
-	EventTypeActivityCompleted EventType = "activity_completed"
-	EventTypeActivityFailed EventType = "activity_failed"
-	EventTypeUserInput EventType = "user_input"
-	EventTypeAgentOutput EventType = "agent_output"
-	EventTypeSignalReceived EventType = "signal_received"
-	EventTypeQueryReceived EventType = "query_received"
-	EventTypeWorkflowStarted EventType = "workflow_started"
-	EventTypeWorkflowCompleted EventType = "workflow_completed"
-	EventTypeWorkflowFailed EventType = "workflow_failed"
-	EventTypeChildWorkflowStarted EventType = "child_workflow_started"
-	EventTypeChildWorkflowCompleted EventType = "child_workflow_completed"
-	EventTypeChildWorkflowFailed EventType = "child_workflow_failed"
-	EventTypeAgentThinking EventType = "agent_thinking"
-	EventTypeAgentToolUsage EventType = "agent_tool_usage"
-	EventTypeAgentStateChange EventType = "agent_state_change"
-	EventTypeAgentDecision EventType = "agent_decision"
-	EventTypeAgentSubtaskStarted EventType = "agent_subtask_started"
-	EventTypeAgentSubtaskCompleted EventType = "agent_subtask_completed"
-	EventTypeAgentError EventType = "agent_error"
-	EventTypeAgentLog EventType = "agent_log"
-	EventTypeCustomEvent EventType = "custom_event"
-)
-
-// ExecuteBlueprintRequest ExecuteBlueprintRequest
-type ExecuteBlueprintRequest struct {
-	InitInput interface{} `json:"init_input,omitempty"`
-	EnableStreaming interface{} `json:"enable_streaming,omitempty"`
-}
-
-// ExtractorModel ExtractorModel
-type ExtractorModel struct {
-	Name string `json:"name"`
-	Endpoint string `json:"endpoint"`
-}
-
-// FailBlueprintInstanceRequest FailBlueprintInstanceRequest
-type FailBlueprintInstanceRequest struct {
-	// Error message for failure
+// DocumentStatus Returned from GET /documents/{job_id}.
+type DocumentStatus struct {
+	JobId string `json:"job_id"`
+	// queued | processing | completed | failed
+	Status string `json:"status"`
+	// meibel | markdown | docling
+	Format string `json:"format"`
+	Pages interface{} `json:"pages,omitempty"`
+	Elements interface{} `json:"elements,omitempty"`
+	Tables interface{} `json:"tables,omitempty"`
+	Confidence interface{} `json:"confidence,omitempty"`
+	ProcessingTimeMs interface{} `json:"processing_time_ms,omitempty"`
 	Error interface{} `json:"error,omitempty"`
-	ErrorDetails interface{} `json:"error_details,omitempty"`
 }
 
-// GetActivitiesResponse GetActivitiesResponse
-type GetActivitiesResponse struct {
-	Data []Activity `json:"data"`
+// DownloadJobRequest represents the DownloadJobRequest type.
+type DownloadJobRequest struct {
+	// Content to include: files, parsed_content, or files_and_parsed_content
+	Content interface{} `json:"content,omitempty"`
+	// Specific data element IDs to include
+	DataElementIds interface{} `json:"data_element_ids,omitempty"`
 }
 
-// GetAllDatasourceIdsResponse GetAllDatasourceIdsResponse
-type GetAllDatasourceIdsResponse struct {
-	DatasourceIds []string `json:"datasource_ids"`
+// DownloadJobResponse represents the DownloadJobResponse type.
+type DownloadJobResponse struct {
+	JobId string `json:"job_id"`
+	// Current job status
+	Status string `json:"status"`
+	// Stream progress events from this SSE URL
+	StatusUrl string `json:"status_url"`
 }
 
-// GetBlueprintInstancesResponse GetBlueprintInstancesResponse
-type GetBlueprintInstancesResponse struct {
-	Data []BlueprintInstance `json:"data"`
-}
-
-// GetBlueprintsResponse GetBlueprintsResponse
-type GetBlueprintsResponse struct {
-	Data []Blueprint `json:"data"`
-}
-
-// GetContentResponse GetContentResponse
-type GetContentResponse struct {
+// FieldSummary represents the FieldSummary type.
+type FieldSummary struct {
 	Name string `json:"name"`
-	Path string `json:"path"`
-	Type ContentType `json:"type"`
-	Size interface{} `json:"size,omitempty"`
-	MediaType interface{} `json:"media_type,omitempty"`
-	LastModified interface{} `json:"last_modified,omitempty"`
-	Etag interface{} `json:"etag,omitempty"`
-	Metadata interface{} `json:"metadata,omitempty"`
+	Type string `json:"type"`
 }
 
-// GetEventsResponse GetEventsResponse
-type GetEventsResponse struct {
-	Data []Event `json:"data"`
+// FileParseCompleteInfo FileParseCompleteInfo
+type FileParseCompleteInfo struct {
+	Status interface{} `json:"status"`
+	Error interface{} `json:"error,omitempty"`
+	BboxCount interface{} `json:"bbox_count"`
+	PageCount interface{} `json:"page_count"`
+	ContentType interface{} `json:"content_type"`
+	Timestamp interface{} `json:"timestamp"`
 }
 
-// HtmlChunking HTMLChunking
-type HtmlChunking struct {
-	IncludeMetadata bool `json:"include_metadata"`
-	IncludePrevNextRel bool `json:"include_prev_next_rel"`
-	Tags interface{} `json:"tags,omitempty"`
+// FileParseEntry FileParseEntry
+type FileParseEntry struct {
+	FileId string `json:"file_id"`
+	Filename interface{} `json:"filename"`
+	ParseStart interface{} `json:"parse_start"`
+	ParseComplete interface{} `json:"parse_complete"`
+}
+
+// FileParseStartInfo FileParseStartInfo
+type FileParseStartInfo struct {
+	Attempt interface{} `json:"attempt"`
+	Timestamp interface{} `json:"timestamp"`
+}
+
+// FileUploadSyncResponse represents the FileUploadSyncResponse type.
+type FileUploadSyncResponse struct {
+	DatasourceId string `json:"datasource_id"`
+	Items []ContentItem `json:"items"`
+	ContinuationToken interface{} `json:"continuation_token,omitempty"`
+	IngestUrl interface{} `json:"ingest_url,omitempty"`
+}
+
+// FilesSummaryResponse represents the FilesSummaryResponse type.
+type FilesSummaryResponse struct {
+	Total int64 `json:"total"`
+	Deleted interface{} `json:"deleted,omitempty"`
 }
 
 // HttpValidationError represents the HTTPValidationError type.
@@ -647,117 +575,318 @@ type HttpValidationError struct {
 	Detail []ValidationError `json:"detail,omitempty"`
 }
 
-// JsonNodeChunking JSONNodeChunking
-type JsonNodeChunking struct {
-	IncludeMetadata bool `json:"include_metadata"`
-	IncludePrevNextRel bool `json:"include_prev_next_rel"`
+// IngestCountsResponse represents the IngestCountsResponse type.
+type IngestCountsResponse struct {
+	Rag interface{} `json:"rag,omitempty"`
+	Tag interface{} `json:"tag,omitempty"`
+	RefGraph interface{} `json:"ref_graph,omitempty"`
 }
 
-// ListContentResponse ListContentResponse
-type ListContentResponse struct {
-	Items []ContentItem `json:"items"`
-	ContinuationToken interface{} `json:"continuation_token,omitempty"`
+// IngestMethodCountsResponse represents the IngestMethodCountsResponse type.
+type IngestMethodCountsResponse struct {
+	Total int64 `json:"total"`
+	New interface{} `json:"new,omitempty"`
+	Updated interface{} `json:"updated,omitempty"`
 }
 
-// MarkdownNodeChunking MarkdownNodeChunking
-type MarkdownNodeChunking struct {
-	IncludeMetadata bool `json:"include_metadata"`
-	IncludePrevNextRel bool `json:"include_prev_next_rel"`
-	HeaderPathSeparator string `json:"header_path_separator"`
+// IngestMethodSummary represents the IngestMethodSummary type.
+type IngestMethodSummary struct {
+	Method string `json:"method"`
+	TotalFiles *int64 `json:"total_files,omitempty"`
+	ProcessedFiles *int64 `json:"processed_files,omitempty"`
+	Adds *int64 `json:"adds,omitempty"`
+	Updates *int64 `json:"updates,omitempty"`
+	Errors *int64 `json:"errors,omitempty"`
+	Warnings *int64 `json:"warnings,omitempty"`
 }
 
-// MetadataOptions MetadataOptions
-type MetadataOptions struct {
-	CreateTitle interface{} `json:"create_title,omitempty"`
-	ExtractQuestionsAnswers interface{} `json:"extract_questions_answers,omitempty"`
-	ExtractSummary interface{} `json:"extract_summary,omitempty"`
-	HasConsumerContent interface{} `json:"has_consumer_content,omitempty"`
-	GetBibliographicalInformation interface{} `json:"get_bibliographical_information,omitempty"`
+// IngestStatusResponse represents the IngestStatusResponse type.
+type IngestStatusResponse struct {
+	DatasourceId string `json:"datasource_id"`
+	Status string `json:"status"`
+	StartedAt interface{} `json:"started_at,omitempty"`
+	CompletedAt interface{} `json:"completed_at,omitempty"`
+	Methods []IngestMethodSummary `json:"methods,omitempty"`
 }
 
-// ObjectStorageConfig ObjectStorageConfig
-type ObjectStorageConfig struct {
-	Bucket string `json:"bucket"`
-	Prefix interface{} `json:"prefix"`
-	Filters interface{} `json:"filters,omitempty"`
-	GcsConfig interface{} `json:"gcs_config,omitempty"`
-	S3Config interface{} `json:"s3_config,omitempty"`
+// JudgeConfig Configuration for judge-based confidence scoring (LLM-as-judge patterns).
+type JudgeConfig struct {
+	Prompt string `json:"prompt"`
+	TemperatureMax interface{} `json:"temperature_max,omitempty"`
+	TemperatureStep interface{} `json:"temperature_step,omitempty"`
 }
 
-// ObjectStorageFilters ObjectStorageFilters
-type ObjectStorageFilters struct {
-	IncludedPrefixes interface{} `json:"included_prefixes,omitempty"`
-	IncludedFileTypes interface{} `json:"included_file_types,omitempty"`
-	RecursivePrefixes interface{} `json:"recursive_prefixes,omitempty"`
-	ModifiedDateStart interface{} `json:"modified_date_start,omitempty"`
-	ModifiedDateEnd interface{} `json:"modified_date_end,omitempty"`
-	MinFileSize interface{} `json:"min_file_size,omitempty"`
-	MaxFileSize interface{} `json:"max_file_size,omitempty"`
+// ListMetadataModelCatalogResponse ListMetadataModelCatalogResponse
+type ListMetadataModelCatalogResponse struct {
+	Models []MetadataModelCatalogEntry `json:"models"`
 }
 
-// Platform represents the possible values for Platform.
-type Platform string
+// MeibelDocumentResult Full structured parse result (meibel format).
+type MeibelDocumentResult struct {
+	Elements []DocumentElement `json:"elements"`
+	Pages int64 `json:"pages"`
+	Tables int64 `json:"tables"`
+	Metadata interface{} `json:"metadata,omitempty"`
+}
+
+// MessageEntry MessageEntry
+type MessageEntry struct {
+	Role string `json:"role"`
+	Message string `json:"message"`
+	SignalId interface{} `json:"signal_id"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+// MetadataConfigRequest Configure automatic metadata extraction from documents on ingest.
+type MetadataConfigRequest struct {
+	// Use 'catalog' to select a pre-built extraction model (set model_id); use 'custom' to define your own fields (set fields)
+	Type string `json:"type"`
+	// Pre-built model ID from the metadata model catalog — required when type is 'catalog'
+	ModelId interface{} `json:"model_id,omitempty"`
+	// Custom field definitions to extract — required when type is 'custom'
+	Fields interface{} `json:"fields,omitempty"`
+}
+
+// MetadataConfigRequestType represents the possible values for type.
+type MetadataConfigRequestType string
 
 const (
-	PlatformAzure Platform = "azure"
-	PlatformGcs Platform = "gcs"
-	PlatformR2 Platform = "r2"
-	PlatformS3 Platform = "s3"
+	MetadataConfigRequestTypeCatalog MetadataConfigRequestType = "catalog"
+	MetadataConfigRequestTypeCustom MetadataConfigRequestType = "custom"
 )
 
-// PostgreSqlConfig PostgreSQLConfig
-type PostgreSqlConfig struct {
-	DatabaseType interface{} `json:"database_type,omitempty"`
-	DatabaseName string `json:"database_name"`
+// MetadataConfigResponse represents the MetadataConfigResponse type.
+type MetadataConfigResponse struct {
+	Type string `json:"type"`
+	ModelId interface{} `json:"model_id,omitempty"`
+	Fields []MetadataField `json:"fields"`
 }
 
-// RagChunkingStrategy RagChunkingStrategy
-type RagChunkingStrategy struct {
-	DatasourceId string `json:"datasource_id"`
-	CodeSplitter interface{} `json:"code_splitter,omitempty"`
-	HtmlNodeParser interface{} `json:"html_node_parser,omitempty"`
-	JsonNodeParser interface{} `json:"json_node_parser,omitempty"`
-	MarkdownNodeParser interface{} `json:"markdown_node_parser,omitempty"`
-	SemanticSplitterNodeParser interface{} `json:"semantic_splitter_node_parser,omitempty"`
-	SentenceSplitter interface{} `json:"sentence_splitter,omitempty"`
-	TokenTextSplitter interface{} `json:"token_text_splitter,omitempty"`
-}
+// MetadataConfigResponseType represents the possible values for type.
+type MetadataConfigResponseType string
 
-// RagConfig RagConfig
-type RagConfig struct {
-	DatasourceId string `json:"datasource_id"`
+const (
+	MetadataConfigResponseTypeCatalog MetadataConfigResponseType = "catalog"
+	MetadataConfigResponseTypeCustom MetadataConfigResponseType = "custom"
+	MetadataConfigResponseTypeDefault MetadataConfigResponseType = "default"
+)
+
+// MetadataField represents the MetadataField type.
+type MetadataField struct {
+	// Field name (snake_case)
+	Name string `json:"name"`
+	// Data type of the field
+	Type string `json:"type"`
+	// What this field captures
 	Description string `json:"description"`
-	CollectionId string `json:"collection_id"`
-	ExtractorModel interface{} `json:"extractor_model,omitempty"`
-	EmbeddingModel interface{} `json:"embedding_model,omitempty"`
-	SparseEmbeddingModel interface{} `json:"sparse_embedding_model,omitempty"`
-	CollectMetadata interface{} `json:"collect_metadata,omitempty"`
-	MetadataOptions interface{} `json:"metadata_options,omitempty"`
+	// Whether this field is indexed for filtering
+	Index *bool `json:"index,omitempty"`
+}
+
+// MetadataFieldType represents the possible values for type.
+type MetadataFieldType string
+
+const (
+	MetadataFieldTypeString MetadataFieldType = "string"
+	MetadataFieldTypeInteger MetadataFieldType = "integer"
+	MetadataFieldTypeFloat MetadataFieldType = "float"
+	MetadataFieldTypeBoolean MetadataFieldType = "boolean"
+	MetadataFieldTypeDatetime MetadataFieldType = "datetime"
+	MetadataFieldTypeUuid MetadataFieldType = "uuid"
+	MetadataFieldTypeGeo MetadataFieldType = "geo"
+	MetadataFieldTypeListString MetadataFieldType = "list[string]"
+)
+
+// MetadataModelCatalogEntry MetadataModelCatalogEntry
+type MetadataModelCatalogEntry struct {
+	ModelId string `json:"model_id"`
+	Name string `json:"name"`
+	Description interface{} `json:"description,omitempty"`
+	Scope string `json:"scope"`
+	CustomerId interface{} `json:"customer_id,omitempty"`
+	ProjectId interface{} `json:"project_id,omitempty"`
+	Fields []MetadataModelField `json:"fields"`
 	CreatedBy interface{} `json:"created_by,omitempty"`
 	UpdatedBy interface{} `json:"updated_by,omitempty"`
+	CreatedAt interface{} `json:"created_at,omitempty"`
+	UpdatedAt interface{} `json:"updated_at,omitempty"`
 }
 
-// S3Config S3Config
-type S3Config struct {
-	RoleArn string `json:"role_arn"`
-	Region string `json:"region"`
+// MetadataModelField MetadataModelField
+type MetadataModelField struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+	Description string `json:"description"`
+	Index interface{} `json:"index,omitempty"`
 }
 
-// SemanticChunking SemanticChunking
-type SemanticChunking struct {
-	BufferSize interface{} `json:"buffer_size,omitempty"`
-	IncludeMetadata bool `json:"include_metadata"`
-	IncludePrevNextRel bool `json:"include_prev_next_rel"`
-	BreakpointPercentileThreshold interface{} `json:"breakpoint_percentile_threshold,omitempty"`
+// NBootstraps NBootstraps
+type NBootstraps struct {
+	AnyofSchema_1Validator interface{} `json:"anyof_schema_1_validator,omitempty"`
+	AnyofSchema_2Validator interface{} `json:"anyof_schema_2_validator,omitempty"`
+	ActualInstance *string `json:"actual_instance,omitempty"`
+	AnyOfSchemas []string `json:"any_of_schemas,omitempty"`
 }
 
-// SentenceChunking SentenceChunking
-type SentenceChunking struct {
-	ChunkSize interface{} `json:"chunk_size,omitempty"`
-	ChunkOverlap interface{} `json:"chunk_overlap,omitempty"`
-	Separator interface{} `json:"separator,omitempty"`
-	ParagraphSeparator interface{} `json:"paragraph_separator,omitempty"`
-	SecondaryChunkingRegex interface{} `json:"secondary_chunking_regex,omitempty"`
+// OcConfig Configuration for Observed Consistency confidence scoring.
+type OcConfig struct {
+	NCompletions interface{} `json:"n_completions,omitempty"`
+	MaxTokens interface{} `json:"max_tokens,omitempty"`
+	Temperature interface{} `json:"temperature,omitempty"`
+	Models interface{} `json:"models,omitempty"`
+	NliModelConfig string `json:"nli_model_config"`
+	NBootstraps interface{} `json:"n_bootstraps,omitempty"`
+	TokenLimit interface{} `json:"token_limit,omitempty"`
+	OriginalCompletion interface{} `json:"original_completion,omitempty"`
+	ComparisonCompletions interface{} `json:"comparison_completions,omitempty"`
+}
+
+// OcrConfig Configuration for OCR confidence scoring.
+type OcrConfig struct {
+	CalibrationModel interface{} `json:"calibration_model,omitempty"`
+	OcrConfidenceScores interface{} `json:"ocr_confidence_scores,omitempty"`
+}
+
+// ParseDocumentResponse Returned from POST /documents (async).
+type ParseDocumentResponse struct {
+	JobId string `json:"job_id"`
+	// Job status, e.g. 'queued'
+	Status string `json:"status"`
+}
+
+// ProcessDocumentResponse Returned from POST /documents/process (sync).
+type ProcessDocumentResponse struct {
+	JobId string `json:"job_id"`
+	// 'completed'
+	Status string `json:"status"`
+	// MeibelDocumentResult for meibel format, str for markdown
+	Result interface{} `json:"result"`
+}
+
+// PromptListResponse represents the PromptListResponse type.
+type PromptListResponse struct {
+	Data []PromptSummary `json:"data"`
+}
+
+// PromptResponse represents the PromptResponse type.
+type PromptResponse struct {
+	Id string `json:"id"`
+	Name string `json:"name"`
+	DisplayName string `json:"display_name"`
+	Version string `json:"version"`
+	ParentVersion interface{} `json:"parent_version,omitempty"`
+	Prompt string `json:"prompt"`
+	Description interface{} `json:"description,omitempty"`
+	CreatedBy interface{} `json:"created_by,omitempty"`
+	CreatedAt interface{} `json:"created_at,omitempty"`
+}
+
+// PromptSummary represents the PromptSummary type.
+type PromptSummary struct {
+	Id string `json:"id"`
+	DisplayName string `json:"display_name"`
+	Version string `json:"version"`
+	Preview string `json:"preview"`
+}
+
+// PublishAgentDefinitionRequest Request model for publishing the current draft of an agent.
+type PublishAgentDefinitionRequest struct {
+	// User-provided description of what changed in this version
+	CommitMessage string `json:"commit_message"`
+}
+
+// PublishAgentDefinitionResponse Response model for a publish event.
+type PublishAgentDefinitionResponse struct {
+	// Registry entry ID
+	Id string `json:"id"`
+	// Catalog URN of the published AgentDefinition version
+	AgentDefinitionUrn string `json:"agent_definition_urn"`
+	// Agent name
+	AgentName string `json:"agent_name"`
+	// Published version slug
+	Version string `json:"version"`
+	// Display name of the published version
+	DisplayName string `json:"display_name"`
+	// User-provided description of what changed in this version
+	CommitMessage string `json:"commit_message"`
+	// Timestamp of the publish event
+	PublishedAt time.Time `json:"published_at"`
+	// User who published
+	PublishedBy interface{} `json:"published_by,omitempty"`
+}
+
+// ScoreSummary Aggregated summary of scoring jobs matching one or two AgentIdentityContext filters.  With one level (primary only): flat aggregate of all jobs matching primary_field=primary_value. With two levels (primary + secondary): both constraints are applied; primary is the higher level and secondary is the lower level.
+type ScoreSummary struct {
+	PrimaryField string `json:"primary_field"`
+	PrimaryValue string `json:"primary_value"`
+	SecondaryField interface{} `json:"secondary_field,omitempty"`
+	SecondaryValue interface{} `json:"secondary_value,omitempty"`
+	Status interface{} `json:"status,omitempty"`
+	AggregateScore interface{} `json:"aggregate_score,omitempty"`
+	ModuleScores interface{} `json:"module_scores,omitempty"`
+	NJobsPerModule interface{} `json:"n_jobs_per_module,omitempty"`
+	Jobs interface{} `json:"jobs,omitempty"`
+}
+
+// ScoringJobRecord ScoringJobRecord
+type ScoringJobRecord struct {
+	JobId string `json:"job_id"`
+	AgentIdentityContext AgentIdentityContext `json:"agent_identity_context"`
+	Module string `json:"module"`
+	ScoringConfig ConfidenceScoringConfig `json:"scoring_config"`
+	InputValue string `json:"input_value"`
+	OutputValue string `json:"output_value"`
+	Status ScoringStatus `json:"status"`
+	Score interface{} `json:"score,omitempty"`
+}
+
+// ScoringStatus represents the possible values for ScoringStatus.
+type ScoringStatus string
+
+const (
+	ScoringStatusSubmitted ScoringStatus = "submitted"
+	ScoringStatusInProgress ScoringStatus = "in_progress"
+	ScoringStatusCompleted ScoringStatus = "completed"
+	ScoringStatusFailed ScoringStatus = "failed"
+)
+
+// SessionListResponse represents the SessionListResponse type.
+type SessionListResponse struct {
+	Data []SessionSummary `json:"data"`
+	Total int64 `json:"total"`
+}
+
+// SessionMessageItem represents the SessionMessageItem type.
+type SessionMessageItem struct {
+	Type string `json:"type"`
+	Timestamp interface{} `json:"timestamp,omitempty"`
+	Message interface{} `json:"message,omitempty"`
+	SignalId interface{} `json:"signal_id,omitempty"`
+	ToolId interface{} `json:"tool_id,omitempty"`
+	ToolName interface{} `json:"tool_name,omitempty"`
+	Arguments interface{} `json:"arguments,omitempty"`
+	Result interface{} `json:"result,omitempty"`
+}
+
+// SessionMessagesResponse represents the SessionMessagesResponse type.
+type SessionMessagesResponse struct {
+	AgentId interface{} `json:"agent_id,omitempty"`
+	AgentName interface{} `json:"agent_name,omitempty"`
+	Version interface{} `json:"version,omitempty"`
+	Messages []SessionMessageItem `json:"messages"`
+}
+
+// SessionSummary represents the SessionSummary type.
+type SessionSummary struct {
+	SessionId string `json:"session_id"`
+	Status string `json:"status"`
+	StartTime time.Time `json:"start_time"`
+	EndTime interface{} `json:"end_time,omitempty"`
+	AgentName interface{} `json:"agent_name,omitempty"`
+	AgentVersion interface{} `json:"agent_version,omitempty"`
+	MessagesCount *int64 `json:"messages_count,omitempty"`
+	TokenUsage interface{} `json:"token_usage,omitempty"`
+	Result []string `json:"result,omitempty"`
 }
 
 // Source A source/citation in the response.
@@ -769,59 +898,71 @@ type Source struct {
 	RelevanceScore interface{} `json:"relevance_score,omitempty"`
 }
 
-// SparseEmbeddingModel SparseEmbeddingModel
-type SparseEmbeddingModel struct {
-	Name string `json:"name"`
-	Endpoint string `json:"endpoint"`
+// Table represents the Table type.
+type Table struct {
+	Cells []TableCell `json:"cells"`
+	Rows int64 `json:"rows"`
+	Cols int64 `json:"cols"`
+	Bbox interface{} `json:"bbox,omitempty"`
 }
 
-// StartBlueprintInstanceRequest StartBlueprintInstanceRequest
-type StartBlueprintInstanceRequest struct {
-	WorkflowArgs interface{} `json:"workflow_args,omitempty"`
-	WorkflowKwargs interface{} `json:"workflow_kwargs,omitempty"`
-	// Enable streaming responses to Redis for chat workflows. When True, chat responses are streamed to Redis streams that can be consumed via the /chat/stream endpoint.
-	EnableStreaming interface{} `json:"enable_streaming,omitempty"`
+// TableCell represents the TableCell type.
+type TableCell struct {
+	Text string `json:"text"`
+	Row int64 `json:"row"`
+	Col int64 `json:"col"`
+	RowSpan *int64 `json:"row_span,omitempty"`
+	ColSpan *int64 `json:"col_span,omitempty"`
+	Bbox interface{} `json:"bbox,omitempty"`
 }
 
-// TagColumnInfo TagColumnInfo
-type TagColumnInfo struct {
-	DatasourceId string `json:"datasource_id"`
+// TableDescriptionUpdate represents the TableDescriptionUpdate type.
+type TableDescriptionUpdate struct {
 	TableName string `json:"table_name"`
+	Description interface{} `json:"description,omitempty"`
+	Columns interface{} `json:"columns,omitempty"`
+}
+
+// TableSummaryResponse represents the TableSummaryResponse type.
+type TableSummaryResponse struct {
 	Name string `json:"name"`
-	Description interface{} `json:"description"`
-	Dtype interface{} `json:"dtype"`
-	IsKey interface{} `json:"is_key"`
-	IsIndexed interface{} `json:"is_indexed"`
-	EngineeredFeatures interface{} `json:"engineered_features"`
+	Description interface{} `json:"description,omitempty"`
+	ColumnCount int64 `json:"column_count"`
 }
 
-// TagConfig TagConfig
-type TagConfig struct {
-	DatasourceId string `json:"datasource_id"`
-	Description interface{} `json:"description"`
-	LogicalGroupRegex interface{} `json:"logical_group_regex"`
-	WorkingBucket string `json:"working_bucket"`
-	WorkingPlatform interface{} `json:"working_platform,omitempty"`
-	DbPath interface{} `json:"db_path"`
-	DatabaseConfig interface{} `json:"database_config,omitempty"`
-	CreatedBy interface{} `json:"created_by,omitempty"`
-	UpdatedBy interface{} `json:"updated_by,omitempty"`
+// TagColumn represents the TagColumn type.
+type TagColumn struct {
+	ColumnName string `json:"column_name"`
+	Type interface{} `json:"type,omitempty"`
+	Description interface{} `json:"description,omitempty"`
 }
 
-// TagTableInfo TagTableInfo
-type TagTableInfo struct {
-	DatasourceId string `json:"datasource_id"`
-	Name string `json:"name"`
-	Description interface{} `json:"description"`
+// TagColumnUpdateItem represents the TagColumnUpdateItem type.
+type TagColumnUpdateItem struct {
+	ColumnName string `json:"column_name"`
+	Description string `json:"description"`
 }
 
-// TokenTextChunking TokenTextChunking
-type TokenTextChunking struct {
-	ChunkSize interface{} `json:"chunk_size,omitempty"`
-	ChunkOverlap interface{} `json:"chunk_overlap,omitempty"`
-	Separator interface{} `json:"separator,omitempty"`
-	BackupSeparators interface{} `json:"backup_separators,omitempty"`
-	KeepWhitespaces interface{} `json:"keep_whitespaces,omitempty"`
+// TagTable represents the TagTable type.
+type TagTable struct {
+	TableName string `json:"table_name"`
+	Description interface{} `json:"description,omitempty"`
+	Columns interface{} `json:"columns,omitempty"`
+}
+
+// TagTableUpdateItem represents the TagTableUpdateItem type.
+type TagTableUpdateItem struct {
+	TableName string `json:"table_name"`
+	Description string `json:"description"`
+}
+
+// TokenConfig Configuration for token-based confidence scoring (TF-IDF).
+type TokenConfig struct {
+	Model interface{} `json:"model,omitempty"`
+	RemoveStopWords interface{} `json:"remove_stop_words,omitempty"`
+	LowerCase interface{} `json:"lower_case,omitempty"`
+	MaxNgrams interface{} `json:"max_ngrams,omitempty"`
+	NInfluencers interface{} `json:"n_influencers,omitempty"`
 }
 
 // ToolActivity Record of a tool call and its result.
@@ -829,168 +970,219 @@ type ToolActivity struct {
 	ToolId string `json:"tool_id"`
 	ToolName string `json:"tool_name"`
 	Arguments string `json:"arguments"`
+	// Optional override for the tool's parameters schema
 	Result interface{} `json:"result,omitempty"`
 	Timestamp string `json:"timestamp"`
 }
 
-// UpdateBlueprintRequest UpdateBlueprintRequest
-type UpdateBlueprintRequest struct {
-	Name interface{} `json:"name,omitempty"`
-	ExecutionMode interface{} `json:"execution_mode,omitempty"`
-	Version interface{} `json:"version,omitempty"`
+// ToolActivityEntry ToolActivityEntry
+type ToolActivityEntry struct {
+	ToolId string `json:"tool_id"`
+	ToolCall interface{} `json:"tool_call"`
+	ToolResult interface{} `json:"tool_result"`
+}
+
+// ToolCallInfo ToolCallInfo
+type ToolCallInfo struct {
+	ToolName interface{} `json:"tool_name"`
+	// Optional override for the tool's parameters schema
+	Arguments interface{} `json:"arguments"`
+	Sequence interface{} `json:"sequence"`
+	Timestamp interface{} `json:"timestamp"`
+}
+
+// ToolResultInfo ToolResultInfo
+type ToolResultInfo struct {
+	ToolName interface{} `json:"tool_name"`
+	Result interface{} `json:"result,omitempty"`
+	Sequence interface{} `json:"sequence"`
+	Timestamp interface{} `json:"timestamp"`
+}
+
+// UpdateAgentArtifactRequest Request model for updating an agent artifact. Name is intentionally excluded as it serves as the stable identifier for a version chain and cannot be changed.
+type UpdateAgentArtifactRequest struct {
+	// Human-readable name of the artifact
+	DisplayName interface{} `json:"display_name,omitempty"`
+	// Artifact type
+	Type interface{} `json:"type,omitempty"`
+	// Description of the artifact
 	Description interface{} `json:"description,omitempty"`
-	DslDefinition interface{} `json:"dsl_definition,omitempty"`
-	YamlSpecContent interface{} `json:"yaml_spec_content,omitempty"`
-	JsonSpecContent interface{} `json:"json_spec_content,omitempty"`
-	InitInput interface{} `json:"init_input,omitempty"`
+	// Whether agent must produce this artifact
+	Required interface{} `json:"required,omitempty"`
+	// Optional override for the tool's parameters schema
+	SchemaDef interface{} `json:"schema_def,omitempty"`
+	// Maximum artifact size in bytes
+	MaxSizeBytes interface{} `json:"max_size_bytes,omitempty"`
+	// Storage strategy
+	StorageStrategy interface{} `json:"storage_strategy,omitempty"`
 }
 
-// UpdateBlueprintTaskRequest UpdateBlueprintTaskRequest
-type UpdateBlueprintTaskRequest struct {
-	Name interface{} `json:"name,omitempty"`
+// UpdateAgentDefinitionRequest Request model for updating an agent definition. Name is intentionally excluded as it serves as the stable identifier for a version chain and cannot be changed.
+type UpdateAgentDefinitionRequest struct {
+	// Human-readable name of the agent
+	DisplayName interface{} `json:"display_name,omitempty"`
+	// System prompt/instructions
+	Instructions interface{} `json:"instructions,omitempty"`
+	// Agent type
+	Type interface{} `json:"type,omitempty"`
+	// Description of the agent
 	Description interface{} `json:"description,omitempty"`
-	InputSchema interface{} `json:"input_schema,omitempty"`
-	OutputSchema interface{} `json:"output_schema,omitempty"`
-	ConfigSchema interface{} `json:"config_schema,omitempty"`
-	ToolSchema interface{} `json:"tool_schema,omitempty"`
+	// LLM model to use
+	LlmModel interface{} `json:"llm_model,omitempty"`
+	// List of fallback models
+	FallbackModels interface{} `json:"fallback_models,omitempty"`
+	// Datasource IDs the agent has access to
+	Datasources interface{} `json:"datasources,omitempty"`
+	// Tools configuration
+	Tools interface{} `json:"tools,omitempty"`
+	// Catalog URNs of artifacts the agent produces
+	Artifacts interface{} `json:"artifacts,omitempty"`
+	// Confidence scoring module names to apply during execution
+	ConfidenceConfigs interface{} `json:"confidence_configs,omitempty"`
+	// LLM temperature
+	Temperature interface{} `json:"temperature,omitempty"`
+	// Maximum tokens in response
+	MaxTokens interface{} `json:"max_tokens,omitempty"`
+	// Tags for categorization
+	Tags interface{} `json:"tags,omitempty"`
+	// UI icon identifier
+	Icon interface{} `json:"icon,omitempty"`
 }
 
-// UpdateChunkingStrategyRequest UpdateChunkingStrategyRequest
-type UpdateChunkingStrategyRequest struct {
-	CodeSplitter interface{} `json:"code_splitter,omitempty"`
-	HtmlNodeParser interface{} `json:"html_node_parser,omitempty"`
-	JsonNodeParser interface{} `json:"json_node_parser,omitempty"`
-	MarkdownNodeParser interface{} `json:"markdown_node_parser,omitempty"`
-	SemanticSplitterNodeParser interface{} `json:"semantic_splitter_node_parser,omitempty"`
-	SentenceSplitter interface{} `json:"sentence_splitter,omitempty"`
-	TokenTextSplitter interface{} `json:"token_text_splitter,omitempty"`
-}
-
-// UpdateChunkingStrategyResponse UpdateChunkingStrategyResponse
-type UpdateChunkingStrategyResponse struct {
-	Message string `json:"message"`
-}
-
-// UpdateDataElementRequest UpdateDataElementRequest
-type UpdateDataElementRequest struct {
-	Description interface{} `json:"description,omitempty"`
-	Name interface{} `json:"name,omitempty"`
-	Path interface{} `json:"path,omitempty"`
-	MediaType interface{} `json:"media_type,omitempty"`
-	DiscoveryRecord interface{} `json:"discovery_record,omitempty"`
-	ParentDataElementId interface{} `json:"parent_data_element_id,omitempty"`
-}
-
-// UpdateDataElementResponse UpdateDataElementResponse
-type UpdateDataElementResponse struct {
+// UpdateAgentDefinitionResponse Response model for updating an agent definition.
+type UpdateAgentDefinitionResponse struct {
+	// New agent definition ID
 	Id string `json:"id"`
+	// Catalog URN for the new version
+	CatalogUrn string `json:"catalog_urn"`
+	// New version number
+	Version string `json:"version"`
 }
 
-// UpdateDatasourceRequest UpdateDatasourceRequest
-type UpdateDatasourceRequest struct {
-	Name interface{} `json:"name,omitempty"`
-	Description interface{} `json:"description,omitempty"`
-	Recurrence interface{} `json:"recurrence,omitempty"`
-	ObjectStorageConfig interface{} `json:"object_storage_config,omitempty"`
-	WebConfig interface{} `json:"web_config,omitempty"`
-	ConnectorConfig interface{} `json:"connector_config,omitempty"`
+// UpdateAgentPromptRequest Request model for updating an agent prompt. Name is intentionally excluded as it serves as the stable identifier for a version chain and cannot be changed.
+type UpdateAgentPromptRequest struct {
+	// Human-readable name of the prompt
+	DisplayName interface{} `json:"display_name,omitempty"`
+	// Prompt text
+	Prompt interface{} `json:"prompt,omitempty"`
 }
 
-// UpdateDatasourceResponse UpdateDatasourceResponse
-type UpdateDatasourceResponse struct {
+// UpdateArtifactSchemaResponse represents the UpdateArtifactSchemaResponse type.
+type UpdateArtifactSchemaResponse struct {
 	Id string `json:"id"`
+	Version string `json:"version"`
 }
 
-// UpdateRagConfigRequest UpdateRagConfigRequest
-type UpdateRagConfigRequest struct {
-	Description interface{} `json:"description,omitempty"`
-	CollectionId interface{} `json:"collection_id,omitempty"`
-	ExtractorModel interface{} `json:"extractor_model,omitempty"`
-	EmbeddingModel interface{} `json:"embedding_model,omitempty"`
-	SparseEmbeddingModel interface{} `json:"sparse_embedding_model,omitempty"`
-	CollectMetadata interface{} `json:"collect_metadata,omitempty"`
-	MetadataOptions interface{} `json:"metadata_options,omitempty"`
-}
-
-// UpdateRagConfigResponse UpdateRagConfigResponse
-type UpdateRagConfigResponse struct {
-	Message string `json:"message"`
-}
-
-// UpdateTagColumnRequest UpdateTagColumnRequest
-type UpdateTagColumnRequest struct {
-	Description interface{} `json:"description,omitempty"`
-	Dtype interface{} `json:"dtype,omitempty"`
-	IsKey interface{} `json:"is_key,omitempty"`
-	IsIndexed interface{} `json:"is_indexed,omitempty"`
-	EngineeredFeatures interface{} `json:"engineered_features,omitempty"`
-}
-
-// UpdateTagColumnResponse UpdateTagColumnResponse
-type UpdateTagColumnResponse struct {
-	Message string `json:"message"`
-}
-
-// UpdateTagConfigRequest UpdateTagConfigRequest
-type UpdateTagConfigRequest struct {
-	Description interface{} `json:"description,omitempty"`
-	LogicalGroupRegex interface{} `json:"logical_group_regex,omitempty"`
-	WorkingBucket interface{} `json:"working_bucket,omitempty"`
-	WorkingPlatform interface{} `json:"working_platform,omitempty"`
-	DbPath interface{} `json:"db_path,omitempty"`
-	DatabaseConfig interface{} `json:"database_config,omitempty"`
-}
-
-// UpdateTagConfigResponse UpdateTagConfigResponse
-type UpdateTagConfigResponse struct {
-	Message string `json:"message"`
-}
-
-// UpdateTagTableRequest UpdateTagTableRequest
-type UpdateTagTableRequest struct {
-	Description interface{} `json:"description,omitempty"`
-}
-
-// UpdateTagTableResponse UpdateTagTableResponse
-type UpdateTagTableResponse struct {
-	Message string `json:"message"`
-}
-
-// UploadContentResponse UploadContentResponse
-type UploadContentResponse struct {
-	Success bool `json:"success"`
-	Message string `json:"message"`
-	UploadId string `json:"upload_id"`
-	SseUrl string `json:"sse_url"`
-	EstimatedFiles int64 `json:"estimated_files"`
-	EstimatedSize int64 `json:"estimated_size"`
-}
-
-// WebDomain WebDomain
-type WebDomain struct {
-	Domain string `json:"domain"`
-	LimitPattern string `json:"limitPattern"`
-	ExcludePattern string `json:"excludePattern"`
-	Ingestible bool `json:"ingestible"`
-	Expandable bool `json:"expandable"`
-}
-
-// HeartbeatEvent A server-sent event indicating that the server is still processing the request
-type HeartbeatEvent struct {
-	Event string `json:"event"`
-}
-
-// ChatEvent A server-sent event containing chat completion content
-type ChatEvent struct {
+// UpdatePromptResponse represents the UpdatePromptResponse type.
+type UpdatePromptResponse struct {
 	Id string `json:"id"`
+	Version string `json:"version"`
+}
+
+// WebCrawlConnector Connect to a website for crawling.
+type WebCrawlConnector struct {
+	// Starting URL for the crawl
+	BaseUrl string `json:"base_url"`
+	// Enable JavaScript rendering
+	JavascriptRender *bool `json:"javascript_render,omitempty"`
+	Domains interface{} `json:"domains,omitempty"`
+}
+
+// ConnectedEvent A server-sent event indicating the stream connection has been established
+type ConnectedEvent struct {
 	Event string `json:"event"`
 	Data string `json:"data"`
 }
 
-// SseEvent Generic Server-Sent Event
-type SseEvent struct {
-	// Event type (e.g., connected, progress, stream_complete, error, keepalive)
+// StatusEvent A server-sent event containing an agent status update
+type StatusEvent struct {
 	Event string `json:"event"`
-	// Event data payload
-	Data *string `json:"data,omitempty"`
+	Data string `json:"data"`
+}
+
+// ToolCallEvent A server-sent event indicating the agent is calling a tool
+type ToolCallEvent struct {
+	Event string `json:"event"`
+	Data string `json:"data"`
+}
+
+// ToolResultEvent A server-sent event containing the result of a tool call
+type ToolResultEvent struct {
+	Event string `json:"event"`
+	Data string `json:"data"`
+}
+
+// PartialResponseEvent A server-sent event containing an incremental response from the agent
+type PartialResponseEvent struct {
+	Event string `json:"event"`
+	Data string `json:"data"`
+}
+
+// CompletionEvent A server-sent event containing the final complete response from the agent, sent once at the end of the stream
+type CompletionEvent struct {
+	Event string `json:"event"`
+	Data string `json:"data"`
+}
+
+// ContentItem represents the ContentItem type.
+type ContentItem struct {
+	Name string `json:"name"`
+	Path string `json:"path"`
+	Type interface{} `json:"type,omitempty"`
+	Size interface{} `json:"size,omitempty"`
+	MediaType interface{} `json:"media_type,omitempty"`
+	LastModified interface{} `json:"last_modified,omitempty"`
+	Etag interface{} `json:"etag,omitempty"`
+}
+
+// ListContentResponse represents the ListContentResponse type.
+type ListContentResponse struct {
+	Items []ContentItem `json:"items"`
+	ContinuationToken interface{} `json:"continuation_token,omitempty"`
+}
+
+// UploadContentResponse represents the UploadContentResponse type.
+type UploadContentResponse struct {
+	Success bool `json:"success"`
+	Message string `json:"message"`
+	DatasourceId string `json:"datasource_id"`
+	UploadId string `json:"upload_id"`
+	SseUrl string `json:"sse_url"`
+	EstimatedFiles interface{} `json:"estimated_files,omitempty"`
+	EstimatedSize interface{} `json:"estimated_size,omitempty"`
+	IngestUrl interface{} `json:"ingest_url,omitempty"`
+}
+
+// UpdateDataElementRequest represents the UpdateDataElementRequest type.
+type UpdateDataElementRequest struct {
+	// Updated name
+	Name interface{} `json:"name,omitempty"`
+	// Updated description
+	Description interface{} `json:"description,omitempty"`
+	// Metadata key-value pairs — replaces all existing metadata
+	Metadata interface{} `json:"metadata,omitempty"`
+}
+
+// UpdateDatasourceRequest represents the UpdateDatasourceRequest type.
+type UpdateDatasourceRequest struct {
+	// Updated datasource name
+	Name interface{} `json:"name,omitempty"`
+	// Updated description
+	Description interface{} `json:"description,omitempty"`
+	// Updated connection configuration
+	Connector interface{} `json:"connector,omitempty"`
+	// Metadata extraction config — if changed, re-extraction triggers automatically
+	MetadataConfig interface{} `json:"metadata_config,omitempty"`
+	// Table and column descriptions to update (structured datasources only)
+	Tables interface{} `json:"tables,omitempty"`
+}
+
+// WebDomain represents the WebDomain type.
+type WebDomain struct {
+	// Domain to crawl (e.g. example.com)
+	Domain string `json:"domain"`
+	// Regex URL pattern to include
+	IncludePattern string `json:"include_pattern"`
+	// Regex URL pattern to exclude
+	ExcludePattern *string `json:"exclude_pattern,omitempty"`
 }
