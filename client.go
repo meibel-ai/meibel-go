@@ -109,6 +109,7 @@ func NewClient(opts ...ClientOption) *MeibelClient {
 	c.Datasources.DataElements = &DataElementsService{client: c}
 	c.Datasources.Downloads = &DownloadsService{client: c}
 	c.Datasources.FileUploads = &FileUploadsService{client: c}
+	c.Datasources.Ingest = &IngestService{client: c}
 	c.Datasources.Tables = &TablesService{client: c}
 
 	return c

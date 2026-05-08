@@ -12,6 +12,7 @@ type DatasourcesService struct {
 	DataElements *DataElementsService
 	Downloads *DownloadsService
 	FileUploads *FileUploadsService
+	Ingest *IngestService
 	Tables *TablesService
 }
 
