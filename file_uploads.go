@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -7,9 +7,9 @@ import (
 	"net/url"
 )
 
-// FileUploadService handles File Upload operations.
-type FileUploadService struct {
-	client *MeibelgoClient
+// FileUploadsService handles FileUploads operations.
+type FileUploadsService struct {
+	client *MeibelClient
 }
 
 // ListContentOptions contains optional parameters for ListContent.
@@ -23,7 +23,7 @@ type ListContentOptions struct {
 }
 
 // UploadContent Upload Content (async)
-func (s *FileUploadService) UploadContent(ctx context.Context, file io.Reader, fileName string) (*UploadContentResponse, error) {
+func (s *FileUploadsService) UploadContent(ctx context.Context, file io.Reader, fileName string) (*UploadContentResponse, error) {
 	path := "/datasources/uploads"
 
 	var result UploadContentResponse
@@ -44,7 +44,7 @@ func (s *FileUploadService) UploadContent(ctx context.Context, file io.Reader, f
 }
 
 // UploadAndListContent Upload Content (sync)
-func (s *FileUploadService) UploadAndListContent(ctx context.Context, file io.Reader, fileName string) (*FileUploadSyncResponse, error) {
+func (s *FileUploadsService) UploadAndListContent(ctx context.Context, file io.Reader, fileName string) (*FileUploadSyncResponse, error) {
 	path := "/datasources/uploads/process"
 
 	var result FileUploadSyncResponse
@@ -65,7 +65,7 @@ func (s *FileUploadService) UploadAndListContent(ctx context.Context, file io.Re
 }
 
 // StreamUploadProgress Stream Upload Progress
-func (s *FileUploadService) StreamUploadProgress(ctx context.Context, uploadId string) (*EventStream[interface{}], error) {
+func (s *FileUploadsService) StreamUploadProgress(ctx context.Context, uploadId string) (*EventStream[interface{}], error) {
 	path := "/datasources/uploads/" + fmt.Sprintf("%v", uploadId) + "/progress"
 
 	resp, err := s.client.http.DoStream(ctx, RequestOptions{
@@ -80,7 +80,7 @@ func (s *FileUploadService) StreamUploadProgress(ctx context.Context, uploadId s
 }
 
 // ListContent List Content
-func (s *FileUploadService) ListContent(ctx context.Context, datasourceId string, opts *ListContentOptions) *PageIterator[ContentItem] {
+func (s *FileUploadsService) ListContent(ctx context.Context, datasourceId string, opts *ListContentOptions) *PageIterator[ContentItem] {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
 	query := url.Values{}
 	if opts != nil && opts.Prefix != nil {
@@ -117,4 +117,36 @@ func (s *FileUploadService) ListContent(ctx context.Context, datasourceId string
 			NextCursor: resp.NextCursor,
 		}, nil
 	})
+}
+
+// TriggerIngest Trigger Ingest
+func (s *FileUploadsService) TriggerIngest(ctx context.Context, datasourceId string) (*string, error) {
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/trigger-ingest"
+
+	var result string
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "POST",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// GetIngestStatus Get Ingest Status
+func (s *FileUploadsService) GetIngestStatus(ctx context.Context, datasourceId string) (*IngestStatusResponse, error) {
+	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/ingest-status"
+
+	var result IngestStatusResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }

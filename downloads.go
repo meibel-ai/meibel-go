@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 // DownloadsService handles Downloads operations.
 type DownloadsService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
 // CreateDownloadJob Create Download Job (async)

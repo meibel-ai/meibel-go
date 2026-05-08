@@ -1,12 +1,12 @@
-package meibelgo
+package v2
 
 import (
 	"net/http"
 	"time"
 )
 
-// MeibelgoClient is the main client for the meibel API.
-type MeibelgoClient struct {
+// MeibelClient is the main client for the meibel-ai-api API.
+type MeibelClient struct {
 	http *HTTPClient
 
 	Agents *AgentsService
@@ -16,6 +16,7 @@ type MeibelgoClient struct {
 	Documents *DocumentsService
 	MetadataModelCatalog *MetadataModelCatalogService
 	Prompts *PromptsService
+	Sessions *SessionsService
 }
 
 // ClientOption is a function that configures the client.
@@ -78,8 +79,8 @@ func WithHeader(key, value string) ClientOption {
 	}
 }
 
-// NewClient creates a new MeibelgoClient with the given options.
-func NewClient(opts ...ClientOption) *MeibelgoClient {
+// NewClient creates a new MeibelClient with the given options.
+func NewClient(opts ...ClientOption) *MeibelClient {
 	cfg := defaultClientOptions()
 	for _, opt := range opts {
 		opt(cfg)
@@ -92,7 +93,7 @@ func NewClient(opts ...ClientOption) *MeibelgoClient {
 		HTTPClient: cfg.httpClient,
 	})
 
-	c := &MeibelgoClient{
+	c := &MeibelClient{
 		http: httpClient,
 	}
 
@@ -103,12 +104,12 @@ func NewClient(opts ...ClientOption) *MeibelgoClient {
 	c.Documents = &DocumentsService{client: c}
 	c.MetadataModelCatalog = &MetadataModelCatalogService{client: c}
 	c.Prompts = &PromptsService{client: c}
-	c.Agents.Sessions = &SessionsService{client: c}
+	c.Sessions = &SessionsService{client: c}
+	c.Agents.Sessions = &AgentsSessionsService{client: c}
 	c.Datasources.DataElements = &DataElementsService{client: c}
 	c.Datasources.Downloads = &DownloadsService{client: c}
-	c.Datasources.FileUpload = &FileUploadService{client: c}
-	c.Datasources.Ingest = &IngestService{client: c}
-	c.Datasources.TableDescriptions = &TableDescriptionsService{client: c}
+	c.Datasources.FileUploads = &FileUploadsService{client: c}
+	c.Datasources.Tables = &TablesService{client: c}
 
 	return c
 }

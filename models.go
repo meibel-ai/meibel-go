@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"time"
@@ -72,6 +72,7 @@ type AgentSummary struct {
 	Id string `json:"id"`
 	Name interface{} `json:"name,omitempty"`
 	DisplayName string `json:"display_name"`
+	Description interface{} `json:"description,omitempty"`
 	LlmModel string `json:"llm_model"`
 	ToolCount int64 `json:"tool_count"`
 	DatasourceCount int64 `json:"datasource_count"`
@@ -193,6 +194,88 @@ const (
 	ArtifactTypeHtml ArtifactType = "html"
 	ArtifactTypePdf ArtifactType = "pdf"
 )
+
+// BatchDefinitionFilters Recipe-level filters. element_ids belongs here; per-execution overrides use BatchInputOverrides on the execution row.
+type BatchDefinitionFilters struct {
+	// Filter Data Elements by name pattern (regex)
+	Regex interface{} `json:"regex,omitempty"`
+	// Filter Data Elements by content type
+	MediaTypes interface{} `json:"media_types,omitempty"`
+	// Recipe-pinned subset of Data Element IDs.
+	ElementIds interface{} `json:"element_ids,omitempty"`
+}
+
+// BatchDefinitionResponse Full BatchDefinition snapshot.
+type BatchDefinitionResponse struct {
+	Id string `json:"id"`
+	CustomerId string `json:"customer_id"`
+	ProjectId string `json:"project_id"`
+	Name string `json:"name"`
+	Version string `json:"version"`
+	ParentVersion interface{} `json:"parent_version"`
+	CatalogUrn string `json:"catalog_urn"`
+	AgentUrn string `json:"agent_urn"`
+	AgentSpecJson string `json:"agent_spec_json"`
+	InputDatasourceId string `json:"input_datasource_id"`
+	// Optional override for the tool's parameters schema
+	Filters interface{} `json:"filters,omitempty"`
+	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
+	UserMessage interface{} `json:"user_message,omitempty"`
+	Concurrency int64 `json:"concurrency"`
+	RetryLimit int64 `json:"retry_limit"`
+	RecurrenceCron interface{} `json:"recurrence_cron,omitempty"`
+	Description interface{} `json:"description,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	CreatedBy string `json:"created_by"`
+	DeletedAt interface{} `json:"deleted_at,omitempty"`
+}
+
+// BatchExecutionResponse Response shape for a single batch execution. The legacy `batch_spec_json` / `agent_spec_json` / `agent_urn` / `input_datasource_id` fields are kept for client compatibility (DEL-1376 §5.5) — they are reconstructed from the linked BatchDefinition by the router, not stored on the execution row.
+type BatchExecutionResponse struct {
+	// Execution ID — also the Temporal workflow ID for direct queries
+	Id string `json:"id"`
+	// FK to the BatchDefinition this execution ran against
+	BatchDefinitionId string `json:"batch_definition_id"`
+	CustomerId string `json:"customer_id"`
+	ProjectId string `json:"project_id"`
+	AgentUrn interface{} `json:"agent_urn,omitempty"`
+	// Optional override for the tool's parameters schema
+	BatchSpecJson interface{} `json:"batch_spec_json,omitempty"`
+	AgentSpecJson interface{} `json:"agent_spec_json,omitempty"`
+	InputDatasourceId interface{} `json:"input_datasource_id,omitempty"`
+	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
+	// Optional override for the tool's parameters schema
+	InputOverrides interface{} `json:"input_overrides,omitempty"`
+	TotalItems interface{} `json:"total_items,omitempty"`
+	Succeeded interface{} `json:"succeeded,omitempty"`
+	Failed interface{} `json:"failed,omitempty"`
+	StartTime time.Time `json:"start_time"`
+	EndTime interface{} `json:"end_time,omitempty"`
+	Status string `json:"status"`
+	// Overall error message
+	Error interface{} `json:"error,omitempty"`
+	// Per-item results (populated on completion by status callback)
+	Items interface{} `json:"items,omitempty"`
+}
+
+// BatchItemResult Per-item result from the Temporal workflow.
+type BatchItemResult struct {
+	InputDataElementId string `json:"input_data_element_id"`
+	Filename string `json:"filename"`
+	Status string `json:"status"`
+	Error interface{} `json:"error,omitempty"`
+	OutputArtifacts interface{} `json:"output_artifacts,omitempty"`
+	Attempts interface{} `json:"attempts,omitempty"`
+}
+
+// BodySendChatMessageStream represents the Body_sendChatMessageStream type.
+type BodySendChatMessageStream struct {
+	UserMessage interface{} `json:"user_message,omitempty"`
+	TimeoutSeconds interface{} `json:"timeout_seconds,omitempty"`
+	IncludeThinking interface{} `json:"include_thinking,omitempty"`
+	IncludeToolActivity interface{} `json:"include_tool_activity,omitempty"`
+	Files interface{} `json:"files,omitempty"`
+}
 
 // BoundingBox represents the BoundingBox type.
 type BoundingBox struct {
@@ -380,6 +463,38 @@ type CreateArtifactSchemaResponse struct {
 	Version string `json:"version"`
 }
 
+// CreateBatchDefinitionRequest Create a new BatchDefinition lineage.
+type CreateBatchDefinitionRequest struct {
+	// Kebab-case label (non-unique within tenant)
+	Name string `json:"name"`
+	// AgentDefinition ID; resolved + pinned at creation time
+	AgentId string `json:"agent_id"`
+	// Datasource holding the input Data Elements
+	InputDatasourceId string `json:"input_datasource_id"`
+	Filters interface{} `json:"filters,omitempty"`
+	// Pinned output sink. NULL = workflow auto-creates per execution.
+	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
+	UserMessage interface{} `json:"user_message,omitempty"`
+	Concurrency interface{} `json:"concurrency,omitempty"`
+	RetryLimit interface{} `json:"retry_limit,omitempty"`
+	// Cron expression validated by croniter; not yet scheduled in DEL-1376.
+	RecurrenceCron interface{} `json:"recurrence_cron,omitempty"`
+	Description interface{} `json:"description,omitempty"`
+}
+
+// CreateBatchDefinitionResponse Compact post-create payload mirroring CreateAgentDefinitionResponse.
+type CreateBatchDefinitionResponse struct {
+	Id string `json:"id"`
+	CatalogUrn string `json:"catalog_urn"`
+	Name string `json:"name"`
+	Version string `json:"version"`
+}
+
+// CreateBatchExecutionRequest Legacy request body for POST /batch-execution/ (pre-DEL-1376 compat shim).
+type CreateBatchExecutionRequest struct {
+	BatchSpecJson LegacyBatchSpecJson `json:"batch_spec_json"`
+}
+
 // CreateDatasourceRequest represents the CreateDatasourceRequest type.
 type CreateDatasourceRequest struct {
 	// Human-readable datasource name
@@ -526,6 +641,12 @@ type DownloadJobResponse struct {
 	StatusUrl string `json:"status_url"`
 }
 
+// ExecuteBatchDefinitionResponse ExecuteBatchDefinitionResponse
+type ExecuteBatchDefinitionResponse struct {
+	ExecutionId string `json:"execution_id"`
+	WorkflowId string `json:"workflow_id"`
+}
+
 // FieldSummary represents the FieldSummary type.
 type FieldSummary struct {
 	Name string `json:"name"`
@@ -568,6 +689,18 @@ type FileUploadSyncResponse struct {
 type FilesSummaryResponse struct {
 	Total int64 `json:"total"`
 	Deleted interface{} `json:"deleted,omitempty"`
+}
+
+// GetBatchDefinitionsResponse GetBatchDefinitionsResponse
+type GetBatchDefinitionsResponse struct {
+	Data []BatchDefinitionResponse `json:"data"`
+	Pagination PaginationMeta `json:"pagination"`
+}
+
+// GetBatchExecutionsResponse Response model for listing batch executions.
+type GetBatchExecutionsResponse struct {
+	Data []BatchExecutionResponse `json:"data"`
+	Pagination PaginationMeta `json:"pagination"`
 }
 
 // HttpValidationError represents the HTTPValidationError type.
@@ -614,6 +747,44 @@ type JudgeConfig struct {
 	Prompt string `json:"prompt"`
 	TemperatureMax interface{} `json:"temperature_max,omitempty"`
 	TemperatureStep interface{} `json:"temperature_step,omitempty"`
+}
+
+// LegacyBatchExecutionParams LegacyBatchExecutionParams
+type LegacyBatchExecutionParams struct {
+	Concurrency interface{} `json:"concurrency,omitempty"`
+	RetryLimit interface{} `json:"retry_limit,omitempty"`
+}
+
+// LegacyBatchInputConfig LegacyBatchInputConfig
+type LegacyBatchInputConfig struct {
+	DatasourceId string `json:"datasource_id"`
+	Filters interface{} `json:"filters,omitempty"`
+}
+
+// LegacyBatchInputFilters LegacyBatchInputFilters
+type LegacyBatchInputFilters struct {
+	Regex interface{} `json:"regex,omitempty"`
+	MediaTypes interface{} `json:"media_types,omitempty"`
+	ElementIds interface{} `json:"element_ids,omitempty"`
+	AdditionalProperties *string `json:"additional_properties,omitempty"`
+}
+
+// LegacyBatchOutputConfig LegacyBatchOutputConfig
+type LegacyBatchOutputConfig struct {
+	DatasourceId interface{} `json:"datasource_id,omitempty"`
+}
+
+// LegacyBatchSpecJson LegacyBatchSpecJson
+type LegacyBatchSpecJson struct {
+	Name string `json:"name"`
+	Version interface{} `json:"version,omitempty"`
+	// AgentDefinition ID
+	Agent string `json:"agent"`
+	UserMessage interface{} `json:"user_message,omitempty"`
+	Input LegacyBatchInputConfig `json:"input"`
+	Output interface{} `json:"output,omitempty"`
+	Execution interface{} `json:"execution,omitempty"`
+	AdditionalProperties *string `json:"additional_properties,omitempty"`
 }
 
 // ListMetadataModelCatalogResponse ListMetadataModelCatalogResponse
@@ -745,6 +916,16 @@ type OcConfig struct {
 type OcrConfig struct {
 	CalibrationModel interface{} `json:"calibration_model,omitempty"`
 	OcrConfidenceScores interface{} `json:"ocr_confidence_scores,omitempty"`
+}
+
+// PaginationMeta Pagination metadata included in list responses.
+type PaginationMeta struct {
+	// Total number of items matching the query
+	Total int64 `json:"total"`
+	// Number of items skipped
+	Offset int64 `json:"offset"`
+	// Maximum number of items returned (None means no limit applied)
+	Limit interface{} `json:"limit,omitempty"`
 }
 
 // ParseDocumentResponse Returned from POST /documents (async).
@@ -1073,6 +1254,49 @@ type UpdateArtifactSchemaResponse struct {
 	Version string `json:"version"`
 }
 
+// UpdateBatchDefinitionRequest Patch a BatchDefinition; the service forks a new version row.
+type UpdateBatchDefinitionRequest struct {
+	Name interface{} `json:"name,omitempty"`
+	// If set, re-resolves and re-pins the agent spec
+	AgentId interface{} `json:"agent_id,omitempty"`
+	InputDatasourceId interface{} `json:"input_datasource_id,omitempty"`
+	Filters interface{} `json:"filters,omitempty"`
+	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
+	UserMessage interface{} `json:"user_message,omitempty"`
+	Concurrency interface{} `json:"concurrency,omitempty"`
+	RetryLimit interface{} `json:"retry_limit,omitempty"`
+	RecurrenceCron interface{} `json:"recurrence_cron,omitempty"`
+	Description interface{} `json:"description,omitempty"`
+}
+
+// UpdateBatchDefinitionResponse New version metadata returned after a successful update fork.
+type UpdateBatchDefinitionResponse struct {
+	Id string `json:"id"`
+	CatalogUrn string `json:"catalog_urn"`
+	Version string `json:"version"`
+}
+
+// UpdateBatchExecutionRequest Runtime-only patch fields. Identity, definition link, and overrides are immutable.
+type UpdateBatchExecutionRequest struct {
+	// Execution status
+	Status interface{} `json:"status,omitempty"`
+	// Execution end time
+	EndTime interface{} `json:"end_time,omitempty"`
+	// Total items in batch
+	TotalItems interface{} `json:"total_items,omitempty"`
+	// Number of succeeded items
+	Succeeded interface{} `json:"succeeded,omitempty"`
+	// Number of failed items
+	Failed interface{} `json:"failed,omitempty"`
+	// Output datasource ID
+	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
+	// Per-item results
+	Items interface{} `json:"items,omitempty"`
+	// Overall error message
+	Error interface{} `json:"error,omitempty"`
+	AdditionalProperties *string `json:"additional_properties,omitempty"`
+}
+
 // UpdatePromptResponse represents the UpdatePromptResponse type.
 type UpdatePromptResponse struct {
 	Id string `json:"id"`
@@ -1150,7 +1374,6 @@ type UploadContentResponse struct {
 	SseUrl string `json:"sse_url"`
 	EstimatedFiles interface{} `json:"estimated_files,omitempty"`
 	EstimatedSize interface{} `json:"estimated_size,omitempty"`
-	IngestUrl interface{} `json:"ingest_url,omitempty"`
 }
 
 // UpdateDataElementRequest represents the UpdateDataElementRequest type.

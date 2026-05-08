@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -6,9 +6,9 @@ import (
 	"net/url"
 )
 
-// ArtifactSchemasService handles Artifact Schemas operations.
+// ArtifactSchemasService handles ArtifactSchemas operations.
 type ArtifactSchemasService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
 // ListArtifactSchemasOptions contains optional parameters for ListArtifactSchemas.

@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -6,9 +6,9 @@ import (
 	"net/url"
 )
 
-// MetadataModelCatalogService handles Metadata Model Catalog operations.
+// MetadataModelCatalogService handles MetadataModelCatalog operations.
 type MetadataModelCatalogService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
 // ListMetadataModelCatalogOptions contains optional parameters for ListMetadataModelCatalog.

@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 
 // DocumentsService handles Documents operations.
 type DocumentsService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
 // ProcessDocumentOptions contains optional parameters for ProcessDocument.

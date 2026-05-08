@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 // PromptsService handles Prompts operations.
 type PromptsService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
 // ListPrompts List Prompts

@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -6,9 +6,9 @@ import (
 	"net/url"
 )
 
-// TableDescriptionsService handles Table Descriptions operations.
-type TableDescriptionsService struct {
-	client *MeibelgoClient
+// TablesService handles Tables operations.
+type TablesService struct {
+	client *MeibelClient
 }
 
 // ListTablesOptions contains optional parameters for ListTables.
@@ -18,7 +18,7 @@ type ListTablesOptions struct {
 }
 
 // ListTables List Tables
-func (s *TableDescriptionsService) ListTables(ctx context.Context, datasourceId string, opts *ListTablesOptions) (*[]TagTable, error) {
+func (s *TablesService) ListTables(ctx context.Context, datasourceId string, opts *ListTablesOptions) (*[]TagTable, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tables"
 	query := url.Values{}
 	if opts != nil && opts.IncludeColumns != nil {
@@ -39,7 +39,7 @@ func (s *TableDescriptionsService) ListTables(ctx context.Context, datasourceId 
 }
 
 // UpdateTableDescriptions Update Table Descriptions
-func (s *TableDescriptionsService) UpdateTableDescriptions(ctx context.Context, datasourceId string, body []TagTableUpdateItem) (*[]TagTable, error) {
+func (s *TablesService) UpdateTableDescriptions(ctx context.Context, datasourceId string, body []TagTableUpdateItem) (*[]TagTable, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tables"
 
 	var result []TagTable
@@ -56,7 +56,7 @@ func (s *TableDescriptionsService) UpdateTableDescriptions(ctx context.Context, 
 }
 
 // ListColumns List Columns
-func (s *TableDescriptionsService) ListColumns(ctx context.Context, datasourceId string, tableName string) (*[]TagColumn, error) {
+func (s *TablesService) ListColumns(ctx context.Context, datasourceId string, tableName string) (*[]TagColumn, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tables/" + fmt.Sprintf("%v", tableName) + "/columns"
 
 	var result []TagColumn
@@ -72,7 +72,7 @@ func (s *TableDescriptionsService) ListColumns(ctx context.Context, datasourceId
 }
 
 // UpdateColumnDescriptions Update Column Descriptions
-func (s *TableDescriptionsService) UpdateColumnDescriptions(ctx context.Context, datasourceId string, tableName string, body []TagColumnUpdateItem) (*[]TagColumn, error) {
+func (s *TablesService) UpdateColumnDescriptions(ctx context.Context, datasourceId string, tableName string, body []TagColumnUpdateItem) (*[]TagColumn, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tables/" + fmt.Sprintf("%v", tableName) + "/columns"
 
 	var result []TagColumn

@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"bytes"

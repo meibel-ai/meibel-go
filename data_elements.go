@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -6,9 +6,9 @@ import (
 	"net/url"
 )
 
-// DataElementsService handles Data Elements operations.
+// DataElementsService handles DataElements operations.
 type DataElementsService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
 // ListDataElementsOptions contains optional parameters for ListDataElements.

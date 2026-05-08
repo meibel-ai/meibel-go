@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -8,12 +8,11 @@ import (
 
 // DatasourcesService handles Datasources operations.
 type DatasourcesService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 	DataElements *DataElementsService
 	Downloads *DownloadsService
-	FileUpload *FileUploadService
-	Ingest *IngestService
-	TableDescriptions *TableDescriptionsService
+	FileUploads *FileUploadsService
+	Tables *TablesService
 }
 
 // GetDatasourceOptions contains optional parameters for GetDatasource.

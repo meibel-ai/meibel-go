@@ -1,4 +1,4 @@
-package meibelgo
+package v2
 
 import (
 	"context"
@@ -6,9 +6,9 @@ import (
 	"net/url"
 )
 
-// ConfidenceScoringService handles Confidence Scoring operations.
+// ConfidenceScoringService handles ConfidenceScoring operations.
 type ConfidenceScoringService struct {
-	client *MeibelgoClient
+	client *MeibelClient
 }
 
 // ListScoringJobsOptions contains optional parameters for ListScoringJobs.
