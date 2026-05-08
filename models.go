@@ -1409,3 +1409,43 @@ type WebDomain struct {
 	// Regex URL pattern to exclude
 	ExcludePattern *string `json:"exclude_pattern,omitempty"`
 }
+
+// BodyUploadContent represents the Body_uploadContent type.
+type BodyUploadContent struct {
+	// One or more files to upload
+	Files [][]byte `json:"files"`
+	// ID of an existing datasource to upload to. Provide this or name.
+	DatasourceId *string `json:"datasource_id,omitempty"`
+	// Name for a new datasource to create. Provide this or datasource_id.
+	Name *string `json:"name,omitempty"`
+	// Description of the new datasource (only used when creating with name).
+	Description *string `json:"description,omitempty"`
+	MetadataConfig *MetadataConfigRequest `json:"metadata_config,omitempty"`
+}
+
+// BodyUploadAndListContent represents the Body_uploadAndListContent type.
+type BodyUploadAndListContent struct {
+	// One or more files to upload
+	Files [][]byte `json:"files"`
+	// ID of an existing datasource to upload to. Provide this or name.
+	DatasourceId *string `json:"datasource_id,omitempty"`
+	// Name for a new datasource to create. Provide this or datasource_id.
+	Name *string `json:"name,omitempty"`
+	// Description of the new datasource (only used when creating with name).
+	Description *string `json:"description,omitempty"`
+	MetadataConfig *MetadataConfigRequest `json:"metadata_config,omitempty"`
+	// Start ingestion after upload completes. Returns ingest_url to poll for status.
+	TriggerIngest *bool `json:"trigger_ingest,omitempty"`
+}
+
+// BodyParseDocument represents the Body_parseDocument type.
+type BodyParseDocument struct {
+	// The document file to parse
+	File []byte `json:"file"`
+}
+
+// BodyProcessDocument represents the Body_processDocument type.
+type BodyProcessDocument struct {
+	// The document file to process
+	File []byte `json:"file"`
+}

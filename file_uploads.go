@@ -23,14 +23,19 @@ type ListContentOptions struct {
 }
 
 // UploadContent Upload Content (async)
-func (s *FileUploadsService) UploadContent(ctx context.Context, file io.Reader, fileName string) (*UploadContentResponse, error) {
+func (s *FileUploadsService) UploadContent(ctx context.Context, files io.Reader, filesName string, datasourceId string, name string, description string, metadataConfig MetadataConfigRequest) (*UploadContentResponse, error) {
 	path := "/datasources/uploads"
 
 	var result UploadContentResponse
 	files := []UploadField{
-		{FieldName: "file", Reader: file, FileName: fileName},
+		{FieldName: "files", Reader: files, FileName: filesName},
 	}
-	formFields := map[string]string{}
+	formFields := map[string]string{
+		"datasource_id": fmt.Sprintf("%v", datasourceId),
+		"name": fmt.Sprintf("%v", name),
+		"description": fmt.Sprintf("%v", description),
+		"metadata_config": fmt.Sprintf("%v", metadataConfig),
+	}
 
 	err := s.client.http.DoUpload(ctx, RequestOptions{
 		Method: "POST",
@@ -44,14 +49,20 @@ func (s *FileUploadsService) UploadContent(ctx context.Context, file io.Reader, 
 }
 
 // UploadAndListContent Upload Content (sync)
-func (s *FileUploadsService) UploadAndListContent(ctx context.Context, file io.Reader, fileName string) (*FileUploadSyncResponse, error) {
+func (s *FileUploadsService) UploadAndListContent(ctx context.Context, files io.Reader, filesName string, datasourceId string, name string, description string, metadataConfig MetadataConfigRequest, triggerIngest bool) (*FileUploadSyncResponse, error) {
 	path := "/datasources/uploads/process"
 
 	var result FileUploadSyncResponse
 	files := []UploadField{
-		{FieldName: "file", Reader: file, FileName: fileName},
+		{FieldName: "files", Reader: files, FileName: filesName},
 	}
-	formFields := map[string]string{}
+	formFields := map[string]string{
+		"datasource_id": fmt.Sprintf("%v", datasourceId),
+		"name": fmt.Sprintf("%v", name),
+		"description": fmt.Sprintf("%v", description),
+		"metadata_config": fmt.Sprintf("%v", metadataConfig),
+		"trigger_ingest": fmt.Sprintf("%v", triggerIngest),
+	}
 
 	err := s.client.http.DoUpload(ctx, RequestOptions{
 		Method: "POST",
