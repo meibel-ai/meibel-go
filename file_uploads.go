@@ -26,15 +26,16 @@ type ListContentOptions struct {
 func (s *FileUploadsService) UploadContent(ctx context.Context, files io.Reader, filesName string, datasourceId string, name string, description string, metadataConfig MetadataConfigRequest) (*UploadContentResponse, error) {
 	path := "/datasources/uploads"
 
-	var result UploadContentResponse
-	files := []UploadField{
-		{FieldName: "files", Reader: files, FileName: filesName},
-	}
 	formFields := map[string]string{
 		"datasource_id": fmt.Sprintf("%v", datasourceId),
 		"name": fmt.Sprintf("%v", name),
 		"description": fmt.Sprintf("%v", description),
 		"metadata_config": fmt.Sprintf("%v", metadataConfig),
+	}
+
+	var result UploadContentResponse
+	files := []UploadField{
+		{FieldName: "files", Reader: files, FileName: filesName},
 	}
 
 	err := s.client.http.DoUpload(ctx, RequestOptions{
@@ -52,16 +53,17 @@ func (s *FileUploadsService) UploadContent(ctx context.Context, files io.Reader,
 func (s *FileUploadsService) UploadAndListContent(ctx context.Context, files io.Reader, filesName string, datasourceId string, name string, description string, metadataConfig MetadataConfigRequest, triggerIngest bool) (*FileUploadSyncResponse, error) {
 	path := "/datasources/uploads/process"
 
-	var result FileUploadSyncResponse
-	files := []UploadField{
-		{FieldName: "files", Reader: files, FileName: filesName},
-	}
 	formFields := map[string]string{
 		"datasource_id": fmt.Sprintf("%v", datasourceId),
 		"name": fmt.Sprintf("%v", name),
 		"description": fmt.Sprintf("%v", description),
 		"metadata_config": fmt.Sprintf("%v", metadataConfig),
 		"trigger_ingest": fmt.Sprintf("%v", triggerIngest),
+	}
+
+	var result FileUploadSyncResponse
+	files := []UploadField{
+		{FieldName: "files", Reader: files, FileName: filesName},
 	}
 
 	err := s.client.http.DoUpload(ctx, RequestOptions{

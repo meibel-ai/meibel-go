@@ -52,12 +52,13 @@ func NewHTTPClient(config HTTPClientConfig) *HTTPClient {
 
 // RequestOptions holds options for a single request.
 type RequestOptions struct {
-	Method  string
-	Path    string
-	Query   url.Values
-	Headers map[string]string
-	Body    interface{}
-	Stream  bool
+	Method     string
+	Path       string
+	Query      url.Values
+	Headers    map[string]string
+	Body       interface{}
+	FormFields map[string]string // Form fields to send as application/x-www-form-urlencoded (mutually exclusive with Body)
+	Stream     bool
 }
 
 // Do performs an HTTP request and decodes the response into result.
@@ -197,7 +198,16 @@ func (c *HTTPClient) newRequest(ctx context.Context, opts RequestOptions) (*http
 	}
 
 	var body io.Reader
-	if opts.Body != nil {
+	isFormEncoded := false
+	if len(opts.FormFields) > 0 {
+		// URL-encode form fields
+		form := url.Values{}
+		for k, v := range opts.FormFields {
+			form.Set(k, v)
+		}
+		body = bytes.NewReader([]byte(form.Encode()))
+		isFormEncoded = true
+	} else if opts.Body != nil {
 		data, err := json.Marshal(opts.Body)
 		if err != nil {
 			return nil, err
@@ -223,6 +233,11 @@ func (c *HTTPClient) newRequest(ctx context.Context, opts RequestOptions) (*http
 	// Set request-specific headers
 	for k, v := range opts.Headers {
 		req.Header.Set(k, v)
+	}
+
+	// Override Content-Type for form-encoded requests
+	if isFormEncoded {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
 
 	// Set accept header for streaming

@@ -107,27 +107,39 @@ func (s *AgentsSessionsService) SendChatMessage(ctx context.Context, sessionId s
 }
 
 // SendChatMessageStream Send a chat message with file attachments and stream the response via SSE
-func (s *AgentsSessionsService) SendChatMessageStream(ctx context.Context, sessionId string, file io.Reader, fileName string, userMessage interface{}, timeoutSeconds interface{}, includeThinking interface{}, includeToolActivity interface{}, files interface{}) (*EventStream[interface{}], error) {
+func (s *AgentsSessionsService) SendChatMessageStream(ctx context.Context, sessionId string, files io.Reader, filesName string, userMessage interface{}, timeoutSeconds interface{}, includeThinking interface{}, includeToolActivity interface{}) (*EventStream[interface{}], error) {
 	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/chat/stream"
 
-	files := []UploadField{
-		{FieldName: "file", Reader: file, FileName: fileName},
-	}
 	formFields := map[string]string{
 		"user_message": fmt.Sprintf("%v", userMessage),
 		"timeout_seconds": fmt.Sprintf("%v", timeoutSeconds),
 		"include_thinking": fmt.Sprintf("%v", includeThinking),
 		"include_tool_activity": fmt.Sprintf("%v", includeToolActivity),
-		"files": fmt.Sprintf("%v", files),
 	}
 
-	err := s.client.http.DoUpload(ctx, RequestOptions{
+	if files != nil {
+		files := []UploadField{
+			{FieldName: "files", Reader: files, FileName: filesName},
+		}
+
+		err := s.client.http.DoUpload(ctx, RequestOptions{
+			Method: "POST",
+			Path:   path,
+		}, files, formFields, nil)
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
+
+	resp, err := s.client.http.DoStream(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
-	}, files, formFields, nil)
+		FormFields: formFields,
+	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return JSONEventStream[interface{}](resp), nil
 }
