@@ -11,24 +11,24 @@ type DataElementsService struct {
 	client *MeibelClient
 }
 
-// ListDataElementsOptions contains optional parameters for ListDataElements.
-type ListDataElementsOptions struct {
+// DataElementsListOptions contains optional parameters for List.
+type DataElementsListOptions struct {
 	// Cursor for pagination
 	Cursor interface{}
 	// Maximum items to return
 	Limit *int64
 }
 
-// SearchDataElementsOptions contains optional parameters for SearchDataElements.
-type SearchDataElementsOptions struct {
+// DataElementsSearchOptions contains optional parameters for Search.
+type DataElementsSearchOptions struct {
 	// Cursor for pagination
 	Cursor interface{}
 	// Maximum items to return
 	Limit *int64
 }
 
-// GetDataElement Get Data Element
-func (s *DataElementsService) GetDataElement(ctx context.Context, datasourceId string, dataElementId string) (*DataElementResponse, error) {
+// Get Get Data Element
+func (s *DataElementsService) Get(ctx context.Context, datasourceId string, dataElementId string) (*DataElementResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
 
 	var result DataElementResponse
@@ -43,8 +43,8 @@ func (s *DataElementsService) GetDataElement(ctx context.Context, datasourceId s
 	return &result, nil
 }
 
-// UpdateDataElement Update Data Element
-func (s *DataElementsService) UpdateDataElement(ctx context.Context, datasourceId string, dataElementId string, body UpdateDataElementRequest) (*DataElementResponse, error) {
+// Update Update Data Element
+func (s *DataElementsService) Update(ctx context.Context, datasourceId string, dataElementId string, body UpdateDataElementRequest) (*DataElementResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
 
 	var result DataElementResponse
@@ -60,8 +60,8 @@ func (s *DataElementsService) UpdateDataElement(ctx context.Context, datasourceI
 	return &result, nil
 }
 
-// ListDataElements List Data Elements
-func (s *DataElementsService) ListDataElements(ctx context.Context, datasourceId string, opts *ListDataElementsOptions) *PageIterator[DataElementResponse] {
+// List List Data Elements
+func (s *DataElementsService) List(ctx context.Context, datasourceId string, opts *DataElementsListOptions) *PageIterator[DataElementResponse] {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements"
 	query := url.Values{}
 	if opts != nil && opts.Cursor != nil {
@@ -97,8 +97,8 @@ func (s *DataElementsService) ListDataElements(ctx context.Context, datasourceId
 	})
 }
 
-// SearchDataElements Search Data Elements
-func (s *DataElementsService) SearchDataElements(ctx context.Context, datasourceId string, body DataElementSearchRequest, opts *SearchDataElementsOptions) (*DataElementListResponse, error) {
+// Search Search Data Elements
+func (s *DataElementsService) Search(ctx context.Context, datasourceId string, body DataElementSearchRequest, opts *DataElementsSearchOptions) (*DataElementListResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/search"
 	query := url.Values{}
 	if opts != nil && opts.Cursor != nil {

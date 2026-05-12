@@ -16,14 +16,14 @@ type DatasourcesService struct {
 	Tables *TablesService
 }
 
-// GetDatasourceOptions contains optional parameters for GetDatasource.
-type GetDatasourceOptions struct {
+// DatasourcesGetOptions contains optional parameters for Get.
+type DatasourcesGetOptions struct {
 	// Include table and column details (structured datasources only)
 	IncludeTables *bool
 }
 
-// ListDatasources List Datasources
-func (s *DatasourcesService) ListDatasources(ctx context.Context) (*DatasourceListResponse, error) {
+// List List Datasources
+func (s *DatasourcesService) List(ctx context.Context) (*DatasourceListResponse, error) {
 	path := "/datasources"
 
 	var result DatasourceListResponse
@@ -38,8 +38,8 @@ func (s *DatasourcesService) ListDatasources(ctx context.Context) (*DatasourceLi
 	return &result, nil
 }
 
-// CreateDatasource Create Datasource
-func (s *DatasourcesService) CreateDatasource(ctx context.Context, body CreateDatasourceRequest) (*DatasourceResponse, error) {
+// Create Create Datasource
+func (s *DatasourcesService) Create(ctx context.Context, body CreateDatasourceRequest) (*DatasourceResponse, error) {
 	path := "/datasources"
 
 	var result DatasourceResponse
@@ -55,8 +55,8 @@ func (s *DatasourcesService) CreateDatasource(ctx context.Context, body CreateDa
 	return &result, nil
 }
 
-// GetDatasource Get Datasource
-func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId string, opts *GetDatasourceOptions) (*DatasourceResponse, error) {
+// Get Get Datasource
+func (s *DatasourcesService) Get(ctx context.Context, datasourceId string, opts *DatasourcesGetOptions) (*DatasourceResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
 	query := url.Values{}
 	if opts != nil && opts.IncludeTables != nil {
@@ -76,8 +76,8 @@ func (s *DatasourcesService) GetDatasource(ctx context.Context, datasourceId str
 	return &result, nil
 }
 
-// UpdateDatasource Update Datasource
-func (s *DatasourcesService) UpdateDatasource(ctx context.Context, datasourceId string, body UpdateDatasourceRequest) (*DatasourceResponse, error) {
+// Update Update Datasource
+func (s *DatasourcesService) Update(ctx context.Context, datasourceId string, body UpdateDatasourceRequest) (*DatasourceResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
 
 	var result DatasourceResponse
@@ -93,8 +93,8 @@ func (s *DatasourcesService) UpdateDatasource(ctx context.Context, datasourceId 
 	return &result, nil
 }
 
-// DeleteDatasource Delete Datasource
-func (s *DatasourcesService) DeleteDatasource(ctx context.Context, datasourceId string) (*string, error) {
+// Delete Delete Datasource
+func (s *DatasourcesService) Delete(ctx context.Context, datasourceId string) (*string, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
 
 	var result string

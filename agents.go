@@ -12,22 +12,22 @@ type AgentsService struct {
 	Sessions *AgentsSessionsService
 }
 
-// ListAgentsOptions contains optional parameters for ListAgents.
-type ListAgentsOptions struct {
+// AgentsListOptions contains optional parameters for List.
+type AgentsListOptions struct {
 	// Number of items to skip
 	Offset *int64
 	// Maximum number of items to return
 	Limit interface{}
 }
 
-// PublishAgentOptions contains optional parameters for PublishAgent.
-type PublishAgentOptions struct {
+// AgentsPublishOptions contains optional parameters for Publish.
+type AgentsPublishOptions struct {
 	// Bypass draft head validation and publish any version directly
 	OverrideDraft *bool
 }
 
-// ListAgentVersionsOptions contains optional parameters for ListAgentVersions.
-type ListAgentVersionsOptions struct {
+// AgentsListVersionsOptions contains optional parameters for ListVersions.
+type AgentsListVersionsOptions struct {
 	// If true, return only published versions. If omitted, return all versions.
 	Published interface{}
 	// Number of items to skip
@@ -36,8 +36,8 @@ type ListAgentVersionsOptions struct {
 	Limit interface{}
 }
 
-// ListAgents List Agents
-func (s *AgentsService) ListAgents(ctx context.Context, opts *ListAgentsOptions) *PageIterator[AgentSummary] {
+// List List Agents
+func (s *AgentsService) List(ctx context.Context, opts *AgentsListOptions) *PageIterator[AgentSummary] {
 	path := "/agents/"
 	query := url.Values{}
 	if opts != nil && opts.Offset != nil {
@@ -73,8 +73,8 @@ func (s *AgentsService) ListAgents(ctx context.Context, opts *ListAgentsOptions)
 	})
 }
 
-// CreateAgent Create Agent
-func (s *AgentsService) CreateAgent(ctx context.Context, body CreateAgentDefinitionRequest) (*CreateAgentResponse, error) {
+// Create Create Agent
+func (s *AgentsService) Create(ctx context.Context, body CreateAgentDefinitionRequest) (*CreateAgentResponse, error) {
 	path := "/agents/"
 
 	var result CreateAgentResponse
@@ -90,8 +90,8 @@ func (s *AgentsService) CreateAgent(ctx context.Context, body CreateAgentDefinit
 	return &result, nil
 }
 
-// GetAgent Get Agent
-func (s *AgentsService) GetAgent(ctx context.Context, agentId string) (*AgentDetailResponse, error) {
+// Get Get Agent
+func (s *AgentsService) Get(ctx context.Context, agentId string) (*AgentDetailResponse, error) {
 	path := "/agents/" + fmt.Sprintf("%v", agentId)
 
 	var result AgentDetailResponse
@@ -106,8 +106,8 @@ func (s *AgentsService) GetAgent(ctx context.Context, agentId string) (*AgentDet
 	return &result, nil
 }
 
-// UpdateAgent Update Agent
-func (s *AgentsService) UpdateAgent(ctx context.Context, agentId string, body UpdateAgentDefinitionRequest) (*UpdateAgentDefinitionResponse, error) {
+// Update Update Agent
+func (s *AgentsService) Update(ctx context.Context, agentId string, body UpdateAgentDefinitionRequest) (*UpdateAgentDefinitionResponse, error) {
 	path := "/agents/" + fmt.Sprintf("%v", agentId)
 
 	var result UpdateAgentDefinitionResponse
@@ -123,8 +123,8 @@ func (s *AgentsService) UpdateAgent(ctx context.Context, agentId string, body Up
 	return &result, nil
 }
 
-// DeleteAgent Delete Agent
-func (s *AgentsService) DeleteAgent(ctx context.Context, agentId string) error {
+// Delete Delete Agent
+func (s *AgentsService) Delete(ctx context.Context, agentId string) error {
 	path := "/agents/" + fmt.Sprintf("%v", agentId)
 
 	err := s.client.http.Do(ctx, RequestOptions{
@@ -138,8 +138,8 @@ func (s *AgentsService) DeleteAgent(ctx context.Context, agentId string) error {
 	return nil
 }
 
-// PublishAgent Publish Agent
-func (s *AgentsService) PublishAgent(ctx context.Context, agentId string, body PublishAgentDefinitionRequest, opts *PublishAgentOptions) (*PublishAgentDefinitionResponse, error) {
+// Publish Publish Agent
+func (s *AgentsService) Publish(ctx context.Context, agentId string, body PublishAgentDefinitionRequest, opts *AgentsPublishOptions) (*PublishAgentDefinitionResponse, error) {
 	path := "/agents/" + fmt.Sprintf("%v", agentId) + "/publish"
 	query := url.Values{}
 	if opts != nil && opts.OverrideDraft != nil {
@@ -160,8 +160,8 @@ func (s *AgentsService) PublishAgent(ctx context.Context, agentId string, body P
 	return &result, nil
 }
 
-// ListAgentVersions List Agent Versions
-func (s *AgentsService) ListAgentVersions(ctx context.Context, agentId string, opts *ListAgentVersionsOptions) *PageIterator[AgentVersionSummary] {
+// ListVersions List Agent Versions
+func (s *AgentsService) ListVersions(ctx context.Context, agentId string, opts *AgentsListVersionsOptions) *PageIterator[AgentVersionSummary] {
 	path := "/agents/" + fmt.Sprintf("%v", agentId) + "/versions"
 	query := url.Values{}
 	if opts != nil && opts.Published != nil {

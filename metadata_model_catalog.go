@@ -11,13 +11,13 @@ type MetadataModelCatalogService struct {
 	client *MeibelClient
 }
 
-// ListMetadataModelCatalogOptions contains optional parameters for ListMetadataModelCatalog.
-type ListMetadataModelCatalogOptions struct {
+// MetadataModelCatalogListOptions contains optional parameters for List.
+type MetadataModelCatalogListOptions struct {
 	Scope interface{}
 }
 
-// ListMetadataModelCatalog List Metadata Model Catalog
-func (s *MetadataModelCatalogService) ListMetadataModelCatalog(ctx context.Context, opts *ListMetadataModelCatalogOptions) (*ListMetadataModelCatalogResponse, error) {
+// List List Metadata Model Catalog
+func (s *MetadataModelCatalogService) List(ctx context.Context, opts *MetadataModelCatalogListOptions) (*ListMetadataModelCatalogResponse, error) {
 	path := "/metadata-model-catalog"
 	query := url.Values{}
 	if opts != nil && opts.Scope != nil {
@@ -37,8 +37,8 @@ func (s *MetadataModelCatalogService) ListMetadataModelCatalog(ctx context.Conte
 	return &result, nil
 }
 
-// GetMetadataModelCatalogEntry Get Metadata Model Catalog Entry
-func (s *MetadataModelCatalogService) GetMetadataModelCatalogEntry(ctx context.Context, modelId string) (*MetadataModelCatalogEntry, error) {
+// GetEntry Get Metadata Model Catalog Entry
+func (s *MetadataModelCatalogService) GetEntry(ctx context.Context, modelId string) (*MetadataModelCatalogEntry, error) {
 	path := "/metadata-model-catalog/" + fmt.Sprintf("%v", modelId)
 
 	var result MetadataModelCatalogEntry

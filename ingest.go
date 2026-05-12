@@ -10,8 +10,8 @@ type IngestService struct {
 	client *MeibelClient
 }
 
-// TriggerIngest Trigger Ingest
-func (s *IngestService) TriggerIngest(ctx context.Context, datasourceId string) (*string, error) {
+// Trigger Trigger Ingest
+func (s *IngestService) Trigger(ctx context.Context, datasourceId string) (*string, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/trigger-ingest"
 
 	var result string
@@ -26,8 +26,8 @@ func (s *IngestService) TriggerIngest(ctx context.Context, datasourceId string) 
 	return &result, nil
 }
 
-// GetIngestStatus Get Ingest Status
-func (s *IngestService) GetIngestStatus(ctx context.Context, datasourceId string) (*IngestStatusResponse, error) {
+// GetStatus Get Ingest Status
+func (s *IngestService) GetStatus(ctx context.Context, datasourceId string) (*IngestStatusResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/ingest-status"
 
 	var result IngestStatusResponse

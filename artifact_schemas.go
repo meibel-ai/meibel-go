@@ -11,8 +11,8 @@ type ArtifactSchemasService struct {
 	client *MeibelClient
 }
 
-// ListArtifactSchemasOptions contains optional parameters for ListArtifactSchemas.
-type ListArtifactSchemasOptions struct {
+// ArtifactSchemasListOptions contains optional parameters for List.
+type ArtifactSchemasListOptions struct {
 	// Number of items to skip
 	Offset *int64
 	// Maximum number of items to return
@@ -23,8 +23,8 @@ type ListArtifactSchemasOptions struct {
 	SortOrder interface{}
 }
 
-// ListArtifactSchemas List Artifact Schemas
-func (s *ArtifactSchemasService) ListArtifactSchemas(ctx context.Context, opts *ListArtifactSchemasOptions) *PageIterator[ArtifactSchemaSummary] {
+// List List Artifact Schemas
+func (s *ArtifactSchemasService) List(ctx context.Context, opts *ArtifactSchemasListOptions) *PageIterator[ArtifactSchemaSummary] {
 	path := "/artifact-schemas/"
 	query := url.Values{}
 	if opts != nil && opts.Offset != nil {
@@ -66,8 +66,8 @@ func (s *ArtifactSchemasService) ListArtifactSchemas(ctx context.Context, opts *
 	})
 }
 
-// CreateArtifactSchema Create Artifact Schema
-func (s *ArtifactSchemasService) CreateArtifactSchema(ctx context.Context, body CreateAgentArtifactRequest) (*CreateArtifactSchemaResponse, error) {
+// Create Create Artifact Schema
+func (s *ArtifactSchemasService) Create(ctx context.Context, body CreateAgentArtifactRequest) (*CreateArtifactSchemaResponse, error) {
 	path := "/artifact-schemas/"
 
 	var result CreateArtifactSchemaResponse
@@ -83,8 +83,8 @@ func (s *ArtifactSchemasService) CreateArtifactSchema(ctx context.Context, body 
 	return &result, nil
 }
 
-// GetArtifactSchema Get Artifact Schema
-func (s *ArtifactSchemasService) GetArtifactSchema(ctx context.Context, artifactId string) (*ArtifactSchemaResponse, error) {
+// Get Get Artifact Schema
+func (s *ArtifactSchemasService) Get(ctx context.Context, artifactId string) (*ArtifactSchemaResponse, error) {
 	path := "/artifact-schemas/" + fmt.Sprintf("%v", artifactId)
 
 	var result ArtifactSchemaResponse
@@ -99,8 +99,8 @@ func (s *ArtifactSchemasService) GetArtifactSchema(ctx context.Context, artifact
 	return &result, nil
 }
 
-// UpdateArtifactSchema Update Artifact Schema
-func (s *ArtifactSchemasService) UpdateArtifactSchema(ctx context.Context, artifactId string, body UpdateAgentArtifactRequest) (*UpdateArtifactSchemaResponse, error) {
+// Update Update Artifact Schema
+func (s *ArtifactSchemasService) Update(ctx context.Context, artifactId string, body UpdateAgentArtifactRequest) (*UpdateArtifactSchemaResponse, error) {
 	path := "/artifact-schemas/" + fmt.Sprintf("%v", artifactId)
 
 	var result UpdateArtifactSchemaResponse
@@ -116,8 +116,8 @@ func (s *ArtifactSchemasService) UpdateArtifactSchema(ctx context.Context, artif
 	return &result, nil
 }
 
-// DeleteArtifactSchema Delete Artifact Schema
-func (s *ArtifactSchemasService) DeleteArtifactSchema(ctx context.Context, artifactId string) error {
+// Delete Delete Artifact Schema
+func (s *ArtifactSchemasService) Delete(ctx context.Context, artifactId string) error {
 	path := "/artifact-schemas/" + fmt.Sprintf("%v", artifactId)
 
 	err := s.client.http.Do(ctx, RequestOptions{

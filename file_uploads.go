@@ -12,8 +12,8 @@ type FileUploadsService struct {
 	client *MeibelClient
 }
 
-// ListContentOptions contains optional parameters for ListContent.
-type ListContentOptions struct {
+// FileUploadsListContentOptions contains optional parameters for ListContent.
+type FileUploadsListContentOptions struct {
 	// Filter content by path prefix
 	Prefix interface{}
 	// Token for pagination
@@ -34,14 +34,14 @@ func (s *FileUploadsService) UploadContent(ctx context.Context, files io.Reader,
 	}
 
 	var result UploadContentResponse
-	files := []UploadField{
+	uploadFields := []UploadField{
 		{FieldName: "files", Reader: files, FileName: filesName},
 	}
 
 	err := s.client.http.DoUpload(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
-	}, files, formFields, &result)
+	}, uploadFields, formFields, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -62,14 +62,14 @@ func (s *FileUploadsService) UploadAndListContent(ctx context.Context, files io.
 	}
 
 	var result FileUploadSyncResponse
-	files := []UploadField{
+	uploadFields := []UploadField{
 		{FieldName: "files", Reader: files, FileName: filesName},
 	}
 
 	err := s.client.http.DoUpload(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
-	}, files, formFields, &result)
+	}, uploadFields, formFields, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (s *FileUploadsService) StreamUploadProgress(ctx context.Context, uploadId 
 }
 
 // ListContent List Content
-func (s *FileUploadsService) ListContent(ctx context.Context, datasourceId string, opts *ListContentOptions) *PageIterator[ContentItem] {
+func (s *FileUploadsService) ListContent(ctx context.Context, datasourceId string, opts *FileUploadsListContentOptions) *PageIterator[ContentItem] {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
 	query := url.Values{}
 	if opts != nil && opts.Prefix != nil {

@@ -7,22 +7,22 @@ import (
 	"time"
 )
 
-// MetadataField represents a single metadata extraction field.
-type MetadataField struct {
+// MetadataFieldDef represents a single metadata extraction field.
+type MetadataFieldDef struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
 	Index       bool   `json:"index"`
 }
 
-// MetadataConfigRequest represents a metadata configuration for a datasource.
-type MetadataConfigRequest struct {
+// MetadataConfigBuilder represents a metadata configuration for a datasource.
+type MetadataConfigBuilder struct {
 	Type    string          `json:"type"`
 	ModelID *string         `json:"model_id,omitempty"`
-	Fields  []MetadataField `json:"fields,omitempty"`
+	Fields  []MetadataFieldDef `json:"fields,omitempty"`
 }
 
-// MetadataSchemaFromStruct creates a MetadataConfigRequest from a Go struct.
+// MetadataSchemaFromStruct creates a MetadataConfigBuilder from a Go struct.
 //
 // Each exported field in the struct is mapped to a metadata field. The field
 // name is derived from the `json` tag (or lowercased struct field name).
@@ -48,7 +48,7 @@ type MetadataConfigRequest struct {
 //	}
 //
 //	config := MetadataSchemaFromStruct(InvoiceMetadata{})
-func MetadataSchemaFromStruct(v interface{}) (*MetadataConfigRequest, error) {
+func MetadataSchemaFromStruct(v interface{}) (*MetadataConfigBuilder, error) {
 	t := reflect.TypeOf(v)
 
 	// Dereference pointer
@@ -60,7 +60,7 @@ func MetadataSchemaFromStruct(v interface{}) (*MetadataConfigRequest, error) {
 		return nil, fmt.Errorf("MetadataSchemaFromStruct: expected struct, got %s", t.Kind())
 	}
 
-	fields := make([]MetadataField, 0, t.NumField())
+	fields := make([]MetadataFieldDef, 0, t.NumField())
 
 	for i := 0; i < t.NumField(); i++ {
 		sf := t.Field(i)
@@ -100,7 +100,7 @@ func MetadataSchemaFromStruct(v interface{}) (*MetadataConfigRequest, error) {
 			index = false
 		}
 
-		fields = append(fields, MetadataField{
+		fields = append(fields, MetadataFieldDef{
 			Name:        name,
 			Type:        meibelType,
 			Description: description,
@@ -108,16 +108,16 @@ func MetadataSchemaFromStruct(v interface{}) (*MetadataConfigRequest, error) {
 		})
 	}
 
-	return &MetadataConfigRequest{
+	return &MetadataConfigBuilder{
 		Type:   "custom",
 		Fields: fields,
 	}, nil
 }
 
-// CatalogMetadataConfig creates a MetadataConfigRequest that references
+// CatalogMetadataConfig creates a MetadataConfigBuilder that references
 // a pre-built model from the metadata model catalog.
-func CatalogMetadataConfig(modelID string) *MetadataConfigRequest {
-	return &MetadataConfigRequest{
+func CatalogMetadataConfig(modelID string) *MetadataConfigBuilder {
+	return &MetadataConfigBuilder{
 		Type:    "catalog",
 		ModelID: &modelID,
 	}

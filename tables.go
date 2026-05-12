@@ -11,14 +11,14 @@ type TablesService struct {
 	client *MeibelClient
 }
 
-// ListTablesOptions contains optional parameters for ListTables.
-type ListTablesOptions struct {
+// TablesListOptions contains optional parameters for List.
+type TablesListOptions struct {
 	// Include columns for each table
 	IncludeColumns *bool
 }
 
-// ListTables List Tables
-func (s *TablesService) ListTables(ctx context.Context, datasourceId string, opts *ListTablesOptions) (*[]TagTable, error) {
+// List List Tables
+func (s *TablesService) List(ctx context.Context, datasourceId string, opts *TablesListOptions) (*[]TagTable, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tables"
 	query := url.Values{}
 	if opts != nil && opts.IncludeColumns != nil {
@@ -38,8 +38,8 @@ func (s *TablesService) ListTables(ctx context.Context, datasourceId string, opt
 	return &result, nil
 }
 
-// UpdateTableDescriptions Update Table Descriptions
-func (s *TablesService) UpdateTableDescriptions(ctx context.Context, datasourceId string, body []TagTableUpdateItem) (*[]TagTable, error) {
+// UpdateDescriptions Update Table Descriptions
+func (s *TablesService) UpdateDescriptions(ctx context.Context, datasourceId string, body []TagTableUpdateItem) (*[]TagTable, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tables"
 
 	var result []TagTable

@@ -12,26 +12,26 @@ type DocumentsService struct {
 	client *MeibelClient
 }
 
-// ProcessDocumentOptions contains optional parameters for ProcessDocument.
-type ProcessDocumentOptions struct {
+// DocumentsProcessOptions contains optional parameters for Process.
+type DocumentsProcessOptions struct {
 	// Result format: markdown, annotated, docling, json
 	Format *string
 }
 
-// GetDocumentResultOptions contains optional parameters for GetDocumentResult.
-type GetDocumentResultOptions struct {
+// DocumentsGetResultOptions contains optional parameters for GetResult.
+type DocumentsGetResultOptions struct {
 	// Result format: markdown, annotated, docling, json
 	Format *string
 }
 
-// ParseDocument Parse a document (async)
+// Parse Parse a document (async)
 //
 // Upload a document for asynchronous parsing. Returns a job ID to track progress.
-func (s *DocumentsService) ParseDocument(ctx context.Context, file io.Reader, fileName string) (*ParseDocumentResponse, error) {
+func (s *DocumentsService) Parse(ctx context.Context, file io.Reader, fileName string) (*ParseDocumentResponse, error) {
 	path := "/documents"
 
 	var result ParseDocumentResponse
-	files := []UploadField{
+	uploadFields := []UploadField{
 		{FieldName: "file", Reader: file, FileName: fileName},
 	}
 	formFields := map[string]string{}
@@ -39,7 +39,7 @@ func (s *DocumentsService) ParseDocument(ctx context.Context, file io.Reader, fi
 	err := s.client.http.DoUpload(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
-	}, files, formFields, &result)
+	}, uploadFields, formFields, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -47,10 +47,10 @@ func (s *DocumentsService) ParseDocument(ctx context.Context, file io.Reader, fi
 	return &result, nil
 }
 
-// ProcessDocument Parse a document (sync)
+// Process Parse a document (sync)
 //
 // Upload a document and block until parsing is complete. Returns the full parsed result.
-func (s *DocumentsService) ProcessDocument(ctx context.Context, file io.Reader, fileName string, opts *ProcessDocumentOptions) (*ProcessDocumentResponse, error) {
+func (s *DocumentsService) Process(ctx context.Context, file io.Reader, fileName string, opts *DocumentsProcessOptions) (*ProcessDocumentResponse, error) {
 	path := "/documents/process"
 	query := url.Values{}
 	if opts != nil && opts.Format != nil {
@@ -58,7 +58,7 @@ func (s *DocumentsService) ProcessDocument(ctx context.Context, file io.Reader, 
 	}
 
 	var result ProcessDocumentResponse
-	files := []UploadField{
+	uploadFields := []UploadField{
 		{FieldName: "file", Reader: file, FileName: fileName},
 	}
 	formFields := map[string]string{}
@@ -67,7 +67,7 @@ func (s *DocumentsService) ProcessDocument(ctx context.Context, file io.Reader, 
 		Method: "POST",
 		Path:   path,
 		Query:  query,
-	}, files, formFields, &result)
+	}, uploadFields, formFields, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -75,10 +75,10 @@ func (s *DocumentsService) ProcessDocument(ctx context.Context, file io.Reader, 
 	return &result, nil
 }
 
-// GetDocumentStatus Get document parsing status
+// GetStatus Get document parsing status
 //
 // Check the status of a document parsing job, including progress statistics.
-func (s *DocumentsService) GetDocumentStatus(ctx context.Context, jobId string) (*DocumentStatus, error) {
+func (s *DocumentsService) GetStatus(ctx context.Context, jobId string) (*DocumentStatus, error) {
 	path := "/documents/" + fmt.Sprintf("%v", jobId)
 
 	var result DocumentStatus
@@ -93,10 +93,10 @@ func (s *DocumentsService) GetDocumentStatus(ctx context.Context, jobId string) 
 	return &result, nil
 }
 
-// GetDocumentResult Get parsed document result
+// GetResult Get parsed document result
 //
 // Download the parsed result of a completed document parsing job.
-func (s *DocumentsService) GetDocumentResult(ctx context.Context, jobId string, opts *GetDocumentResultOptions) (*string, error) {
+func (s *DocumentsService) GetResult(ctx context.Context, jobId string, opts *DocumentsGetResultOptions) (*string, error) {
 	path := "/documents/" + fmt.Sprintf("%v", jobId) + "/result"
 	query := url.Values{}
 	if opts != nil && opts.Format != nil {
@@ -116,10 +116,10 @@ func (s *DocumentsService) GetDocumentResult(ctx context.Context, jobId string, 
 	return &result, nil
 }
 
-// ListDocumentChildren List child documents
+// ListChildren List child documents
 //
 // For container files (ZIP, TAR, EML), list the child documents extracted from the container.
-func (s *DocumentsService) ListDocumentChildren(ctx context.Context, jobId string) (*[]DocumentChild, error) {
+func (s *DocumentsService) ListChildren(ctx context.Context, jobId string) (*[]DocumentChild, error) {
 	path := "/documents/" + fmt.Sprintf("%v", jobId) + "/children"
 
 	var result []DocumentChild
@@ -134,10 +134,10 @@ func (s *DocumentsService) ListDocumentChildren(ctx context.Context, jobId strin
 	return &result, nil
 }
 
-// StreamDocumentTrace Stream document parsing trace
+// StreamTrace Stream document parsing trace
 //
 // Subscribe to real-time parsing progress via Server-Sent Events.
-func (s *DocumentsService) StreamDocumentTrace(ctx context.Context, jobId string) (*EventStream[interface{}], error) {
+func (s *DocumentsService) StreamTrace(ctx context.Context, jobId string) (*EventStream[interface{}], error) {
 	path := "/documents/" + fmt.Sprintf("%v", jobId) + "/trace"
 
 	resp, err := s.client.http.DoStream(ctx, RequestOptions{

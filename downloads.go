@@ -10,8 +10,8 @@ type DownloadsService struct {
 	client *MeibelClient
 }
 
-// CreateDownloadJob Create Download Job (async)
-func (s *DownloadsService) CreateDownloadJob(ctx context.Context, datasourceId string, body *interface{}) (*DownloadJobResponse, error) {
+// CreateJob Create Download Job (async)
+func (s *DownloadsService) CreateJob(ctx context.Context, datasourceId string, body *interface{}) (*DownloadJobResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/downloads"
 
 	var result DownloadJobResponse
@@ -27,8 +27,8 @@ func (s *DownloadsService) CreateDownloadJob(ctx context.Context, datasourceId s
 	return &result, nil
 }
 
-// StreamDownloadProgress Stream Download Progress
-func (s *DownloadsService) StreamDownloadProgress(ctx context.Context, datasourceId string, jobId string) (*EventStream[interface{}], error) {
+// StreamProgress Stream Download Progress
+func (s *DownloadsService) StreamProgress(ctx context.Context, datasourceId string, jobId string) (*EventStream[interface{}], error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/downloads/" + fmt.Sprintf("%v", jobId) + "/progress"
 
 	resp, err := s.client.http.DoStream(ctx, RequestOptions{
@@ -58,8 +58,8 @@ func (s *DownloadsService) DownloadFile(ctx context.Context, datasourceId string
 	return &result, nil
 }
 
-// ProcessDownload Process Download (sync)
-func (s *DownloadsService) ProcessDownload(ctx context.Context, datasourceId string, body *interface{}) (*string, error) {
+// Process Process Download (sync)
+func (s *DownloadsService) Process(ctx context.Context, datasourceId string, body *interface{}) (*string, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/downloads/process"
 
 	var result string

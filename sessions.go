@@ -10,8 +10,8 @@ type SessionsService struct {
 	client *MeibelClient
 }
 
-// GetSession Get Session
-func (s *SessionsService) GetSession(ctx context.Context, sessionId string) (*AgentExecutionDetailsResponse, error) {
+// Get Get Session
+func (s *SessionsService) Get(ctx context.Context, sessionId string) (*AgentExecutionDetailsResponse, error) {
 	path := "/sessions/" + fmt.Sprintf("%v", sessionId)
 
 	var result AgentExecutionDetailsResponse
@@ -26,8 +26,8 @@ func (s *SessionsService) GetSession(ctx context.Context, sessionId string) (*Ag
 	return &result, nil
 }
 
-// GetSessionMessages Get Session Messages
-func (s *SessionsService) GetSessionMessages(ctx context.Context, sessionId string) (*SessionMessagesResponse, error) {
+// GetMessages Get Session Messages
+func (s *SessionsService) GetMessages(ctx context.Context, sessionId string) (*SessionMessagesResponse, error) {
 	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/messages"
 
 	var result SessionMessagesResponse

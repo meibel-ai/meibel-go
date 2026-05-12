@@ -10,8 +10,8 @@ type PromptsService struct {
 	client *MeibelClient
 }
 
-// ListPrompts List Prompts
-func (s *PromptsService) ListPrompts(ctx context.Context) (*PromptListResponse, error) {
+// List List Prompts
+func (s *PromptsService) List(ctx context.Context) (*PromptListResponse, error) {
 	path := "/prompts/"
 
 	var result PromptListResponse
@@ -26,8 +26,8 @@ func (s *PromptsService) ListPrompts(ctx context.Context) (*PromptListResponse, 
 	return &result, nil
 }
 
-// CreatePrompt Create Prompt
-func (s *PromptsService) CreatePrompt(ctx context.Context, body CreateAgentPromptRequest) (*CreatePromptResponse, error) {
+// Create Create Prompt
+func (s *PromptsService) Create(ctx context.Context, body CreateAgentPromptRequest) (*CreatePromptResponse, error) {
 	path := "/prompts/"
 
 	var result CreatePromptResponse
@@ -43,8 +43,8 @@ func (s *PromptsService) CreatePrompt(ctx context.Context, body CreateAgentPromp
 	return &result, nil
 }
 
-// GetPrompt Get Prompt
-func (s *PromptsService) GetPrompt(ctx context.Context, promptId string) (*PromptResponse, error) {
+// Get Get Prompt
+func (s *PromptsService) Get(ctx context.Context, promptId string) (*PromptResponse, error) {
 	path := "/prompts/" + fmt.Sprintf("%v", promptId)
 
 	var result PromptResponse
@@ -59,8 +59,8 @@ func (s *PromptsService) GetPrompt(ctx context.Context, promptId string) (*Promp
 	return &result, nil
 }
 
-// UpdatePrompt Update Prompt
-func (s *PromptsService) UpdatePrompt(ctx context.Context, promptId string, body UpdateAgentPromptRequest) (*UpdatePromptResponse, error) {
+// Update Update Prompt
+func (s *PromptsService) Update(ctx context.Context, promptId string, body UpdateAgentPromptRequest) (*UpdatePromptResponse, error) {
 	path := "/prompts/" + fmt.Sprintf("%v", promptId)
 
 	var result UpdatePromptResponse
@@ -76,8 +76,8 @@ func (s *PromptsService) UpdatePrompt(ctx context.Context, promptId string, body
 	return &result, nil
 }
 
-// DeletePrompt Delete Prompt
-func (s *PromptsService) DeletePrompt(ctx context.Context, promptId string) error {
+// Delete Delete Prompt
+func (s *PromptsService) Delete(ctx context.Context, promptId string) error {
 	path := "/prompts/" + fmt.Sprintf("%v", promptId)
 
 	err := s.client.http.Do(ctx, RequestOptions{

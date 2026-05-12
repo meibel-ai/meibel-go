@@ -12,8 +12,8 @@ type AgentsSessionsService struct {
 	client *MeibelClient
 }
 
-// ListSessionsOptions contains optional parameters for ListSessions.
-type ListSessionsOptions struct {
+// AgentsSessionsListOptions contains optional parameters for List.
+type AgentsSessionsListOptions struct {
 	// Number of items to skip
 	Offset *int64
 	// Maximum number of items to return
@@ -26,8 +26,8 @@ type ListSessionsOptions struct {
 	Status interface{}
 }
 
-// ListSessions List Sessions
-func (s *AgentsSessionsService) ListSessions(ctx context.Context, agentId string, opts *ListSessionsOptions) *PageIterator[SessionSummary] {
+// List List Sessions
+func (s *AgentsSessionsService) List(ctx context.Context, agentId string, opts *AgentsSessionsListOptions) *PageIterator[SessionSummary] {
 	path := "/agents/" + fmt.Sprintf("%v", agentId) + "/sessions"
 	query := url.Values{}
 	if opts != nil && opts.Offset != nil {
@@ -72,8 +72,8 @@ func (s *AgentsSessionsService) ListSessions(ctx context.Context, agentId string
 	})
 }
 
-// CreateSession Create Session
-func (s *AgentsSessionsService) CreateSession(ctx context.Context, agentId string, body *interface{}) (*CreateSessionResponse, error) {
+// Create Create Session
+func (s *AgentsSessionsService) Create(ctx context.Context, agentId string, body *interface{}) (*CreateSessionResponse, error) {
 	path := "/agents/" + fmt.Sprintf("%v", agentId) + "/sessions"
 
 	var result CreateSessionResponse
@@ -118,14 +118,14 @@ func (s *AgentsSessionsService) SendChatMessageStream(ctx context.Context, sessi
 	}
 
 	if files != nil {
-		files := []UploadField{
+		uploadFields := []UploadField{
 			{FieldName: "files", Reader: files, FileName: filesName},
 		}
 
 		err := s.client.http.DoUpload(ctx, RequestOptions{
 			Method: "POST",
 			Path:   path,
-		}, files, formFields, nil)
+		}, uploadFields, formFields, nil)
 		if err != nil {
 			return nil, err
 		}

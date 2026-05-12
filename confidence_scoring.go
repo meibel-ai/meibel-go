@@ -11,8 +11,8 @@ type ConfidenceScoringService struct {
 	client *MeibelClient
 }
 
-// ListScoringJobsOptions contains optional parameters for ListScoringJobs.
-type ListScoringJobsOptions struct {
+// ConfidenceScoringListScoringJobsOptions contains optional parameters for ListScoringJobs.
+type ConfidenceScoringListScoringJobsOptions struct {
 	AgentName interface{}
 	AgentVersion interface{}
 	AgentExecutionId interface{}
@@ -24,8 +24,8 @@ type ListScoringJobsOptions struct {
 	ToolExecutionId interface{}
 }
 
-// GetScoringJobsSummaryOptions contains optional parameters for GetScoringJobsSummary.
-type GetScoringJobsSummaryOptions struct {
+// ConfidenceScoringGetScoringJobsSummaryOptions contains optional parameters for GetScoringJobsSummary.
+type ConfidenceScoringGetScoringJobsSummaryOptions struct {
 	Secondary interface{}
 }
 
@@ -46,7 +46,7 @@ func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId stri
 }
 
 // ListScoringJobs List Scoring Jobs
-func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *ListScoringJobsOptions) (*string, error) {
+func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *ConfidenceScoringListScoringJobsOptions) (*string, error) {
 	path := "/confidence-scoring/jobs"
 	query := url.Values{}
 	if opts != nil && opts.AgentName != nil {
@@ -91,7 +91,7 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Li
 }
 
 // GetScoringJobsSummary Get Scoring Jobs Summary
-func (s *ConfidenceScoringService) GetScoringJobsSummary(ctx context.Context, primary string, opts *GetScoringJobsSummaryOptions) (*ScoreSummary, error) {
+func (s *ConfidenceScoringService) GetScoringJobsSummary(ctx context.Context, primary string, opts *ConfidenceScoringGetScoringJobsSummaryOptions) (*ScoreSummary, error) {
 	path := "/confidence-scoring/summary"
 	query := url.Values{}
 	query.Set("primary", fmt.Sprintf("%v", primary))
