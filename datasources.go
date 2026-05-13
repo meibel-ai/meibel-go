@@ -38,12 +38,37 @@ func (s *DatasourcesService) List(ctx context.Context) (*DatasourceListResponse,
 	return &result, nil
 }
 
+// CreateOptions contains parameters for Create.
+type CreateOptions struct {
+	// Human-readable datasource name
+	Name string
+	// What this datasource contains
+	Description string
+	// Connection configuration
+	Connector ConnectorConfig
+	// Optional metadata extraction config to apply after creation
+	MetadataConfig interface{}
+}
+
 // Create Create Datasource
-func (s *DatasourcesService) Create(ctx context.Context, body CreateDatasourceRequest) (*DatasourceResponse, error) {
+func (s *DatasourcesService) Create(ctx context.Context, opts CreateOptions) (*DatasourceResponse, error) {
 	path := "/datasources"
+	var err error
+
+	metadataConfigResolved, err := resolveMetadata(opts.MetadataConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	body := CreateDatasourceRequest{
+		Name: opts.Name,
+		Description: opts.Description,
+		Connector: opts.Connector,
+		MetadataConfig: metadataConfigResolved,
+	}
 
 	var result DatasourceResponse
-	err := s.client.http.Do(ctx, RequestOptions{
+	err = s.client.http.Do(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
 		Body:   body,

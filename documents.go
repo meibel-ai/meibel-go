@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"reflect"
 )
 
 // DocumentsService handles Documents operations.
@@ -151,14 +152,45 @@ func (s *DocumentsService) StreamTrace(ctx context.Context, jobId string) (*Even
 	return JSONEventStream[interface{}](resp), nil
 }
 
+// TransformOptions contains parameters for Transform.
+type TransformOptions struct {
+	// File path, URL, or GCS URI to transform
+	File string
+	// Schema name/ID or inline JSON Schema
+	Schema interface{}
+	// LLM model override
+	Model interface{}
+	// Extraction instructions override
+	Prompt interface{}
+	// Prompt template reference
+	PromptId interface{}
+	// Max wait time in seconds (sync only)
+	TimeoutSeconds interface{}
+}
+
 // Transform Transform a document using AI extraction (sync)
 //
 // Submit a document for AI-powered structured extraction and block until complete. Internally orchestrates a system agent session, polls for completion, and returns the extracted data.
-func (s *DocumentsService) Transform(ctx context.Context, body TransformDocumentRequest) (*TransformDocumentResponse, error) {
+func (s *DocumentsService) Transform(ctx context.Context, opts TransformOptions) (*TransformDocumentResponse, error) {
 	path := "/documents/transform"
+	var err error
+
+	schemaResolved, err := resolveSchema(opts.Schema)
+	if err != nil {
+		return nil, err
+	}
+
+	body := TransformDocumentRequest{
+		File: opts.File,
+		ArtifactSchema: schemaResolved,
+		Model: opts.Model,
+		Prompt: opts.Prompt,
+		PromptId: opts.PromptId,
+		TimeoutSeconds: opts.TimeoutSeconds,
+	}
 
 	var result TransformDocumentResponse
-	err := s.client.http.Do(ctx, RequestOptions{
+	err = s.client.http.Do(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
 		Body:   body,
@@ -170,14 +202,45 @@ func (s *DocumentsService) Transform(ctx context.Context, body TransformDocument
 	return &result, nil
 }
 
+// SubmitTransformOptions contains parameters for SubmitTransform.
+type SubmitTransformOptions struct {
+	// File path, URL, or GCS URI to transform
+	File string
+	// Schema name/ID or inline JSON Schema
+	Schema interface{}
+	// LLM model override
+	Model interface{}
+	// Extraction instructions override
+	Prompt interface{}
+	// Prompt template reference
+	PromptId interface{}
+	// Max wait time in seconds (sync only)
+	TimeoutSeconds interface{}
+}
+
 // SubmitTransform Submit a document transform (async)
 //
 // Submit a document for AI-powered extraction and return immediately. Poll for completion via client.sessions.get(execution_id).
-func (s *DocumentsService) SubmitTransform(ctx context.Context, body TransformDocumentRequest) (*SubmitDocumentTransformResponse, error) {
+func (s *DocumentsService) SubmitTransform(ctx context.Context, opts SubmitTransformOptions) (*SubmitDocumentTransformResponse, error) {
 	path := "/documents/transform/submit"
+	var err error
+
+	schemaResolved, err := resolveSchema(opts.Schema)
+	if err != nil {
+		return nil, err
+	}
+
+	body := TransformDocumentRequest{
+		File: opts.File,
+		ArtifactSchema: schemaResolved,
+		Model: opts.Model,
+		Prompt: opts.Prompt,
+		PromptId: opts.PromptId,
+		TimeoutSeconds: opts.TimeoutSeconds,
+	}
 
 	var result SubmitDocumentTransformResponse
-	err := s.client.http.Do(ctx, RequestOptions{
+	err = s.client.http.Do(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
 		Body:   body,
