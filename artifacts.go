@@ -50,7 +50,7 @@ func WithArtifactStorageStrategy(s ArtifactStorageStrategy) ArtifactOption {
 	return func(c *artifactConfig) { c.storageStrategy = s }
 }
 
-// ArtifactSchema converts a Go struct type into a CreateAgentArtifactRequest.
+// ArtifactSchemaFromStruct converts a Go struct type into a CreateAgentArtifactRequest.
 //
 // The struct's exported fields are introspected to produce a format-appropriate
 // schema definition. Use the `json` tag for field names and `desc` for descriptions.
@@ -63,8 +63,8 @@ func WithArtifactStorageStrategy(s ArtifactStorageStrategy) ArtifactOption {
 //	    LineItems   []string `json:"line_items"   desc:"Extracted line items"`
 //	}
 //
-//	req, err := ArtifactSchema[InvoiceOutput]("Invoice Output")
-func ArtifactSchema[T any](displayName string, opts ...ArtifactOption) (*CreateAgentArtifactRequest, error) {
+//	req, err := ArtifactSchemaFromStruct[InvoiceOutput]("Invoice Output")
+func ArtifactSchemaFromStruct[T any](displayName string, opts ...ArtifactOption) (*CreateAgentArtifactRequest, error) {
 	cfg := defaultArtifactConfig()
 	for _, opt := range opts {
 		opt(cfg)
@@ -76,7 +76,7 @@ func ArtifactSchema[T any](displayName string, opts ...ArtifactOption) (*CreateA
 		t = t.Elem()
 	}
 	if t.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("ArtifactSchema: expected struct type parameter, got %s", t.Kind())
+		return nil, fmt.Errorf("ArtifactSchemaFromStruct: expected struct type parameter, got %s", t.Kind())
 	}
 
 	schemaDef, err := buildArtifactSchemaDef(t, string(cfg.artifactType))
@@ -110,7 +110,7 @@ func FreeformArtifactSchema(displayName string, opts ...ArtifactOption) (*Create
 	at := string(cfg.artifactType)
 	if at == "json" || at == "csv" || at == "yaml" {
 		return nil, fmt.Errorf(
-			"FreeformArtifactSchema: artifact type '%s' requires a struct type; use ArtifactSchema[T]() instead",
+			"FreeformArtifactSchema: artifact type '%s' requires a struct type; use ArtifactSchemaFromStruct[T]() instead",
 			at,
 		)
 	}
