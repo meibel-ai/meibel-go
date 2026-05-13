@@ -6,13 +6,13 @@ import (
 	"net/url"
 )
 
-// BatchExecutionsService handles BatchExecutions operations.
-type BatchExecutionsService struct {
+// ExecutionsService handles Executions operations.
+type ExecutionsService struct {
 	client *MeibelClient
 }
 
-// BatchExecutionsListOptions contains optional parameters for List.
-type BatchExecutionsListOptions struct {
+// ExecutionsListOptions contains optional parameters for List.
+type ExecutionsListOptions struct {
 	// Filter by input datasource ID
 	InputDatasourceId interface{}
 	Offset *int64
@@ -23,7 +23,7 @@ type BatchExecutionsListOptions struct {
 }
 
 // List List Batch Executions
-func (s *BatchExecutionsService) List(ctx context.Context, opts *BatchExecutionsListOptions) *PageIterator[BatchExecutionResponse] {
+func (s *ExecutionsService) List(ctx context.Context, opts *ExecutionsListOptions) (*GetBatchExecutionsResponse, error) {
 	path := "/batch-executions/"
 	query := url.Values{}
 	if opts != nil && opts.InputDatasourceId != nil {
@@ -42,34 +42,21 @@ func (s *BatchExecutionsService) List(ctx context.Context, opts *BatchExecutions
 		query.Set("sort_order", fmt.Sprintf("%v", *opts.SortOrder))
 	}
 
-	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[BatchExecutionResponse], error) {
-		if cursor != "" {
-			query.Set("offset", cursor)
-		}
+	var result GetBatchExecutionsResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+		Query:  query,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
 
-		var resp struct {
-			Data []BatchExecutionResponse `json:"data"`
-			NextCursor string `json:"next_cursor"`
-		}
-
-		err := s.client.http.Do(ctx, RequestOptions{
-			Method: "GET",
-			Path:   path,
-			Query:  query,
-		}, &resp)
-		if err != nil {
-			return nil, err
-		}
-
-		return &Page[BatchExecutionResponse]{
-			Items:      resp.Data,
-			NextCursor: resp.NextCursor,
-		}, nil
-	})
+	return &result, nil
 }
 
 // Create Create Batch Execution
-func (s *BatchExecutionsService) Create(ctx context.Context, body CreateBatchExecutionRequest) (*BatchExecutionResponse, error) {
+func (s *ExecutionsService) Create(ctx context.Context, body CreateBatchExecutionRequest) (*BatchExecutionResponse, error) {
 	path := "/batch-executions/"
 
 	var result BatchExecutionResponse
@@ -86,7 +73,7 @@ func (s *BatchExecutionsService) Create(ctx context.Context, body CreateBatchExe
 }
 
 // GetById Get Batch Execution By Id
-func (s *BatchExecutionsService) GetById(ctx context.Context, executionId string) (*BatchExecutionResponse, error) {
+func (s *ExecutionsService) GetById(ctx context.Context, executionId string) (*BatchExecutionResponse, error) {
 	path := "/batch-executions/id/" + fmt.Sprintf("%v", executionId)
 
 	var result BatchExecutionResponse
@@ -102,7 +89,7 @@ func (s *BatchExecutionsService) GetById(ctx context.Context, executionId string
 }
 
 // UpdateById Update Batch Execution By Id
-func (s *BatchExecutionsService) UpdateById(ctx context.Context, executionId string, body UpdateBatchExecutionRequest) (*BatchExecutionResponse, error) {
+func (s *ExecutionsService) UpdateById(ctx context.Context, executionId string, body UpdateBatchExecutionRequest) (*BatchExecutionResponse, error) {
 	path := "/batch-executions/id/" + fmt.Sprintf("%v", executionId)
 
 	var result BatchExecutionResponse
@@ -118,8 +105,8 @@ func (s *BatchExecutionsService) UpdateById(ctx context.Context, executionId str
 	return &result, nil
 }
 
-// GetBatchRealtimeProgress Get Batch Realtime Progress
-func (s *BatchExecutionsService) GetBatchRealtimeProgress(ctx context.Context, executionId string) (*string, error) {
+// GetRealtimeProgress Get Batch Realtime Progress
+func (s *ExecutionsService) GetRealtimeProgress(ctx context.Context, executionId string) (*string, error) {
 	path := "/batch-executions/id/" + fmt.Sprintf("%v", executionId) + "/realtime-progress"
 
 	var result string
@@ -135,7 +122,7 @@ func (s *BatchExecutionsService) GetBatchRealtimeProgress(ctx context.Context, e
 }
 
 // RetryFailedItems Retry Failed Items
-func (s *BatchExecutionsService) RetryFailedItems(ctx context.Context, executionId string) (*BatchExecutionResponse, error) {
+func (s *ExecutionsService) RetryFailedItems(ctx context.Context, executionId string) (*BatchExecutionResponse, error) {
 	path := "/batch-executions/id/" + fmt.Sprintf("%v", executionId) + "/retry-failed"
 
 	var result BatchExecutionResponse
@@ -151,7 +138,7 @@ func (s *BatchExecutionsService) RetryFailedItems(ctx context.Context, execution
 }
 
 // Cancel Cancel Batch Execution
-func (s *BatchExecutionsService) Cancel(ctx context.Context, executionId string) (*BatchExecutionResponse, error) {
+func (s *ExecutionsService) Cancel(ctx context.Context, executionId string) (*BatchExecutionResponse, error) {
 	path := "/batch-executions/id/" + fmt.Sprintf("%v", executionId) + "/cancel"
 
 	var result BatchExecutionResponse

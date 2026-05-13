@@ -11,10 +11,10 @@ type IngestService struct {
 }
 
 // Trigger Trigger Ingest
-func (s *IngestService) Trigger(ctx context.Context, datasourceId string) (*string, error) {
+func (s *IngestService) Trigger(ctx context.Context, datasourceId string) (*TriggerIngestResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/trigger-ingest"
 
-	var result string
+	var result TriggerIngestResponse
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,

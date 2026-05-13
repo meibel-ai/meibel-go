@@ -11,8 +11,7 @@ type MeibelClient struct {
 
 	Agents *AgentsService
 	ArtifactSchemas *ArtifactSchemasService
-	BatchDefinitions *BatchDefinitionsService
-	BatchExecutions *BatchExecutionsService
+	Batches *BatchesService
 	ConfidenceScoring *ConfidenceScoringService
 	Datasources *DatasourcesService
 	Documents *DocumentsService
@@ -101,8 +100,7 @@ func NewClient(opts ...ClientOption) *MeibelClient {
 
 	c.Agents = &AgentsService{client: c}
 	c.ArtifactSchemas = &ArtifactSchemasService{client: c}
-	c.BatchDefinitions = &BatchDefinitionsService{client: c}
-	c.BatchExecutions = &BatchExecutionsService{client: c}
+	c.Batches = &BatchesService{client: c}
 	c.ConfidenceScoring = &ConfidenceScoringService{client: c}
 	c.Datasources = &DatasourcesService{client: c}
 	c.Documents = &DocumentsService{client: c}
@@ -110,6 +108,7 @@ func NewClient(opts ...ClientOption) *MeibelClient {
 	c.Prompts = &PromptsService{client: c}
 	c.Sessions = &SessionsService{client: c}
 	c.Agents.Sessions = &AgentsSessionsService{client: c}
+	c.Batches.Executions = &ExecutionsService{client: c}
 	c.Datasources.DataElements = &DataElementsService{client: c}
 	c.Datasources.Downloads = &DownloadsService{client: c}
 	c.Datasources.FileUploads = &FileUploadsService{client: c}

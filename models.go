@@ -70,7 +70,6 @@ type AgentListResponse struct {
 // AgentSummary represents the AgentSummary type.
 type AgentSummary struct {
 	Id string `json:"id"`
-	Name interface{} `json:"name,omitempty"`
 	DisplayName string `json:"display_name"`
 	Description interface{} `json:"description,omitempty"`
 	LlmModel string `json:"llm_model"`
@@ -331,6 +330,16 @@ type ChatResponse struct {
 	Artifacts interface{} `json:"artifacts,omitempty"`
 }
 
+// ChatWithDatasourceRequest represents the ChatWithDatasourceRequest type.
+type ChatWithDatasourceRequest struct {
+	// Datasources to query
+	DatasourceIds []string `json:"datasource_ids"`
+	// User question
+	Message string `json:"message"`
+	// LLM model override
+	Model interface{} `json:"model,omitempty"`
+}
+
 // CloudStorageConnector Connect to a cloud storage bucket.
 type CloudStorageConnector struct {
 	// Cloud storage provider
@@ -495,7 +504,7 @@ type CreateBatchExecutionRequest struct {
 	BatchSpecJson LegacyBatchSpecJson `json:"batch_spec_json"`
 }
 
-// CreateDatasourceRequest represents the CreateDatasourceRequest type.
+// CreateDatasourceRequest Body for creating a new datasource.
 type CreateDatasourceRequest struct {
 	// Human-readable datasource name
 	Name string `json:"name"`
@@ -527,26 +536,37 @@ type CreateSessionResponse struct {
 	SessionId string `json:"session_id"`
 }
 
-// DataElementListResponse represents the DataElementListResponse type.
+// DataElementListResponse Paginated list of data elements.
 type DataElementListResponse struct {
+	// Page of data elements
 	Items []DataElementResponse `json:"items"`
+	// Pass to the next request as `cursor` to fetch the next page. Null when there are no more pages
 	NextCursor interface{} `json:"next_cursor,omitempty"`
+	// True if more pages are available
 	HasNext *bool `json:"has_next,omitempty"`
 }
 
-// DataElementResponse represents the DataElementResponse type.
+// DataElementResponse A single data element on a datasource.
 type DataElementResponse struct {
+	// Unique data element ID
 	Id string `json:"id"`
+	// ID of the datasource this element belongs to
 	DatasourceId string `json:"datasource_id"`
+	// Data element name
 	Name string `json:"name"`
+	// Human-authored description
 	Description interface{} `json:"description,omitempty"`
+	// MIME type of the underlying content
 	MediaType interface{} `json:"media_type,omitempty"`
+	// Arbitrary metadata key-value pairs
 	Metadata interface{} `json:"metadata,omitempty"`
+	// ISO 8601 creation timestamp
 	CreatedAt interface{} `json:"created_at,omitempty"`
+	// ISO 8601 last-update timestamp
 	UpdatedAt interface{} `json:"updated_at,omitempty"`
 }
 
-// DataElementSearchRequest represents the DataElementSearchRequest type.
+// DataElementSearchRequest Body for searching data elements on a datasource.
 type DataElementSearchRequest struct {
 	// Regex pattern to filter by name
 	RegexFilter interface{} `json:"regex_filter,omitempty"`
@@ -566,25 +586,39 @@ type DatabaseConnector struct {
 	SchemaName interface{} `json:"schema_name,omitempty"`
 }
 
-// DatasourceListResponse represents the DatasourceListResponse type.
+// DatasourceListResponse List of datasources visible to the caller.
 type DatasourceListResponse struct {
+	// Datasources in the caller's project
 	Datasources []DatasourceResponse `json:"datasources"`
 }
 
-// DatasourceResponse represents the DatasourceResponse type.
+// DatasourceResponse A datasource with its latest sync/ingest state and (optionally) table details.
 type DatasourceResponse struct {
+	// Unique datasource ID
 	Id string `json:"id"`
+	// Human-readable datasource name
 	Name string `json:"name"`
+	// What this datasource contains
 	Description string `json:"description"`
+	// Connection configuration
 	Connector ConnectorConfig `json:"connector"`
+	// ISO 8601 creation timestamp
 	CreatedAt string `json:"created_at"`
+	// ISO 8601 last-update timestamp
 	UpdatedAt string `json:"updated_at"`
+	// ISO 8601 timestamp of the most recent ingest run
 	LastSyncAt interface{} `json:"last_sync_at,omitempty"`
+	// Status of the most recent ingest run (e.g. 'completed', 'failed')
 	LastSyncStatus interface{} `json:"last_sync_status,omitempty"`
+	// Total number of files ingested across all runs
 	TotalIngestedFiles interface{} `json:"total_ingested_files,omitempty"`
+	// Current metadata extraction configuration
 	MetadataConfig interface{} `json:"metadata_config,omitempty"`
+	// File counts for the datasource
 	Files interface{} `json:"files,omitempty"`
+	// Per-method counts from the latest ingest run
 	IngestCounts interface{} `json:"ingest_counts,omitempty"`
+	// Tables discovered on a structured datasource — only populated when include_tables=true
 	Tables interface{} `json:"tables,omitempty"`
 }
 
@@ -624,7 +658,7 @@ type DocumentStatus struct {
 	Error interface{} `json:"error,omitempty"`
 }
 
-// DownloadJobRequest represents the DownloadJobRequest type.
+// DownloadJobRequest Body for creating a download job. Omit both fields to download all files.
 type DownloadJobRequest struct {
 	// Content to include: files, parsed_content, or files_and_parsed_content
 	Content interface{} `json:"content,omitempty"`
@@ -632,8 +666,9 @@ type DownloadJobRequest struct {
 	DataElementIds interface{} `json:"data_element_ids,omitempty"`
 }
 
-// DownloadJobResponse represents the DownloadJobResponse type.
+// DownloadJobResponse Result of creating a download job.
 type DownloadJobResponse struct {
+	// Identifier for the job — use with the status_url to track progress
 	JobId string `json:"job_id"`
 	// Current job status
 	Status string `json:"status"`
@@ -677,17 +712,23 @@ type FileParseStartInfo struct {
 	Timestamp interface{} `json:"timestamp"`
 }
 
-// FileUploadSyncResponse represents the FileUploadSyncResponse type.
+// FileUploadSyncResponse Result of a synchronous upload — waits until files are persisted, optionally triggers ingest, and returns the resulting content listing.
 type FileUploadSyncResponse struct {
+	// ID of the datasource the files were uploaded to
 	DatasourceId string `json:"datasource_id"`
+	// Content items present on the datasource after the upload completes
 	Items []ContentItem `json:"items"`
+	// Set when the listing is truncated — pass to GET /datasources/{id}/content to fetch the rest
 	ContinuationToken interface{} `json:"continuation_token,omitempty"`
+	// URL to poll for ingest status. Only set when `trigger_ingest=true` was supplied
 	IngestUrl interface{} `json:"ingest_url,omitempty"`
 }
 
-// FilesSummaryResponse represents the FilesSummaryResponse type.
+// FilesSummaryResponse File-count summary across the datasource's content.
 type FilesSummaryResponse struct {
+	// Total files currently tracked on the datasource
 	Total int64 `json:"total"`
+	// Files that have been removed since the last ingest
 	Deleted interface{} `json:"deleted,omitempty"`
 }
 
@@ -708,37 +749,69 @@ type HttpValidationError struct {
 	Detail []ValidationError `json:"detail,omitempty"`
 }
 
-// IngestCountsResponse represents the IngestCountsResponse type.
+// IngestCountsResponse File counts broken down by ingest method for the latest run.
 type IngestCountsResponse struct {
+	// Counts for the RAG ingest method
 	Rag interface{} `json:"rag,omitempty"`
+	// Counts for the TAG (tables/columns) ingest method
 	Tag interface{} `json:"tag,omitempty"`
+	// Counts for the reference-graph ingest method
 	RefGraph interface{} `json:"ref_graph,omitempty"`
 }
 
-// IngestMethodCountsResponse represents the IngestMethodCountsResponse type.
+// IngestMethodCountsResponse Per-method file counts produced by the latest ingest run.
 type IngestMethodCountsResponse struct {
+	// Total files processed by this ingest method
 	Total int64 `json:"total"`
+	// Files newly added in this run
 	New interface{} `json:"new,omitempty"`
+	// Files re-processed because they changed
 	Updated interface{} `json:"updated,omitempty"`
 }
 
-// IngestMethodSummary represents the IngestMethodSummary type.
+// IngestMethodSummary Per-method aggregate counts for the current ingest run.
 type IngestMethodSummary struct {
+	// Ingest method name (e.g. 'rag', 'tag', 'ref_graph')
 	Method string `json:"method"`
+	// Total files this method intends to process
 	TotalFiles *int64 `json:"total_files,omitempty"`
+	// Files this method has finished processing
 	ProcessedFiles *int64 `json:"processed_files,omitempty"`
+	// Files added in this run
 	Adds *int64 `json:"adds,omitempty"`
+	// Files re-processed because they changed
 	Updates *int64 `json:"updates,omitempty"`
+	// Files that errored during processing
 	Errors *int64 `json:"errors,omitempty"`
+	// Files that produced warnings during processing
 	Warnings *int64 `json:"warnings,omitempty"`
 }
 
-// IngestStatusResponse represents the IngestStatusResponse type.
+// IngestStatus represents the possible values for IngestStatus.
+type IngestStatus string
+
+const (
+	IngestStatusNotStarted IngestStatus = "not_started"
+	IngestStatusRunning IngestStatus = "running"
+	IngestStatusCompleted IngestStatus = "completed"
+	IngestStatusFailed IngestStatus = "failed"
+	IngestStatusCanceled IngestStatus = "canceled"
+	IngestStatusTerminated IngestStatus = "terminated"
+	IngestStatusTimedOut IngestStatus = "timed_out"
+	IngestStatusUnknown IngestStatus = "unknown"
+)
+
+// IngestStatusResponse Status of the most recent ingest run for a datasource.
 type IngestStatusResponse struct {
+	// ID of the datasource
 	DatasourceId string `json:"datasource_id"`
-	Status string `json:"status"`
+	// Overall run status
+	Status IngestStatus `json:"status"`
+	// ISO 8601 timestamp when this run started
 	StartedAt interface{} `json:"started_at,omitempty"`
+	// ISO 8601 timestamp when this run finished — null while still running
 	CompletedAt interface{} `json:"completed_at,omitempty"`
+	// Per-method progress and counts for this run
 	Methods []IngestMethodSummary `json:"methods,omitempty"`
 }
 
@@ -787,11 +860,6 @@ type LegacyBatchSpecJson struct {
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
-// ListMetadataModelCatalogResponse ListMetadataModelCatalogResponse
-type ListMetadataModelCatalogResponse struct {
-	Models []MetadataModelCatalogEntry `json:"models"`
-}
-
 // MeibelDocumentResult Full structured parse result (meibel format).
 type MeibelDocumentResult struct {
 	Elements []DocumentElement `json:"elements"`
@@ -826,10 +894,13 @@ const (
 	MetadataConfigRequestTypeCustom MetadataConfigRequestType = "custom"
 )
 
-// MetadataConfigResponse represents the MetadataConfigResponse type.
+// MetadataConfigResponse Current metadata extraction configuration on a datasource.
 type MetadataConfigResponse struct {
+	// 'catalog' = using a pre-built model, 'custom' = user-defined fields, 'default' = no extraction configured
 	Type string `json:"type"`
+	// Catalog model ID — only set when type is 'catalog'
 	ModelId interface{} `json:"model_id,omitempty"`
+	// Resolved field definitions in effect. Empty when type is 'default'
 	Fields []MetadataField `json:"fields"`
 }
 
@@ -842,7 +913,7 @@ const (
 	MetadataConfigResponseTypeDefault MetadataConfigResponseType = "default"
 )
 
-// MetadataField represents the MetadataField type.
+// MetadataField A single field extracted from documents during ingest.
 type MetadataField struct {
 	// Field name (snake_case)
 	Name string `json:"name"`
@@ -867,29 +938,6 @@ const (
 	MetadataFieldTypeGeo MetadataFieldType = "geo"
 	MetadataFieldTypeListString MetadataFieldType = "list[string]"
 )
-
-// MetadataModelCatalogEntry MetadataModelCatalogEntry
-type MetadataModelCatalogEntry struct {
-	ModelId string `json:"model_id"`
-	Name string `json:"name"`
-	Description interface{} `json:"description,omitempty"`
-	Scope string `json:"scope"`
-	CustomerId interface{} `json:"customer_id,omitempty"`
-	ProjectId interface{} `json:"project_id,omitempty"`
-	Fields []MetadataModelField `json:"fields"`
-	CreatedBy interface{} `json:"created_by,omitempty"`
-	UpdatedBy interface{} `json:"updated_by,omitempty"`
-	CreatedAt interface{} `json:"created_at,omitempty"`
-	UpdatedAt interface{} `json:"updated_at,omitempty"`
-}
-
-// MetadataModelField MetadataModelField
-type MetadataModelField struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
-	Description string `json:"description"`
-	Index interface{} `json:"index,omitempty"`
-}
 
 // NBootstraps NBootstraps
 type NBootstraps struct {
@@ -1079,6 +1127,12 @@ type Source struct {
 	RelevanceScore interface{} `json:"relevance_score,omitempty"`
 }
 
+// SubmitDocumentTransformResponse represents the SubmitDocumentTransformResponse type.
+type SubmitDocumentTransformResponse struct {
+	// Poll via client.sessions.get(execution_id)
+	ExecutionId string `json:"execution_id"`
+}
+
 // Table represents the Table type.
 type Table struct {
 	Cells []TableCell `json:"cells"`
@@ -1097,43 +1151,59 @@ type TableCell struct {
 	Bbox interface{} `json:"bbox,omitempty"`
 }
 
-// TableDescriptionUpdate represents the TableDescriptionUpdate type.
+// TableDescriptionUpdate A nested table-update entry used inside UpdateDatasourceRequest.tables.
 type TableDescriptionUpdate struct {
+	// Name of the table to update
 	TableName string `json:"table_name"`
+	// Updated description for the table (omit to leave unchanged)
 	Description interface{} `json:"description,omitempty"`
+	// Optional list of column-description updates for this table
 	Columns interface{} `json:"columns,omitempty"`
 }
 
-// TableSummaryResponse represents the TableSummaryResponse type.
+// TableSummaryResponse Summary of a single table discovered on a structured datasource.
 type TableSummaryResponse struct {
+	// Table name
 	Name string `json:"name"`
+	// Human-authored description of the table
 	Description interface{} `json:"description,omitempty"`
+	// Number of columns on the table
 	ColumnCount int64 `json:"column_count"`
 }
 
-// TagColumn represents the TagColumn type.
+// TagColumn A column on a structured-datasource table, with its description.
 type TagColumn struct {
+	// Column name as defined in the source table
 	ColumnName string `json:"column_name"`
+	// SQL data type of the column (e.g. 'varchar', 'integer')
 	Type interface{} `json:"type,omitempty"`
+	// Human-authored description of what this column represents
 	Description interface{} `json:"description,omitempty"`
 }
 
-// TagColumnUpdateItem represents the TagColumnUpdateItem type.
+// TagColumnUpdateItem A single column-description update entry within an UpdateTagColumnsRequest.
 type TagColumnUpdateItem struct {
+	// Name of the column to update
 	ColumnName string `json:"column_name"`
+	// New description for the column
 	Description string `json:"description"`
 }
 
-// TagTable represents the TagTable type.
+// TagTable A table on a structured datasource, with its description and optionally its columns.
 type TagTable struct {
+	// Table name as defined on the datasource
 	TableName string `json:"table_name"`
+	// Human-authored description of what this table represents
 	Description interface{} `json:"description,omitempty"`
+	// Columns on the table — only populated when explicitly requested via include_columns
 	Columns interface{} `json:"columns,omitempty"`
 }
 
-// TagTableUpdateItem represents the TagTableUpdateItem type.
+// TagTableUpdateItem A single table-description update entry within an UpdateTagTablesRequest.
 type TagTableUpdateItem struct {
+	// Name of the table to update
 	TableName string `json:"table_name"`
+	// New description for the table
 	Description string `json:"description"`
 }
 
@@ -1178,6 +1248,40 @@ type ToolResultInfo struct {
 	Result interface{} `json:"result,omitempty"`
 	Sequence interface{} `json:"sequence"`
 	Timestamp interface{} `json:"timestamp"`
+}
+
+// TransformDocumentRequest represents the TransformDocumentRequest type.
+type TransformDocumentRequest struct {
+	// File path, URL, or GCS URI to transform
+	File string `json:"file"`
+	// Schema name/ID or inline JSON Schema
+	ArtifactSchema interface{} `json:"artifact_schema"`
+	// LLM model override
+	Model interface{} `json:"model,omitempty"`
+	// Extraction instructions override
+	Prompt interface{} `json:"prompt,omitempty"`
+	// Prompt template reference
+	PromptId interface{} `json:"prompt_id,omitempty"`
+	// Max wait time in seconds (sync only)
+	TimeoutSeconds interface{} `json:"timeout_seconds,omitempty"`
+}
+
+// TransformDocumentResponse represents the TransformDocumentResponse type.
+type TransformDocumentResponse struct {
+	// Execution ID for debugging/tracing
+	ExecutionId string `json:"execution_id"`
+	// Extracted artifact data
+	Data map[string]interface{} `json:"data"`
+	// LLM token consumption
+	TokenUsage interface{} `json:"token_usage,omitempty"`
+}
+
+// TriggerIngestResponse Acknowledgement that ingest was kicked off for a datasource.
+type TriggerIngestResponse struct {
+	// Human-readable confirmation message
+	Message string `json:"message"`
+	// ID of the datasource ingest was triggered on
+	DatasourceId string `json:"datasource_id"`
 }
 
 // UpdateAgentArtifactRequest Request model for updating an agent artifact. Name is intentionally excluded as it serves as the stable identifier for a version chain and cannot be changed.
@@ -1303,12 +1407,25 @@ type UpdatePromptResponse struct {
 	Version string `json:"version"`
 }
 
+// UpdateTagColumnsRequest Bulk update of column descriptions on a single table.
+type UpdateTagColumnsRequest struct {
+	// One entry per column to update on the target table
+	Columns []TagColumnUpdateItem `json:"columns"`
+}
+
+// UpdateTagTablesRequest Bulk update of table descriptions on a datasource.
+type UpdateTagTablesRequest struct {
+	// One entry per table to update
+	Tables []TagTableUpdateItem `json:"tables"`
+}
+
 // WebCrawlConnector Connect to a website for crawling.
 type WebCrawlConnector struct {
 	// Starting URL for the crawl
 	BaseUrl string `json:"base_url"`
 	// Enable JavaScript rendering
 	JavascriptRender *bool `json:"javascript_render,omitempty"`
+	// Per-domain include/exclude rules. If omitted, the crawler stays on the base_url's domain
 	Domains interface{} `json:"domains,omitempty"`
 }
 
@@ -1348,35 +1465,51 @@ type CompletionEvent struct {
 	Data string `json:"data"`
 }
 
-// ContentItem represents the ContentItem type.
+// ContentItem A single file in a datasource's content store.
 type ContentItem struct {
+	// Filename
 	Name string `json:"name"`
+	// Object-storage path to the file relative to the datasource
 	Path string `json:"path"`
+	// Object kind reported by storage (e.g. 'file', 'directory')
 	Type interface{} `json:"type,omitempty"`
+	// File size in bytes
 	Size interface{} `json:"size,omitempty"`
+	// MIME type of the file
 	MediaType interface{} `json:"media_type,omitempty"`
+	// ISO 8601 timestamp of last modification in object storage
 	LastModified interface{} `json:"last_modified,omitempty"`
+	// Object-storage ETag for the file
 	Etag interface{} `json:"etag,omitempty"`
 }
 
-// ListContentResponse represents the ListContentResponse type.
+// ListContentResponse Paginated list of files in a datasource's content store.
 type ListContentResponse struct {
+	// Page of content items
 	Items []ContentItem `json:"items"`
+	// Pass to the next request as `continuation_token` to fetch the next page. Null when there are no more pages
 	ContinuationToken interface{} `json:"continuation_token,omitempty"`
 }
 
-// UploadContentResponse represents the UploadContentResponse type.
+// UploadContentResponse Result of an async upload — files are accepted and streamed asynchronously.
 type UploadContentResponse struct {
+	// True if the upload was accepted for processing
 	Success bool `json:"success"`
+	// Human-readable status message
 	Message string `json:"message"`
+	// ID of the datasource the files were uploaded to (created on the fly if `name` was supplied)
 	DatasourceId string `json:"datasource_id"`
+	// Identifier for this upload batch — use with the SSE stream to track progress
 	UploadId string `json:"upload_id"`
+	// Server-sent-events URL to stream upload progress until 'stream_complete'
 	SseUrl string `json:"sse_url"`
+	// Number of files the server expects to process for this upload
 	EstimatedFiles interface{} `json:"estimated_files,omitempty"`
+	// Total estimated size of the upload in bytes
 	EstimatedSize interface{} `json:"estimated_size,omitempty"`
 }
 
-// UpdateDataElementRequest represents the UpdateDataElementRequest type.
+// UpdateDataElementRequest Body for updating a data element. Omit a field to leave it unchanged.
 type UpdateDataElementRequest struct {
 	// Updated name
 	Name interface{} `json:"name,omitempty"`
@@ -1386,7 +1519,13 @@ type UpdateDataElementRequest struct {
 	Metadata interface{} `json:"metadata,omitempty"`
 }
 
-// UpdateDatasourceRequest represents the UpdateDatasourceRequest type.
+// DeleteDatasourceResponse Result of deleting a datasource.
+type DeleteDatasourceResponse struct {
+	// ID of the datasource that was deleted
+	Id string `json:"id"`
+}
+
+// UpdateDatasourceRequest Body for updating a datasource. Omit a field to leave it unchanged.
 type UpdateDatasourceRequest struct {
 	// Updated datasource name
 	Name interface{} `json:"name,omitempty"`
@@ -1400,7 +1539,7 @@ type UpdateDatasourceRequest struct {
 	Tables interface{} `json:"tables,omitempty"`
 }
 
-// WebDomain represents the WebDomain type.
+// WebDomain An allowed domain for a web-crawl datasource, with include/exclude URL patterns.
 type WebDomain struct {
 	// Domain to crawl (e.g. example.com)
 	Domain string `json:"domain"`
@@ -1408,6 +1547,26 @@ type WebDomain struct {
 	IncludePattern string `json:"include_pattern"`
 	// Regex URL pattern to exclude
 	ExcludePattern *string `json:"exclude_pattern,omitempty"`
+}
+
+// ListMetadataModelCatalogResponse List of available metadata-extraction models in the catalog.
+type ListMetadataModelCatalogResponse struct {
+	// Catalog entries visible to the caller, filtered by the optional scope query param
+	Models []MetadataModelCatalogEntry `json:"models"`
+}
+
+// MetadataModelCatalogEntry A pre-built metadata extraction model from the catalog, selectable by model_id.
+type MetadataModelCatalogEntry struct {
+	// Stable ID used to reference this model when configuring a datasource
+	ModelId string `json:"model_id"`
+	// Human-readable model name
+	Name string `json:"name"`
+	// What this model is designed to extract
+	Description interface{} `json:"description,omitempty"`
+	// Visibility of the model (e.g. 'global', 'customer', 'project')
+	Scope string `json:"scope"`
+	// Field definitions this model extracts
+	Fields []MetadataField `json:"fields"`
 }
 
 // BodyUploadContent represents the Body_uploadContent type.

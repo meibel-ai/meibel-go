@@ -94,10 +94,10 @@ func (s *DatasourcesService) Update(ctx context.Context, datasourceId string, bo
 }
 
 // Delete Delete Datasource
-func (s *DatasourcesService) Delete(ctx context.Context, datasourceId string) (*string, error) {
+func (s *DatasourcesService) Delete(ctx context.Context, datasourceId string) (*DeleteDatasourceResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId)
 
-	var result string
+	var result DeleteDatasourceResponse
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "DELETE",
 		Path:   path,
@@ -107,4 +107,22 @@ func (s *DatasourcesService) Delete(ctx context.Context, datasourceId string) (*
 	}
 
 	return &result, nil
+}
+
+// ChatWith Chat with datasources via AI (streaming)
+//
+// Ask a question against one or more datasources. Returns a streaming SSE response with the AI-generated answer.
+func (s *DatasourcesService) ChatWith(ctx context.Context, body ChatWithDatasourceRequest) error {
+	path := "/datasources/chat"
+
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "POST",
+		Path:   path,
+		Body:   body,
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

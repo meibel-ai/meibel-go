@@ -150,3 +150,41 @@ func (s *DocumentsService) StreamTrace(ctx context.Context, jobId string) (*Even
 
 	return JSONEventStream[interface{}](resp), nil
 }
+
+// Transform Transform a document using AI extraction (sync)
+//
+// Submit a document for AI-powered structured extraction and block until complete. Internally orchestrates a system agent session, polls for completion, and returns the extracted data.
+func (s *DocumentsService) Transform(ctx context.Context, body TransformDocumentRequest) (*TransformDocumentResponse, error) {
+	path := "/documents/transform"
+
+	var result TransformDocumentResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "POST",
+		Path:   path,
+		Body:   body,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// SubmitTransform Submit a document transform (async)
+//
+// Submit a document for AI-powered extraction and return immediately. Poll for completion via client.sessions.get(execution_id).
+func (s *DocumentsService) SubmitTransform(ctx context.Context, body TransformDocumentRequest) (*SubmitDocumentTransformResponse, error) {
+	path := "/documents/transform/submit"
+
+	var result SubmitDocumentTransformResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "POST",
+		Path:   path,
+		Body:   body,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
