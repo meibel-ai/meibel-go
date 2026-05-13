@@ -18,7 +18,7 @@ type AgentDetailResponse struct {
 	FallbackModels []string `json:"fallback_models"`
 	Datasources []string `json:"datasources"`
 	Instructions string `json:"instructions"`
-	Tools []string `json:"tools"`
+	Tools []map[string]interface{} `json:"tools"`
 	Artifacts []string `json:"artifacts"`
 	ConfidenceConfigs []string `json:"confidence_configs"`
 	Temperature interface{} `json:"temperature"`
@@ -157,7 +157,7 @@ type ArtifactSchemaResponse struct {
 	Type string `json:"type"`
 	Description string `json:"description"`
 	Required bool `json:"required"`
-	SchemaDef string `json:"schema_def"`
+	SchemaDef map[string]interface{} `json:"schema_def"`
 	MaxSizeBytes interface{} `json:"max_size_bytes,omitempty"`
 	StorageStrategy string `json:"storage_strategy"`
 	CreatedBy interface{} `json:"created_by,omitempty"`
@@ -215,7 +215,7 @@ type BatchDefinitionResponse struct {
 	ParentVersion interface{} `json:"parent_version"`
 	CatalogUrn string `json:"catalog_urn"`
 	AgentUrn string `json:"agent_urn"`
-	AgentSpecJson string `json:"agent_spec_json"`
+	AgentSpecJson map[string]interface{} `json:"agent_spec_json"`
 	InputDatasourceId string `json:"input_datasource_id"`
 	// Optional override for the tool's parameters schema
 	Filters interface{} `json:"filters,omitempty"`
@@ -398,12 +398,12 @@ type CreateAgentArtifactRequest struct {
 	// Whether agent must produce this artifact
 	Required interface{} `json:"required,omitempty"`
 	// Schema definition
-	SchemaDef string `json:"schema_def"`
+	SchemaDef map[string]interface{} `json:"schema_def"`
 	// Maximum artifact size in bytes
 	MaxSizeBytes interface{} `json:"max_size_bytes,omitempty"`
 	// Storage strategy (inline, gcs, auto)
 	StorageStrategy interface{} `json:"storage_strategy,omitempty"`
-	AdditionalProperties *string `json:"additional_properties,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
 // CreateAgentDefinitionRequest Request model for creating a new agent definition.
@@ -436,7 +436,7 @@ type CreateAgentDefinitionRequest struct {
 	Tags interface{} `json:"tags,omitempty"`
 	// UI icon identifier
 	Icon interface{} `json:"icon,omitempty"`
-	AdditionalProperties *string `json:"additional_properties,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
 // CreateAgentPromptRequest Request model for creating a new agent prompt.
@@ -766,7 +766,7 @@ type LegacyBatchInputFilters struct {
 	Regex interface{} `json:"regex,omitempty"`
 	MediaTypes interface{} `json:"media_types,omitempty"`
 	ElementIds interface{} `json:"element_ids,omitempty"`
-	AdditionalProperties *string `json:"additional_properties,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
 // LegacyBatchOutputConfig LegacyBatchOutputConfig
@@ -784,7 +784,7 @@ type LegacyBatchSpecJson struct {
 	Input LegacyBatchInputConfig `json:"input"`
 	Output interface{} `json:"output,omitempty"`
 	Execution interface{} `json:"execution,omitempty"`
-	AdditionalProperties *string `json:"additional_properties,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
 // ListMetadataModelCatalogResponse ListMetadataModelCatalogResponse
@@ -905,7 +905,7 @@ type OcConfig struct {
 	MaxTokens interface{} `json:"max_tokens,omitempty"`
 	Temperature interface{} `json:"temperature,omitempty"`
 	Models interface{} `json:"models,omitempty"`
-	NliModelConfig string `json:"nli_model_config"`
+	NliModelConfig map[string]interface{} `json:"nli_model_config"`
 	NBootstraps interface{} `json:"n_bootstraps,omitempty"`
 	TokenLimit interface{} `json:"token_limit,omitempty"`
 	OriginalCompletion interface{} `json:"original_completion,omitempty"`
@@ -1067,7 +1067,7 @@ type SessionSummary struct {
 	AgentVersion interface{} `json:"agent_version,omitempty"`
 	MessagesCount *int64 `json:"messages_count,omitempty"`
 	TokenUsage interface{} `json:"token_usage,omitempty"`
-	Result []string `json:"result,omitempty"`
+	Result []map[string]interface{} `json:"result,omitempty"`
 }
 
 // Source A source/citation in the response.
@@ -1150,7 +1150,7 @@ type TokenConfig struct {
 type ToolActivity struct {
 	ToolId string `json:"tool_id"`
 	ToolName string `json:"tool_name"`
-	Arguments string `json:"arguments"`
+	Arguments map[string]interface{} `json:"arguments"`
 	// Optional override for the tool's parameters schema
 	Result interface{} `json:"result,omitempty"`
 	Timestamp string `json:"timestamp"`
@@ -1294,7 +1294,7 @@ type UpdateBatchExecutionRequest struct {
 	Items interface{} `json:"items,omitempty"`
 	// Overall error message
 	Error interface{} `json:"error,omitempty"`
-	AdditionalProperties *string `json:"additional_properties,omitempty"`
+	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
 // UpdatePromptResponse represents the UpdatePromptResponse type.
