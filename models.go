@@ -44,23 +44,6 @@ type AgentExecutionDetailsResponse struct {
 	Result []ArtifactEntry `json:"result"`
 }
 
-// AgentIdentityContext Identity context for agent execution.  Contains only immutable identity fields that answer: - WHO: customer_id, project_id (tenant identity) - WHAT: agent_name, agent_version, agent_execution_id (agent identity, optional) - WHERE: agent_workflow_name, agent_workflow_version, agent_workflow_execution_id (parent workflow, optional) - WHICH TOOL: tool_id, tool_instance_id, tool_execution_id (tool identity, optional)  This model is FLAT - no inheritance, all fields in one model. Agent, workflow, and tool fields are optional, making this suitable for all execution contexts.  This model does NOT contain: - Configuration (see AgentExecutionConfig in agent-platform) - Runtime state (see AgentExecutionState in agent-platform)  Design Pattern - Progressive Enhancement: - Callers provide only tenant/project identity - FSMWorkflow fills in agent_workflow_* fields from AgentWorkflowSpec - ReactAgent fills in agent_* fields from AgentSpec and workflow.info().workflow_id - Tool activities add tool_* fields via model_copy() - Context gains fields as it flows through the system  Examples:     # Starting FSMWorkflow (caller provides minimal context)     context = AgentIdentityContext(         customer_id="cust_123",         project_id="proj_456"     )     # FSM fills in workflow identity     context = context.model_copy(update={         "agent_workflow_name": "support_fsm",         "agent_workflow_version": "3.0.0",         "agent_workflow_execution_id": workflow.info().workflow_id     })      # Starting ReactAgent standalone (caller provides minimal context)     context = AgentIdentityContext(         customer_id="cust_123",         project_id="proj_456"     )     # ReactAgent fills in agent identity     context = context.model_copy(update={         "agent_name": "sales_assistant",         "agent_version": "2.0.0",         "agent_execution_id": workflow.info().workflow_id     })      # ReactAgent as FSM child (inherits workflow context, adds agent identity)     child_context = parent_context.model_copy(update={         "agent_name": "router",         "agent_version": "1.0.0",         "agent_execution_id": workflow.info().workflow_id         # agent_workflow_* fields inherited from parent     })      # Tool execution (adds tool identity to agent context)     tool_context = context.model_copy(update={         'tool_id': "tool_xyz",         'tool_instance_id': "tool_inst_123",         'tool_execution_id': "tool_exec_456"     })
-type AgentIdentityContext struct {
-	// Customer/tenant identifier
-	CustomerId string `json:"customer_id"`
-	// Project identifier
-	ProjectId string `json:"project_id"`
-	AgentName interface{} `json:"agent_name,omitempty"`
-	AgentVersion interface{} `json:"agent_version,omitempty"`
-	AgentExecutionId interface{} `json:"agent_execution_id,omitempty"`
-	AgentWorkflowName interface{} `json:"agent_workflow_name,omitempty"`
-	AgentWorkflowVersion interface{} `json:"agent_workflow_version,omitempty"`
-	AgentWorkflowExecutionId interface{} `json:"agent_workflow_execution_id,omitempty"`
-	ToolId interface{} `json:"tool_id,omitempty"`
-	ToolInstanceId interface{} `json:"tool_instance_id,omitempty"`
-	ToolExecutionId interface{} `json:"tool_execution_id,omitempty"`
-}
-
 // AgentListResponse represents the AgentListResponse type.
 type AgentListResponse struct {
 	Data []AgentSummary `json:"data"`
@@ -361,22 +344,6 @@ const (
 	CloudStorageConnectorProviderS3 CloudStorageConnectorProvider = "s3"
 	CloudStorageConnectorProviderGcs CloudStorageConnectorProvider = "gcs"
 )
-
-// ConfidenceScoringConfig Simplified configuration wrapper that separates module name from config.  This model is shared between confidence-scoring-service and confidence-framework to ensure type consistency without OpenAPI Generator wrapper issues.
-type ConfidenceScoringConfig struct {
-	Module string `json:"module"`
-	Config Config `json:"config"`
-}
-
-// Config Config
-type Config struct {
-	AnyofSchema_1Validator interface{} `json:"anyof_schema_1_validator,omitempty"`
-	AnyofSchema_2Validator interface{} `json:"anyof_schema_2_validator,omitempty"`
-	AnyofSchema_3Validator interface{} `json:"anyof_schema_3_validator,omitempty"`
-	AnyofSchema_4Validator interface{} `json:"anyof_schema_4_validator,omitempty"`
-	ActualInstance *string `json:"actual_instance,omitempty"`
-	AnyOfSchemas []string `json:"any_of_schemas,omitempty"`
-}
 
 // ConnectorConfig Datasource connection configuration. Exactly one connector type must be set.
 type ConnectorConfig struct {
@@ -815,13 +782,6 @@ type IngestStatusResponse struct {
 	Methods []IngestMethodSummary `json:"methods,omitempty"`
 }
 
-// JudgeConfig Configuration for judge-based confidence scoring (LLM-as-judge patterns).
-type JudgeConfig struct {
-	Prompt string `json:"prompt"`
-	TemperatureMax interface{} `json:"temperature_max,omitempty"`
-	TemperatureStep interface{} `json:"temperature_step,omitempty"`
-}
-
 // LegacyBatchExecutionParams LegacyBatchExecutionParams
 type LegacyBatchExecutionParams struct {
 	Concurrency interface{} `json:"concurrency,omitempty"`
@@ -939,33 +899,6 @@ const (
 	MetadataFieldTypeListString MetadataFieldType = "list[string]"
 )
 
-// NBootstraps NBootstraps
-type NBootstraps struct {
-	AnyofSchema_1Validator interface{} `json:"anyof_schema_1_validator,omitempty"`
-	AnyofSchema_2Validator interface{} `json:"anyof_schema_2_validator,omitempty"`
-	ActualInstance *string `json:"actual_instance,omitempty"`
-	AnyOfSchemas []string `json:"any_of_schemas,omitempty"`
-}
-
-// OcConfig Configuration for Observed Consistency confidence scoring.
-type OcConfig struct {
-	NCompletions interface{} `json:"n_completions,omitempty"`
-	MaxTokens interface{} `json:"max_tokens,omitempty"`
-	Temperature interface{} `json:"temperature,omitempty"`
-	Models interface{} `json:"models,omitempty"`
-	NliModelConfig map[string]interface{} `json:"nli_model_config"`
-	NBootstraps interface{} `json:"n_bootstraps,omitempty"`
-	TokenLimit interface{} `json:"token_limit,omitempty"`
-	OriginalCompletion interface{} `json:"original_completion,omitempty"`
-	ComparisonCompletions interface{} `json:"comparison_completions,omitempty"`
-}
-
-// OcrConfig Configuration for OCR confidence scoring.
-type OcrConfig struct {
-	CalibrationModel interface{} `json:"calibration_model,omitempty"`
-	OcrConfidenceScores interface{} `json:"ocr_confidence_scores,omitempty"`
-}
-
 // PaginationMeta Pagination metadata included in list responses.
 type PaginationMeta struct {
 	// Total number of items matching the query
@@ -1043,41 +976,6 @@ type PublishAgentDefinitionResponse struct {
 	// User who published
 	PublishedBy interface{} `json:"published_by,omitempty"`
 }
-
-// ScoreSummary Aggregated summary of scoring jobs matching one or two AgentIdentityContext filters.  With one level (primary only): flat aggregate of all jobs matching primary_field=primary_value. With two levels (primary + secondary): both constraints are applied; primary is the higher level and secondary is the lower level.
-type ScoreSummary struct {
-	PrimaryField string `json:"primary_field"`
-	PrimaryValue string `json:"primary_value"`
-	SecondaryField interface{} `json:"secondary_field,omitempty"`
-	SecondaryValue interface{} `json:"secondary_value,omitempty"`
-	Status interface{} `json:"status,omitempty"`
-	AggregateScore interface{} `json:"aggregate_score,omitempty"`
-	ModuleScores interface{} `json:"module_scores,omitempty"`
-	NJobsPerModule interface{} `json:"n_jobs_per_module,omitempty"`
-	Jobs interface{} `json:"jobs,omitempty"`
-}
-
-// ScoringJobRecord ScoringJobRecord
-type ScoringJobRecord struct {
-	JobId string `json:"job_id"`
-	AgentIdentityContext AgentIdentityContext `json:"agent_identity_context"`
-	Module string `json:"module"`
-	ScoringConfig ConfidenceScoringConfig `json:"scoring_config"`
-	InputValue string `json:"input_value"`
-	OutputValue string `json:"output_value"`
-	Status ScoringStatus `json:"status"`
-	Score interface{} `json:"score,omitempty"`
-}
-
-// ScoringStatus represents the possible values for ScoringStatus.
-type ScoringStatus string
-
-const (
-	ScoringStatusSubmitted ScoringStatus = "submitted"
-	ScoringStatusInProgress ScoringStatus = "in_progress"
-	ScoringStatusCompleted ScoringStatus = "completed"
-	ScoringStatusFailed ScoringStatus = "failed"
-)
 
 // SessionListResponse represents the SessionListResponse type.
 type SessionListResponse struct {
@@ -1207,15 +1105,6 @@ type TagTableUpdateItem struct {
 	Description string `json:"description"`
 }
 
-// TokenConfig Configuration for token-based confidence scoring (TF-IDF).
-type TokenConfig struct {
-	Model interface{} `json:"model,omitempty"`
-	RemoveStopWords interface{} `json:"remove_stop_words,omitempty"`
-	LowerCase interface{} `json:"lower_case,omitempty"`
-	MaxNgrams interface{} `json:"max_ngrams,omitempty"`
-	NInfluencers interface{} `json:"n_influencers,omitempty"`
-}
-
 // ToolActivity Record of a tool call and its result.
 type ToolActivity struct {
 	ToolId string `json:"tool_id"`
@@ -1248,22 +1137,6 @@ type ToolResultInfo struct {
 	Result interface{} `json:"result,omitempty"`
 	Sequence interface{} `json:"sequence"`
 	Timestamp interface{} `json:"timestamp"`
-}
-
-// TransformDocumentRequest represents the TransformDocumentRequest type.
-type TransformDocumentRequest struct {
-	// File path, URL, or GCS URI to transform
-	File string `json:"file"`
-	// Schema name/ID or inline JSON Schema
-	ArtifactSchema interface{} `json:"artifact_schema"`
-	// LLM model override
-	Model interface{} `json:"model,omitempty"`
-	// Extraction instructions override
-	Prompt interface{} `json:"prompt,omitempty"`
-	// Prompt template reference
-	PromptId interface{} `json:"prompt_id,omitempty"`
-	// Max wait time in seconds (sync only)
-	TimeoutSeconds interface{} `json:"timeout_seconds,omitempty"`
 }
 
 // TransformDocumentResponse represents the TransformDocumentResponse type.
@@ -1465,6 +1338,74 @@ type CompletionEvent struct {
 	Data string `json:"data"`
 }
 
+// AgentIdentityContext Identifies the agent, workflow, and tool context that produced the scored output.
+type AgentIdentityContext struct {
+	// Your customer identifier.
+	CustomerId string `json:"customer_id"`
+	// The project this scoring job belongs to.
+	ProjectId string `json:"project_id"`
+	// Name of the agent that produced the scored output.
+	AgentName interface{} `json:"agent_name,omitempty"`
+	// Version of the agent that produced the scored output.
+	AgentVersion interface{} `json:"agent_version,omitempty"`
+	// Unique identifier for the agent session that produced the scored output.
+	AgentSessionId interface{} `json:"agent_session_id,omitempty"`
+	// Name of the workflow the agent is part of, if applicable.
+	AgentWorkflowName interface{} `json:"agent_workflow_name,omitempty"`
+	// Version of the workflow the agent is part of.
+	AgentWorkflowVersion interface{} `json:"agent_workflow_version,omitempty"`
+	// Unique identifier for the workflow session, if the agent runs within a workflow.
+	AgentWorkflowSessionId interface{} `json:"agent_workflow_session_id,omitempty"`
+	// Identifier of the tool that produced the scored output, if applicable.
+	ToolId interface{} `json:"tool_id,omitempty"`
+	// Identifier of the specific tool instance.
+	ToolInstanceId interface{} `json:"tool_instance_id,omitempty"`
+	// Unique identifier for the tool execution that produced the scored output.
+	ToolExecutionId interface{} `json:"tool_execution_id,omitempty"`
+}
+
+// ScoreSummary Aggregated summary of scoring jobs matching one or two identity context filters.
+type ScoreSummary struct {
+	// The identity context field used as the primary filter (e.g. "agent_name").
+	PrimaryField string `json:"primary_field"`
+	// The value matched by the primary filter.
+	PrimaryValue string `json:"primary_value"`
+	// An optional second identity context field used to further narrow results.
+	SecondaryField interface{} `json:"secondary_field,omitempty"`
+	// The value matched by the secondary filter.
+	SecondaryValue interface{} `json:"secondary_value,omitempty"`
+	// Overall status across the matched scoring jobs. Null if no jobs matched the filters.
+	Status interface{} `json:"status,omitempty"`
+	// Average score across all completed jobs matching the filters.
+	AggregateScore interface{} `json:"aggregate_score,omitempty"`
+	// Average score per scoring module, keyed by module name.
+	ModuleScores interface{} `json:"module_scores,omitempty"`
+	// Number of completed scoring jobs per module.
+	NJobsPerModule interface{} `json:"n_jobs_per_module,omitempty"`
+	// The individual scoring job records matching the filters.
+	Jobs interface{} `json:"jobs,omitempty"`
+}
+
+// ScoringJobRecord A single confidence scoring job and its result.
+type ScoringJobRecord struct {
+	// Unique identifier for this scoring job.
+	JobId string `json:"job_id"`
+	// The agent, workflow, and tool context that produced the scored output.
+	AgentIdentityContext AgentIdentityContext `json:"agent_identity_context"`
+	// The scoring module used to evaluate the output. Judge-based modules (e.g. correctness, coherence, faithfulness) produce scores on a 0–10 scale. Statistical modules (e.g. observed_consistency, data_grounding) produce scores on a 0.0–1.0 scale.
+	Module string `json:"module"`
+	// Configuration parameters for the scoring module. Structure varies by module.
+	ScoringConfig *string `json:"scoring_config,omitempty"`
+	// The input that was provided to the agent or tool being scored.
+	InputValue string `json:"input_value"`
+	// The output produced by the agent or tool that was evaluated.
+	OutputValue string `json:"output_value"`
+	// Current status of the scoring job: submitted, in_progress, completed, failed, or not_run.
+	Status string `json:"status"`
+	// The computed confidence score, or null if the job has not completed. Range depends on the module: 0–10 (integer) for judge-based modules, 0.0–1.0 for statistical modules.
+	Score interface{} `json:"score,omitempty"`
+}
+
 // ContentItem A single file in a datasource's content store.
 type ContentItem struct {
 	// Filename
@@ -1607,4 +1548,36 @@ type BodyParseDocument struct {
 type BodyProcessDocument struct {
 	// The document file to process
 	File []byte `json:"file"`
+}
+
+// BodyTransformDocument represents the Body_transformDocument type.
+type BodyTransformDocument struct {
+	// Document file to transform
+	File []byte `json:"file"`
+	// JSON Schema dict (as JSON string) or schema name/ID
+	ArtifactSchema string `json:"artifact_schema"`
+	// LLM model override
+	Model *string `json:"model,omitempty"`
+	// Extraction instructions override
+	Prompt *string `json:"prompt,omitempty"`
+	// Prompt template reference
+	PromptId *string `json:"prompt_id,omitempty"`
+	// Max wait time in seconds (sync only)
+	TimeoutSeconds *int64 `json:"timeout_seconds,omitempty"`
+}
+
+// BodySubmitDocumentTransform represents the Body_submitDocumentTransform type.
+type BodySubmitDocumentTransform struct {
+	// Document file to transform
+	File []byte `json:"file"`
+	// JSON Schema dict (as JSON string) or schema name/ID
+	ArtifactSchema string `json:"artifact_schema"`
+	// LLM model override
+	Model *string `json:"model,omitempty"`
+	// Extraction instructions override
+	Prompt *string `json:"prompt,omitempty"`
+	// Prompt template reference
+	PromptId *string `json:"prompt_id,omitempty"`
+	// Max wait time in seconds (sync only)
+	TimeoutSeconds *int64 `json:"timeout_seconds,omitempty"`
 }

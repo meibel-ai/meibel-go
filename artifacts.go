@@ -1,7 +1,6 @@
 package v2
 
 import (
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
@@ -119,12 +118,11 @@ func FreeformArtifactSchema(displayName string, opts ...ArtifactOption) (*Create
 		"freeform": true,
 		"sections": []interface{}{},
 	}
-	schemaBytes, _ := json.Marshal(freeform)
 
 	return &CreateAgentArtifactRequest{
 		DisplayName:     displayName,
 		Type:            cfg.artifactType,
-		SchemaDef:       string(schemaBytes),
+		SchemaDef:       freeform,
 		Description:     cfg.description,
 		Required:        cfg.required,
 		MaxSizeBytes:    cfg.maxSizeBytes,
@@ -138,49 +136,22 @@ func FreeformArtifactSchema(displayName string, opts ...ArtifactOption) (*Create
 
 var artifactTimeType = reflect.TypeOf(time.Time{})
 
-func buildArtifactSchemaDef(t reflect.Type, artifactType string) (string, error) {
+func buildArtifactSchemaDef(t reflect.Type, artifactType string) (map[string]interface{}, error) {
 	switch artifactType {
 	case "json", "yaml":
-		schema, err := structToArtifactJsonSchema(t)
-		if err != nil {
-			return "", err
-		}
-		b, err := json.Marshal(schema)
-		if err != nil {
-			return "", fmt.Errorf("failed to marshal JSON Schema: %w", err)
-		}
-		return string(b), nil
+		return structToArtifactJsonSchema(t)
 
 	case "csv":
 		columns := structToArtifactCsvColumns(t, "", 0)
-		b, err := json.Marshal(columns)
-		if err != nil {
-			return "", fmt.Errorf("failed to marshal CSV columns: %w", err)
-		}
-		return string(b), nil
+		return map[string]interface{}{"columns": columns}, nil
 
 	case "markdown":
 		sections := structToArtifactMarkdownSections(t, 2)
-		result := map[string]interface{}{
-			"sections": sections,
-		}
-		b, err := json.Marshal(result)
-		if err != nil {
-			return "", fmt.Errorf("failed to marshal markdown sections: %w", err)
-		}
-		return string(b), nil
+		return map[string]interface{}{"sections": sections}, nil
 
 	default:
 		// text, html, pdf — use JSON Schema as validation hints
-		schema, err := structToArtifactJsonSchema(t)
-		if err != nil {
-			return "", err
-		}
-		b, err := json.Marshal(schema)
-		if err != nil {
-			return "", fmt.Errorf("failed to marshal JSON Schema: %w", err)
-		}
-		return string(b), nil
+		return structToArtifactJsonSchema(t)
 	}
 }
 
@@ -407,4 +378,32 @@ func toTitleCase(s string) string {
 		}
 	}
 	return strings.Join(words, " ")
+}
+
+// resolveSchema accepts a schema identifier (string), a JSON Schema map, or a Go struct
+// and returns the resolved schema value. For structs, it introspects fields via reflection
+// to produce a JSON Schema map.
+func resolveSchema(v interface{}) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	switch v.(type) {
+	case string:
+		return v, nil // Schema ID or pre-serialized JSON
+	case map[string]interface{}:
+		return v, nil // Already a JSON Schema dict
+	default:
+		t := reflect.TypeOf(v)
+		if t.Kind() == reflect.Ptr {
+			t = t.Elem()
+		}
+		if t.Kind() == reflect.Struct {
+			schema, err := structToArtifactJsonSchema(t)
+			if err != nil {
+				return nil, fmt.Errorf("resolveSchema: %w", err)
+			}
+			return schema, nil
+		}
+		return v, nil // Pass through unknown types
+	}
 }

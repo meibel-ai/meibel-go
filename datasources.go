@@ -43,7 +43,7 @@ type CreateOptions struct {
 	// Human-readable datasource name
 	Name string
 	// What this datasource contains
-	Description string
+	Description *string
 	// Connection configuration
 	Connector ConnectorConfig
 	// Optional metadata extraction config to apply after creation

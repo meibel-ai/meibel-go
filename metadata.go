@@ -125,6 +125,32 @@ func CatalogMetadataConfig(modelID string) *MetadataConfigBuilder {
 
 var timeType = reflect.TypeOf(time.Time{})
 
+// resolveMetadata accepts a metadata value (map or Go struct) and returns
+// the resolved metadata configuration. For structs, it uses MetadataSchemaFromStruct
+// to introspect fields.
+func resolveMetadata(v interface{}) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	switch v.(type) {
+	case map[string]interface{}:
+		return v, nil // Already a metadata dict
+	default:
+		t := reflect.TypeOf(v)
+		if t.Kind() == reflect.Ptr {
+			t = t.Elem()
+		}
+		if t.Kind() == reflect.Struct {
+			config, err := MetadataSchemaFromStruct(v)
+			if err != nil {
+				return nil, fmt.Errorf("resolveMetadata: %w", err)
+			}
+			return config, nil
+		}
+		return v, nil // Pass through unknown types
+	}
+}
+
 func resolveGoType(t reflect.Type) (string, error) {
 	// Dereference pointer
 	if t.Kind() == reflect.Ptr {

@@ -2,10 +2,12 @@ package v2
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
-	"reflect"
+	"os"
+	"path/filepath"
 )
 
 // DocumentsService handles Documents operations.
@@ -154,23 +156,23 @@ func (s *DocumentsService) StreamTrace(ctx context.Context, jobId string) (*Even
 
 // TransformOptions contains parameters for Transform.
 type TransformOptions struct {
-	// File path, URL, or GCS URI to transform
+	// Document file to transform
 	File string
-	// Schema name/ID or inline JSON Schema
+	// JSON Schema dict (as JSON string) or schema name/ID
 	Schema interface{}
 	// LLM model override
-	Model interface{}
+	Model *string
 	// Extraction instructions override
-	Prompt interface{}
+	Prompt *string
 	// Prompt template reference
-	PromptId interface{}
+	PromptId *string
 	// Max wait time in seconds (sync only)
-	TimeoutSeconds interface{}
+	TimeoutSeconds *int64
 }
 
 // Transform Transform a document using AI extraction (sync)
 //
-// Submit a document for AI-powered structured extraction and block until complete. Internally orchestrates a system agent session, polls for completion, and returns the extracted data.
+// Upload a document for AI-powered structured extraction and block until complete. The file is uploaded to cloud storage and processed by a system agent.
 func (s *DocumentsService) Transform(ctx context.Context, opts TransformOptions) (*TransformDocumentResponse, error) {
 	path := "/documents/transform"
 	var err error
@@ -180,21 +182,34 @@ func (s *DocumentsService) Transform(ctx context.Context, opts TransformOptions)
 		return nil, err
 	}
 
-	body := TransformDocumentRequest{
-		File: opts.File,
-		ArtifactSchema: schemaResolved,
-		Model: opts.Model,
-		Prompt: opts.Prompt,
-		PromptId: opts.PromptId,
-		TimeoutSeconds: opts.TimeoutSeconds,
+	f, err := os.Open(opts.File)
+	if err != nil {
+		return nil, fmt.Errorf("opening file: %w", err)
 	}
+	defer f.Close()
+
+	formFields := map[string]string{}
+	switch sv := schemaResolved.(type) {
+	case string:
+		formFields["artifact_schema"] = sv
+	case nil:
+		// skip
+	default:
+		b, _ := json.Marshal(sv)
+		formFields["artifact_schema"] = string(b)
+	}
+	formFields["model"] = fmt.Sprintf("%v", opts.Model)
+	formFields["prompt"] = fmt.Sprintf("%v", opts.Prompt)
+	formFields["prompt_id"] = fmt.Sprintf("%v", opts.PromptId)
+	formFields["timeout_seconds"] = fmt.Sprintf("%v", opts.TimeoutSeconds)
 
 	var result TransformDocumentResponse
-	err = s.client.http.Do(ctx, RequestOptions{
+	err = s.client.http.DoUpload(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
-		Body:   body,
-	}, &result)
+	}, []UploadField{
+		{FieldName: "file", Reader: f, FileName: filepath.Base(opts.File)},
+	}, formFields, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -204,23 +219,23 @@ func (s *DocumentsService) Transform(ctx context.Context, opts TransformOptions)
 
 // SubmitTransformOptions contains parameters for SubmitTransform.
 type SubmitTransformOptions struct {
-	// File path, URL, or GCS URI to transform
+	// Document file to transform
 	File string
-	// Schema name/ID or inline JSON Schema
+	// JSON Schema dict (as JSON string) or schema name/ID
 	Schema interface{}
 	// LLM model override
-	Model interface{}
+	Model *string
 	// Extraction instructions override
-	Prompt interface{}
+	Prompt *string
 	// Prompt template reference
-	PromptId interface{}
+	PromptId *string
 	// Max wait time in seconds (sync only)
-	TimeoutSeconds interface{}
+	TimeoutSeconds *int64
 }
 
 // SubmitTransform Submit a document transform (async)
 //
-// Submit a document for AI-powered extraction and return immediately. Poll for completion via client.sessions.get(execution_id).
+// Upload a document for AI-powered extraction and return immediately. Poll for completion via client.sessions.get(execution_id).
 func (s *DocumentsService) SubmitTransform(ctx context.Context, opts SubmitTransformOptions) (*SubmitDocumentTransformResponse, error) {
 	path := "/documents/transform/submit"
 	var err error
@@ -230,21 +245,34 @@ func (s *DocumentsService) SubmitTransform(ctx context.Context, opts SubmitTrans
 		return nil, err
 	}
 
-	body := TransformDocumentRequest{
-		File: opts.File,
-		ArtifactSchema: schemaResolved,
-		Model: opts.Model,
-		Prompt: opts.Prompt,
-		PromptId: opts.PromptId,
-		TimeoutSeconds: opts.TimeoutSeconds,
+	f, err := os.Open(opts.File)
+	if err != nil {
+		return nil, fmt.Errorf("opening file: %w", err)
 	}
+	defer f.Close()
+
+	formFields := map[string]string{}
+	switch sv := schemaResolved.(type) {
+	case string:
+		formFields["artifact_schema"] = sv
+	case nil:
+		// skip
+	default:
+		b, _ := json.Marshal(sv)
+		formFields["artifact_schema"] = string(b)
+	}
+	formFields["model"] = fmt.Sprintf("%v", opts.Model)
+	formFields["prompt"] = fmt.Sprintf("%v", opts.Prompt)
+	formFields["prompt_id"] = fmt.Sprintf("%v", opts.PromptId)
+	formFields["timeout_seconds"] = fmt.Sprintf("%v", opts.TimeoutSeconds)
 
 	var result SubmitDocumentTransformResponse
-	err = s.client.http.Do(ctx, RequestOptions{
+	err = s.client.http.DoUpload(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
-		Body:   body,
-	}, &result)
+	}, []UploadField{
+		{FieldName: "file", Reader: f, FileName: filepath.Base(opts.File)},
+	}, formFields, &result)
 	if err != nil {
 		return nil, err
 	}

@@ -13,27 +13,39 @@ type ConfidenceScoringService struct {
 
 // ConfidenceScoringListScoringJobsOptions contains optional parameters for ListScoringJobs.
 type ConfidenceScoringListScoringJobsOptions struct {
+	// Filter by agent name.
 	AgentName interface{}
+	// Filter by agent version.
 	AgentVersion interface{}
-	AgentExecutionId interface{}
+	// Filter by agent session ID.
+	AgentSessionId interface{}
+	// Filter by workflow name.
 	AgentWorkflowName interface{}
+	// Filter by workflow version.
 	AgentWorkflowVersion interface{}
-	AgentWorkflowExecutionId interface{}
+	// Filter by workflow session ID.
+	AgentWorkflowSessionId interface{}
+	// Filter by tool identifier.
 	ToolId interface{}
+	// Filter by tool instance identifier.
 	ToolInstanceId interface{}
+	// Filter by tool execution identifier.
 	ToolExecutionId interface{}
 }
 
 // ConfidenceScoringGetScoringJobsSummaryOptions contains optional parameters for GetScoringJobsSummary.
 type ConfidenceScoringGetScoringJobsSummaryOptions struct {
+	// Optional secondary filter in the same "field:value" format to further narrow results (e.g. "agent_version:1.2.0").
 	Secondary interface{}
 }
 
-// GetScoringJob Get Scoring Job
-func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId string) (*string, error) {
+// GetScoringJob Get a scoring job
+//
+// Retrieve a single confidence scoring job by its ID, including its current status and score if completed.
+func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId string) (*ScoringJobRecord, error) {
 	path := "/confidence-scoring/job/" + fmt.Sprintf("%v", jobId)
 
-	var result string
+	var result ScoringJobRecord
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "GET",
 		Path:   path,
@@ -45,8 +57,10 @@ func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId stri
 	return &result, nil
 }
 
-// ListScoringJobs List Scoring Jobs
-func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *ConfidenceScoringListScoringJobsOptions) (*string, error) {
+// ListScoringJobs List scoring jobs
+//
+// List confidence scoring jobs, optionally filtered by identity context fields. All filters are combined with AND logic.
+func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *ConfidenceScoringListScoringJobsOptions) (*[]ScoringJobRecord, error) {
 	path := "/confidence-scoring/jobs"
 	query := url.Values{}
 	if opts != nil && opts.AgentName != nil {
@@ -55,8 +69,8 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Co
 	if opts != nil && opts.AgentVersion != nil {
 		query.Set("agent_version", fmt.Sprintf("%v", opts.AgentVersion))
 	}
-	if opts != nil && opts.AgentExecutionId != nil {
-		query.Set("agent_execution_id", fmt.Sprintf("%v", opts.AgentExecutionId))
+	if opts != nil && opts.AgentSessionId != nil {
+		query.Set("agent_session_id", fmt.Sprintf("%v", opts.AgentSessionId))
 	}
 	if opts != nil && opts.AgentWorkflowName != nil {
 		query.Set("agent_workflow_name", fmt.Sprintf("%v", opts.AgentWorkflowName))
@@ -64,8 +78,8 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Co
 	if opts != nil && opts.AgentWorkflowVersion != nil {
 		query.Set("agent_workflow_version", fmt.Sprintf("%v", opts.AgentWorkflowVersion))
 	}
-	if opts != nil && opts.AgentWorkflowExecutionId != nil {
-		query.Set("agent_workflow_execution_id", fmt.Sprintf("%v", opts.AgentWorkflowExecutionId))
+	if opts != nil && opts.AgentWorkflowSessionId != nil {
+		query.Set("agent_workflow_session_id", fmt.Sprintf("%v", opts.AgentWorkflowSessionId))
 	}
 	if opts != nil && opts.ToolId != nil {
 		query.Set("tool_id", fmt.Sprintf("%v", opts.ToolId))
@@ -77,7 +91,7 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Co
 		query.Set("tool_execution_id", fmt.Sprintf("%v", opts.ToolExecutionId))
 	}
 
-	var result string
+	var result []ScoringJobRecord
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "GET",
 		Path:   path,
@@ -90,7 +104,9 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Co
 	return &result, nil
 }
 
-// GetScoringJobsSummary Get Scoring Jobs Summary
+// GetScoringJobsSummary Get scoring summary
+//
+// Get an aggregated summary of confidence scores. Requires a primary filter; an optional secondary filter narrows results further. Filters use the format "field:value", where field is any identity context field name.
 func (s *ConfidenceScoringService) GetScoringJobsSummary(ctx context.Context, primary string, opts *ConfidenceScoringGetScoringJobsSummaryOptions) (*ScoreSummary, error) {
 	path := "/confidence-scoring/summary"
 	query := url.Values{}
