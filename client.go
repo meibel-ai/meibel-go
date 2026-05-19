@@ -16,7 +16,6 @@ type MeibelClient struct {
 	Datasources *DatasourcesService
 	Documents *DocumentsService
 	MetadataModelCatalog *MetadataModelCatalogService
-	Prompts *PromptsService
 	Sessions *SessionsService
 }
 
@@ -105,7 +104,6 @@ func NewClient(opts ...ClientOption) *MeibelClient {
 	c.Datasources = &DatasourcesService{client: c}
 	c.Documents = &DocumentsService{client: c}
 	c.MetadataModelCatalog = &MetadataModelCatalogService{client: c}
-	c.Prompts = &PromptsService{client: c}
 	c.Sessions = &SessionsService{client: c}
 	c.Agents.Sessions = &AgentsSessionsService{client: c}
 	c.Batches.Executions = &ExecutionsService{client: c}
