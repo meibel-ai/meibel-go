@@ -477,8 +477,8 @@ type CreateDatasourceRequest struct {
 	Name string `json:"name"`
 	// What this datasource contains
 	Description *string `json:"description,omitempty"`
-	// Connection configuration
-	Connector ConnectorConfig `json:"connector"`
+	// Connection configuration — omit for file-upload datasources
+	Connector interface{} `json:"connector,omitempty"`
 	// Optional metadata extraction config to apply after creation
 	MetadataConfig interface{} `json:"metadata_config,omitempty"`
 }

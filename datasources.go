@@ -44,8 +44,8 @@ type CreateOptions struct {
 	Name string
 	// What this datasource contains
 	Description *string
-	// Connection configuration
-	Connector ConnectorConfig
+	// Connection configuration — omit for file-upload datasources
+	Connector *interface{}
 	// Optional metadata extraction config to apply after creation
 	MetadataConfig interface{}
 }
@@ -132,22 +132,4 @@ func (s *DatasourcesService) Delete(ctx context.Context, datasourceId string) (*
 	}
 
 	return &result, nil
-}
-
-// ChatWith Chat with datasources via AI (streaming)
-//
-// Ask a question against one or more datasources. Returns a streaming SSE response with the AI-generated answer.
-func (s *DatasourcesService) ChatWith(ctx context.Context, body ChatWithDatasourceRequest) error {
-	path := "/datasources/chat"
-
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "POST",
-		Path:   path,
-		Body:   body,
-	}, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

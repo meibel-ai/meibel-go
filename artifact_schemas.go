@@ -66,12 +66,48 @@ func (s *ArtifactSchemasService) List(ctx context.Context, opts *ArtifactSchemas
 	})
 }
 
+// CreateOptions contains parameters for Create.
+type CreateOptions struct {
+	// Human-readable name of the artifact (letters, numbers, and spaces only). Converted to kebab-case internally.
+	DisplayName string
+	// Artifact type (json, markdown, csv, yaml, text, html, pdf)
+	Type *ArtifactType
+	// Description of the artifact
+	Description *interface{}
+	// Whether agent must produce this artifact
+	Required *interface{}
+	// Schema definition
+	Schema interface{}
+	// Maximum artifact size in bytes
+	MaxSizeBytes *interface{}
+	// Storage strategy (inline, gcs, auto)
+	StorageStrategy *interface{}
+	AdditionalProperties *map[string]interface{}
+}
+
 // Create Create Artifact Schema
-func (s *ArtifactSchemasService) Create(ctx context.Context, body CreateAgentArtifactRequest) (*CreateArtifactSchemaResponse, error) {
+func (s *ArtifactSchemasService) Create(ctx context.Context, opts CreateOptions) (*CreateArtifactSchemaResponse, error) {
 	path := "/artifact-schemas/"
+	var err error
+
+	schemaResolved, err := resolveSchema(opts.Schema)
+	if err != nil {
+		return nil, err
+	}
+
+	body := CreateAgentArtifactRequest{
+		DisplayName: opts.DisplayName,
+		Type: opts.Type,
+		Description: opts.Description,
+		Required: opts.Required,
+		SchemaDef: schemaResolved,
+		MaxSizeBytes: opts.MaxSizeBytes,
+		StorageStrategy: opts.StorageStrategy,
+		AdditionalProperties: opts.AdditionalProperties,
+	}
 
 	var result CreateArtifactSchemaResponse
-	err := s.client.http.Do(ctx, RequestOptions{
+	err = s.client.http.Do(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
 		Body:   body,
