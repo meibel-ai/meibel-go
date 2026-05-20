@@ -1,7 +1,7 @@
 package v2
 
 // Version is the SDK version string.
-const Version = "0.4.0"
+const Version = "2.0.1"
 
 import (
 	"net/http"
