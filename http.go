@@ -188,6 +188,78 @@ func (c *HTTPClient) DoUpload(ctx context.Context, opts RequestOptions, files []
 	return json.NewDecoder(resp.Body).Decode(result)
 }
 
+// DoUploadStream performs a multipart file upload and returns the raw streaming
+// response for SSE consumption. Like DoUpload it streams the body via io.Pipe
+// (no buffering); like DoStream it sets Accept: text/event-stream and leaves the
+// response body open for the caller (EventStream) to consume and close.
+func (c *HTTPClient) DoUploadStream(ctx context.Context, opts RequestOptions, files []UploadField, formFields map[string]string) (*http.Response, error) {
+	pr, pw := io.Pipe()
+	writer := multipart.NewWriter(pw)
+
+	go func() {
+		defer pw.Close()
+		defer writer.Close()
+		for _, f := range files {
+			part, err := writer.CreateFormFile(f.FieldName, f.FileName)
+			if err != nil {
+				pw.CloseWithError(err)
+				return
+			}
+			if _, err := io.Copy(part, f.Reader); err != nil {
+				pw.CloseWithError(err)
+				return
+			}
+		}
+		for k, v := range formFields {
+			if err := writer.WriteField(k, v); err != nil {
+				pw.CloseWithError(err)
+				return
+			}
+		}
+	}()
+
+	u, err := url.Parse(c.baseURL + opts.Path)
+	if err != nil {
+		return nil, err
+	}
+	if opts.Query != nil {
+		u.RawQuery = opts.Query.Encode()
+	}
+
+	method := opts.Method
+	if method == "" {
+		method = http.MethodPost
+	}
+
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), pr)
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range c.headers {
+		if k != "Content-Type" {
+			req.Header.Set(k, v)
+		}
+	}
+	for k, v := range opts.Headers {
+		req.Header.Set(k, v)
+	}
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Accept", "text/event-stream")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, &NetworkError{Err: err}
+	}
+
+	if err := c.checkResponse(resp); err != nil {
+		resp.Body.Close()
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 func (c *HTTPClient) newRequest(ctx context.Context, opts RequestOptions) (*http.Request, error) {
 	u, err := url.Parse(c.baseURL + opts.Path)
 	if err != nil {

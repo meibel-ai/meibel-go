@@ -28,7 +28,7 @@ func (s *DownloadsService) CreateJob(ctx context.Context, datasourceId string, b
 }
 
 // StreamProgress Stream Download Progress
-func (s *DownloadsService) StreamProgress(ctx context.Context, datasourceId string, jobId string) (*EventStream[interface{}], error) {
+func (s *DownloadsService) StreamProgress(ctx context.Context, jobId string, datasourceId string) (*EventStream[interface{}], error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/downloads/" + fmt.Sprintf("%v", jobId) + "/progress"
 
 	resp, err := s.client.http.DoStream(ctx, RequestOptions{
@@ -43,7 +43,7 @@ func (s *DownloadsService) StreamProgress(ctx context.Context, datasourceId stri
 }
 
 // DownloadFile Download File
-func (s *DownloadsService) DownloadFile(ctx context.Context, datasourceId string, jobId string) (*string, error) {
+func (s *DownloadsService) DownloadFile(ctx context.Context, jobId string, datasourceId string) (*string, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/downloads/" + fmt.Sprintf("%v", jobId) + "/file"
 
 	var result string

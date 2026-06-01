@@ -38,7 +38,7 @@ type AgentsListVersionsOptions struct {
 
 // List List Agents
 func (s *AgentsService) List(ctx context.Context, opts *AgentsListOptions) *PageIterator[AgentSummary] {
-	path := "/agents/"
+	path := "/agents"
 	query := url.Values{}
 	if opts != nil && opts.Offset != nil {
 		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
@@ -75,7 +75,7 @@ func (s *AgentsService) List(ctx context.Context, opts *AgentsListOptions) *Page
 
 // Create Create Agent
 func (s *AgentsService) Create(ctx context.Context, body CreateAgentDefinitionRequest) (*CreateAgentResponse, error) {
-	path := "/agents/"
+	path := "/agents"
 
 	var result CreateAgentResponse
 	err := s.client.http.Do(ctx, RequestOptions{

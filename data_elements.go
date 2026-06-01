@@ -28,7 +28,7 @@ type DataElementsSearchOptions struct {
 }
 
 // Get Get Data Element
-func (s *DataElementsService) Get(ctx context.Context, datasourceId string, dataElementId string) (*DataElementResponse, error) {
+func (s *DataElementsService) Get(ctx context.Context, dataElementId string, datasourceId string) (*DataElementResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
 
 	var result DataElementResponse
@@ -44,7 +44,7 @@ func (s *DataElementsService) Get(ctx context.Context, datasourceId string, data
 }
 
 // Update Update Data Element
-func (s *DataElementsService) Update(ctx context.Context, datasourceId string, dataElementId string, body UpdateDataElementRequest) (*DataElementResponse, error) {
+func (s *DataElementsService) Update(ctx context.Context, dataElementId string, datasourceId string, body UpdateDataElementRequest) (*DataElementResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/" + fmt.Sprintf("%v", dataElementId)
 
 	var result DataElementResponse

@@ -24,7 +24,7 @@ type ExecutionsListOptions struct {
 
 // List List Batch Executions
 func (s *ExecutionsService) List(ctx context.Context, opts *ExecutionsListOptions) (*GetBatchExecutionsResponse, error) {
-	path := "/batch-executions/"
+	path := "/batch-executions"
 	query := url.Values{}
 	if opts != nil && opts.InputDatasourceId != nil {
 		query.Set("input_datasource_id", fmt.Sprintf("%v", opts.InputDatasourceId))
@@ -57,7 +57,7 @@ func (s *ExecutionsService) List(ctx context.Context, opts *ExecutionsListOption
 
 // Create Create Batch Execution
 func (s *ExecutionsService) Create(ctx context.Context, body CreateBatchExecutionRequest) (*BatchExecutionResponse, error) {
-	path := "/batch-executions/"
+	path := "/batch-executions"
 
 	var result BatchExecutionResponse
 	err := s.client.http.Do(ctx, RequestOptions{

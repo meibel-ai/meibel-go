@@ -56,7 +56,7 @@ func (s *TablesService) UpdateDescriptions(ctx context.Context, datasourceId str
 }
 
 // ListColumns List Columns
-func (s *TablesService) ListColumns(ctx context.Context, datasourceId string, tableName string) (*[]TagColumn, error) {
+func (s *TablesService) ListColumns(ctx context.Context, tableName string, datasourceId string) (*[]TagColumn, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tables/" + fmt.Sprintf("%v", tableName) + "/columns"
 
 	var result []TagColumn
@@ -72,7 +72,7 @@ func (s *TablesService) ListColumns(ctx context.Context, datasourceId string, ta
 }
 
 // UpdateColumnDescriptions Update Column Descriptions
-func (s *TablesService) UpdateColumnDescriptions(ctx context.Context, datasourceId string, tableName string, body UpdateTagColumnsRequest) (*[]TagColumn, error) {
+func (s *TablesService) UpdateColumnDescriptions(ctx context.Context, tableName string, datasourceId string, body UpdateTagColumnsRequest) (*[]TagColumn, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/tables/" + fmt.Sprintf("%v", tableName) + "/columns"
 
 	var result []TagColumn

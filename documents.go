@@ -33,12 +33,12 @@ type DocumentsGetResultOptions struct {
 func (s *DocumentsService) Parse(ctx context.Context, file io.Reader, fileName string) (*ParseDocumentResponse, error) {
 	path := "/documents"
 
-	var result ParseDocumentResponse
 	uploadFields := []UploadField{
 		{FieldName: "file", Reader: file, FileName: fileName},
 	}
 	formFields := map[string]string{}
 
+	var result ParseDocumentResponse
 	err := s.client.http.DoUpload(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
@@ -60,12 +60,12 @@ func (s *DocumentsService) Process(ctx context.Context, file io.Reader, fileName
 		query.Set("format", fmt.Sprintf("%v", *opts.Format))
 	}
 
-	var result ProcessDocumentResponse
 	uploadFields := []UploadField{
 		{FieldName: "file", Reader: file, FileName: fileName},
 	}
 	formFields := map[string]string{}
 
+	var result ProcessDocumentResponse
 	err := s.client.http.DoUpload(ctx, RequestOptions{
 		Method: "POST",
 		Path:   path,
@@ -154,8 +154,8 @@ func (s *DocumentsService) StreamTrace(ctx context.Context, jobId string) (*Even
 	return JSONEventStream[interface{}](resp), nil
 }
 
-// TransformOptions contains parameters for Transform.
-type TransformOptions struct {
+// DocumentsTransformOptions contains parameters for Transform.
+type DocumentsTransformOptions struct {
 	// Document file to transform
 	File string
 	// JSON Schema dict (as JSON string) or schema name/ID
@@ -173,7 +173,7 @@ type TransformOptions struct {
 // Transform Transform a document using AI extraction (sync)
 //
 // Upload a document for AI-powered structured extraction and block until complete. The file is uploaded to cloud storage and processed by a system agent.
-func (s *DocumentsService) Transform(ctx context.Context, opts TransformOptions) (*TransformDocumentResponse, error) {
+func (s *DocumentsService) Transform(ctx context.Context, opts DocumentsTransformOptions) (*TransformDocumentResponse, error) {
 	path := "/documents/transform"
 	var err error
 
@@ -217,8 +217,8 @@ func (s *DocumentsService) Transform(ctx context.Context, opts TransformOptions)
 	return &result, nil
 }
 
-// SubmitTransformOptions contains parameters for SubmitTransform.
-type SubmitTransformOptions struct {
+// DocumentsSubmitTransformOptions contains parameters for SubmitTransform.
+type DocumentsSubmitTransformOptions struct {
 	// Document file to transform
 	File string
 	// JSON Schema dict (as JSON string) or schema name/ID
@@ -236,7 +236,7 @@ type SubmitTransformOptions struct {
 // SubmitTransform Submit a document transform (async)
 //
 // Upload a document for AI-powered extraction and return immediately. Poll for completion via client.sessions.get(execution_id).
-func (s *DocumentsService) SubmitTransform(ctx context.Context, opts SubmitTransformOptions) (*SubmitDocumentTransformResponse, error) {
+func (s *DocumentsService) SubmitTransform(ctx context.Context, opts DocumentsSubmitTransformOptions) (*SubmitDocumentTransformResponse, error) {
 	path := "/documents/transform/submit"
 	var err error
 

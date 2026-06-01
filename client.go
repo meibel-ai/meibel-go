@@ -1,12 +1,12 @@
 package v2
 
-// Version is the SDK version string.
-const Version = "2.0.1"
-
 import (
 	"net/http"
 	"time"
 )
+
+// Version is the SDK version string.
+const Version = "2.0.1"
 
 // MeibelClient is the main client for the meibel-ai-api API.
 type MeibelClient struct {

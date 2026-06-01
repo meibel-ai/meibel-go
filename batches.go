@@ -26,7 +26,7 @@ type BatchesListVersionsOptions struct {
 
 // List List Batch Definitions
 func (s *BatchesService) List(ctx context.Context, opts *BatchesListOptions) (*GetBatchDefinitionsResponse, error) {
-	path := "/batch-definitions/"
+	path := "/batch-definitions"
 	query := url.Values{}
 	if opts != nil && opts.Offset != nil {
 		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
@@ -50,7 +50,7 @@ func (s *BatchesService) List(ctx context.Context, opts *BatchesListOptions) (*G
 
 // Create Create Batch Definition
 func (s *BatchesService) Create(ctx context.Context, body CreateBatchDefinitionRequest) (*CreateBatchDefinitionResponse, error) {
-	path := "/batch-definitions/"
+	path := "/batch-definitions"
 
 	var result CreateBatchDefinitionResponse
 	err := s.client.http.Do(ctx, RequestOptions{

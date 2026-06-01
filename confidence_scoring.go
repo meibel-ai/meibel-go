@@ -33,19 +33,13 @@ type ConfidenceScoringListScoringJobsOptions struct {
 	ToolExecutionId interface{}
 }
 
-// ConfidenceScoringGetScoringJobsSummaryOptions contains optional parameters for GetScoringJobsSummary.
-type ConfidenceScoringGetScoringJobsSummaryOptions struct {
-	// Optional secondary filter in the same "field:value" format to further narrow results (e.g. "agent_version:1.2.0").
-	Secondary interface{}
-}
-
 // GetScoringJob Get a scoring job
 //
 // Retrieve a single confidence scoring job by its ID, including its current status and score if completed.
-func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId string) (*ScoringJobRecord, error) {
+func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId string) (*ScoringJobResponse, error) {
 	path := "/confidence-scoring/job/" + fmt.Sprintf("%v", jobId)
 
-	var result ScoringJobRecord
+	var result ScoringJobResponse
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "GET",
 		Path:   path,
@@ -60,7 +54,7 @@ func (s *ConfidenceScoringService) GetScoringJob(ctx context.Context, jobId stri
 // ListScoringJobs List scoring jobs
 //
 // List confidence scoring jobs, optionally filtered by identity context fields. All filters are combined with AND logic.
-func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *ConfidenceScoringListScoringJobsOptions) (*[]ScoringJobRecord, error) {
+func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *ConfidenceScoringListScoringJobsOptions) (*[]ScoringJobResponse, error) {
 	path := "/confidence-scoring/jobs"
 	query := url.Values{}
 	if opts != nil && opts.AgentName != nil {
@@ -91,31 +85,7 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Co
 		query.Set("tool_execution_id", fmt.Sprintf("%v", opts.ToolExecutionId))
 	}
 
-	var result []ScoringJobRecord
-	err := s.client.http.Do(ctx, RequestOptions{
-		Method: "GET",
-		Path:   path,
-		Query:  query,
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-// GetScoringJobsSummary Get scoring summary
-//
-// Get an aggregated summary of confidence scores. Requires a primary filter; an optional secondary filter narrows results further. Filters use the format "field:value", where field is any identity context field name.
-func (s *ConfidenceScoringService) GetScoringJobsSummary(ctx context.Context, primary string, opts *ConfidenceScoringGetScoringJobsSummaryOptions) (*ScoreSummary, error) {
-	path := "/confidence-scoring/summary"
-	query := url.Values{}
-	query.Set("primary", fmt.Sprintf("%v", primary))
-	if opts != nil && opts.Secondary != nil {
-		query.Set("secondary", fmt.Sprintf("%v", opts.Secondary))
-	}
-
-	var result ScoreSummary
+	var result []ScoringJobResponse
 	err := s.client.http.Do(ctx, RequestOptions{
 		Method: "GET",
 		Path:   path,

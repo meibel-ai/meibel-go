@@ -38,20 +38,20 @@ func (s *DatasourcesService) List(ctx context.Context) (*DatasourceListResponse,
 	return &result, nil
 }
 
-// CreateOptions contains parameters for Create.
-type CreateOptions struct {
+// DatasourcesCreateOptions contains parameters for Create.
+type DatasourcesCreateOptions struct {
 	// Human-readable datasource name
 	Name string
 	// What this datasource contains
 	Description *string
 	// Connection configuration — omit for file-upload datasources
-	Connector *interface{}
+	Connector interface{}
 	// Optional metadata extraction config to apply after creation
 	MetadataConfig interface{}
 }
 
 // Create Create Datasource
-func (s *DatasourcesService) Create(ctx context.Context, opts CreateOptions) (*DatasourceResponse, error) {
+func (s *DatasourcesService) Create(ctx context.Context, opts DatasourcesCreateOptions) (*DatasourceResponse, error) {
 	path := "/datasources"
 	var err error
 

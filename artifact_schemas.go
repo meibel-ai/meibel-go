@@ -25,7 +25,7 @@ type ArtifactSchemasListOptions struct {
 
 // List List Artifact Schemas
 func (s *ArtifactSchemasService) List(ctx context.Context, opts *ArtifactSchemasListOptions) *PageIterator[ArtifactSchemaSummary] {
-	path := "/artifact-schemas/"
+	path := "/artifact-schemas"
 	query := url.Values{}
 	if opts != nil && opts.Offset != nil {
 		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
@@ -66,28 +66,28 @@ func (s *ArtifactSchemasService) List(ctx context.Context, opts *ArtifactSchemas
 	})
 }
 
-// CreateOptions contains parameters for Create.
-type CreateOptions struct {
+// ArtifactSchemasCreateOptions contains parameters for Create.
+type ArtifactSchemasCreateOptions struct {
 	// Human-readable name of the artifact (letters, numbers, and spaces only). Converted to kebab-case internally.
 	DisplayName string
 	// Artifact type (json, markdown, csv, yaml, text, html, pdf)
 	Type *ArtifactType
 	// Description of the artifact
-	Description *interface{}
+	Description interface{}
 	// Whether agent must produce this artifact
-	Required *interface{}
+	Required interface{}
 	// Schema definition
 	Schema interface{}
 	// Maximum artifact size in bytes
-	MaxSizeBytes *interface{}
+	MaxSizeBytes interface{}
 	// Storage strategy (inline, gcs, auto)
-	StorageStrategy *interface{}
-	AdditionalProperties *map[string]interface{}
+	StorageStrategy interface{}
+	AdditionalProperties map[string]interface{}
 }
 
 // Create Create Artifact Schema
-func (s *ArtifactSchemasService) Create(ctx context.Context, opts CreateOptions) (*CreateArtifactSchemaResponse, error) {
-	path := "/artifact-schemas/"
+func (s *ArtifactSchemasService) Create(ctx context.Context, opts ArtifactSchemasCreateOptions) (*CreateArtifactSchemaResponse, error) {
+	path := "/artifact-schemas"
 	var err error
 
 	schemaResolved, err := resolveSchema(opts.Schema)
@@ -95,15 +95,20 @@ func (s *ArtifactSchemasService) Create(ctx context.Context, opts CreateOptions)
 		return nil, err
 	}
 
+	schemaTyped, _ := schemaResolved.(map[string]interface{})
 	body := CreateAgentArtifactRequest{
 		DisplayName: opts.DisplayName,
-		Type: opts.Type,
 		Description: opts.Description,
 		Required: opts.Required,
-		SchemaDef: schemaResolved,
+		SchemaDef: schemaTyped,
 		MaxSizeBytes: opts.MaxSizeBytes,
 		StorageStrategy: opts.StorageStrategy,
 		AdditionalProperties: opts.AdditionalProperties,
+	}
+	if opts.Type != nil {
+		body.Type = *opts.Type
+	} else {
+		body.Type = ArtifactType("json")
 	}
 
 	var result CreateArtifactSchemaResponse

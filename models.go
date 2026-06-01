@@ -44,6 +44,38 @@ type AgentExecutionDetailsResponse struct {
 	Result []ArtifactEntry `json:"result"`
 }
 
+// AgentIdentityContext Identifies the agent, workflow, and tool context that produced the scored output.
+type AgentIdentityContext struct {
+	// Your customer identifier.
+	CustomerId string `json:"customer_id"`
+	// The project this scoring job belongs to.
+	ProjectId string `json:"project_id"`
+	// Name of the agent that produced the scored output.
+	AgentName interface{} `json:"agent_name,omitempty"`
+	// Version of the agent that produced the scored output.
+	AgentVersion interface{} `json:"agent_version,omitempty"`
+	// Unique identifier for the agent session that produced the scored output.
+	AgentSessionId interface{} `json:"agent_session_id,omitempty"`
+	// The agent turn number within the session, if applicable.
+	AgentTurn interface{} `json:"agent_turn,omitempty"`
+	// Name of the workflow the agent is part of, if applicable.
+	AgentWorkflowName interface{} `json:"agent_workflow_name,omitempty"`
+	// Version of the workflow the agent is part of.
+	AgentWorkflowVersion interface{} `json:"agent_workflow_version,omitempty"`
+	// Unique identifier for the workflow session, if the agent runs within a workflow.
+	AgentWorkflowSessionId interface{} `json:"agent_workflow_session_id,omitempty"`
+	// Identifier of the batch definition this job belongs to, if applicable.
+	BatchDefinitionId interface{} `json:"batch_definition_id,omitempty"`
+	// Identifier of the batch execution this job belongs to, if applicable.
+	BatchExecutionId interface{} `json:"batch_execution_id,omitempty"`
+	// Identifier of the tool that produced the scored output, if applicable.
+	ToolId interface{} `json:"tool_id,omitempty"`
+	// Identifier of the specific tool instance.
+	ToolInstanceId interface{} `json:"tool_instance_id,omitempty"`
+	// Unique identifier for the tool execution that produced the scored output.
+	ToolExecutionId interface{} `json:"tool_execution_id,omitempty"`
+}
+
 // AgentListResponse represents the AgentListResponse type.
 type AgentListResponse struct {
 	Data []AgentSummary `json:"data"`
@@ -313,16 +345,6 @@ type ChatResponse struct {
 	Artifacts interface{} `json:"artifacts,omitempty"`
 }
 
-// ChatWithDatasourceRequest represents the ChatWithDatasourceRequest type.
-type ChatWithDatasourceRequest struct {
-	// Datasources to query
-	DatasourceIds []string `json:"datasource_ids"`
-	// User question
-	Message string `json:"message"`
-	// LLM model override
-	Model interface{} `json:"model,omitempty"`
-}
-
 // CloudStorageConnector Connect to a cloud storage bucket.
 type CloudStorageConnector struct {
 	// Cloud storage provider
@@ -345,6 +367,20 @@ const (
 	CloudStorageConnectorProviderGcs CloudStorageConnectorProvider = "gcs"
 )
 
+// CloudStorageConnectorSummary Public-facing summary of a cloud storage connector. Omits bucket/prefix/role/region.
+type CloudStorageConnectorSummary struct {
+	// Cloud storage provider
+	Provider string `json:"provider"`
+}
+
+// CloudStorageConnectorSummaryProvider represents the possible values for provider.
+type CloudStorageConnectorSummaryProvider string
+
+const (
+	CloudStorageConnectorSummaryProviderS3 CloudStorageConnectorSummaryProvider = "s3"
+	CloudStorageConnectorSummaryProviderGcs CloudStorageConnectorSummaryProvider = "gcs"
+)
+
 // ConnectorConfig Datasource connection configuration. Exactly one connector type must be set.
 type ConnectorConfig struct {
 	// Connector type — set the matching config object: 'database' → database, 'cloud_storage' → cloud_storage, 'web_crawl' → web_crawl
@@ -361,6 +397,26 @@ const (
 	ConnectorConfigTypeDatabase ConnectorConfigType = "database"
 	ConnectorConfigTypeCloudStorage ConnectorConfigType = "cloud_storage"
 	ConnectorConfigTypeWebCrawl ConnectorConfigType = "web_crawl"
+)
+
+// ConnectorSummary Public-facing connector summary returned on datasource reads. Strips infra details that
+//
+// customers configured on create and don't need echoed back (bucket names, IAM ARNs, regions,
+// database hosts, etc.).
+type ConnectorSummary struct {
+	// Connector type
+	Type string `json:"type"`
+	CloudStorage interface{} `json:"cloud_storage,omitempty"`
+	WebCrawl interface{} `json:"web_crawl,omitempty"`
+}
+
+// ConnectorSummaryType represents the possible values for type.
+type ConnectorSummaryType string
+
+const (
+	ConnectorSummaryTypeDatabase ConnectorSummaryType = "database"
+	ConnectorSummaryTypeCloudStorage ConnectorSummaryType = "cloud_storage"
+	ConnectorSummaryTypeWebCrawl ConnectorSummaryType = "web_crawl"
 )
 
 // CreateAgentArtifactRequest Request model for creating a new agent artifact.
@@ -413,14 +469,6 @@ type CreateAgentDefinitionRequest struct {
 	// UI icon identifier
 	Icon interface{} `json:"icon,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
-}
-
-// CreateAgentPromptRequest Request model for creating a new agent prompt.
-type CreateAgentPromptRequest struct {
-	// Human-readable name of the prompt (letters, numbers, and spaces only). Converted to kebab-case internally.
-	DisplayName string `json:"display_name"`
-	// Prompt text
-	Prompt string `json:"prompt"`
 }
 
 // CreateAgentResponse represents the CreateAgentResponse type.
@@ -481,14 +529,6 @@ type CreateDatasourceRequest struct {
 	Connector interface{} `json:"connector,omitempty"`
 	// Optional metadata extraction config to apply after creation
 	MetadataConfig interface{} `json:"metadata_config,omitempty"`
-}
-
-// CreatePromptResponse represents the CreatePromptResponse type.
-type CreatePromptResponse struct {
-	Id string `json:"id"`
-	Name string `json:"name"`
-	DisplayName string `json:"display_name"`
-	Version string `json:"version"`
 }
 
 // CreateSessionRequest represents the CreateSessionRequest type.
@@ -567,8 +607,8 @@ type DatasourceResponse struct {
 	Name string `json:"name"`
 	// What this datasource contains
 	Description string `json:"description"`
-	// Connection configuration
-	Connector ConnectorConfig `json:"connector"`
+	// Connection configuration (summary — infra details like buckets, roles, and hosts are not echoed back)
+	Connector ConnectorSummary `json:"connector"`
 	// ISO 8601 creation timestamp
 	CreatedAt string `json:"created_at"`
 	// ISO 8601 last-update timestamp
@@ -925,32 +965,6 @@ type ProcessDocumentResponse struct {
 	Result interface{} `json:"result"`
 }
 
-// PromptListResponse represents the PromptListResponse type.
-type PromptListResponse struct {
-	Data []PromptSummary `json:"data"`
-}
-
-// PromptResponse represents the PromptResponse type.
-type PromptResponse struct {
-	Id string `json:"id"`
-	Name string `json:"name"`
-	DisplayName string `json:"display_name"`
-	Version string `json:"version"`
-	ParentVersion interface{} `json:"parent_version,omitempty"`
-	Prompt string `json:"prompt"`
-	Description interface{} `json:"description,omitempty"`
-	CreatedBy interface{} `json:"created_by,omitempty"`
-	CreatedAt interface{} `json:"created_at,omitempty"`
-}
-
-// PromptSummary represents the PromptSummary type.
-type PromptSummary struct {
-	Id string `json:"id"`
-	DisplayName string `json:"display_name"`
-	Version string `json:"version"`
-	Preview string `json:"preview"`
-}
-
 // PublishAgentDefinitionRequest Request model for publishing the current draft of an agent.
 type PublishAgentDefinitionRequest struct {
 	// User-provided description of what changed in this version
@@ -975,6 +989,38 @@ type PublishAgentDefinitionResponse struct {
 	PublishedAt time.Time `json:"published_at"`
 	// User who published
 	PublishedBy interface{} `json:"published_by,omitempty"`
+}
+
+// ScoreSummary Aggregated summary of scoring jobs matching identity context filters.
+type ScoreSummary struct {
+	// Overall status across the matched scoring jobs. Null if no jobs matched the filters.
+	Status interface{} `json:"status,omitempty"`
+	// Average score across all completed jobs matching the filters.
+	AggregateScore interface{} `json:"aggregate_score,omitempty"`
+	// Average score per scoring module, keyed by module name.
+	ModuleScores interface{} `json:"module_scores,omitempty"`
+	// Number of completed scoring jobs per module.
+	NJobsPerModule interface{} `json:"n_jobs_per_module,omitempty"`
+	// Job IDs matching the filters.
+	JobIds interface{} `json:"job_ids,omitempty"`
+	// Per-turn score breakdowns, ordered by turn number ascending with null-turn last.
+	Turns interface{} `json:"turns,omitempty"`
+}
+
+// ScoringJobResponse A confidence scoring job record with metadata and scores only.
+type ScoringJobResponse struct {
+	// Unique identifier for this scoring job.
+	JobId string `json:"job_id"`
+	// The agent, workflow, and tool context that produced the scored output.
+	AgentIdentityContext AgentIdentityContext `json:"agent_identity_context"`
+	// The scoring module used to evaluate the output. Judge-based modules (e.g. correctness, coherence, faithfulness) produce scores on a 0–10 scale. Statistical modules (e.g. observed_consistency, data_grounding) produce scores on a 0.0–1.0 scale.
+	Module string `json:"module"`
+	// Current status of the scoring job: submitted, in_progress, completed, failed, or not_run.
+	Status string `json:"status"`
+	// The computed confidence score, or null if the job has not completed. Range depends on the module: 0–10 (integer) for judge-based modules, 0.0–1.0 for statistical modules.
+	Score interface{} `json:"score,omitempty"`
+	// Human-readable explanation of the score.
+	Explanation interface{} `json:"explanation,omitempty"`
 }
 
 // SessionListResponse represents the SessionListResponse type.
@@ -1157,6 +1203,22 @@ type TriggerIngestResponse struct {
 	DatasourceId string `json:"datasource_id"`
 }
 
+// TurnSummary Per-turn score aggregation.
+type TurnSummary struct {
+	// Agent turn number, or null for jobs without a turn assignment.
+	Turn interface{} `json:"turn,omitempty"`
+	// Overall status for this turn's jobs.
+	Status interface{} `json:"status,omitempty"`
+	// Average score across this turn's completed jobs.
+	AggregateScore interface{} `json:"aggregate_score,omitempty"`
+	// Average score per module for this turn.
+	ModuleScores interface{} `json:"module_scores,omitempty"`
+	// Job count per module for this turn.
+	NJobsPerModule interface{} `json:"n_jobs_per_module,omitempty"`
+	// Job IDs for this turn.
+	JobIds interface{} `json:"job_ids,omitempty"`
+}
+
 // UpdateAgentArtifactRequest Request model for updating an agent artifact. Name is intentionally excluded as it serves as the stable identifier for a version chain and cannot be changed.
 type UpdateAgentArtifactRequest struct {
 	// Human-readable name of the artifact
@@ -1217,14 +1279,6 @@ type UpdateAgentDefinitionResponse struct {
 	Version string `json:"version"`
 }
 
-// UpdateAgentPromptRequest Request model for updating an agent prompt. Name is intentionally excluded as it serves as the stable identifier for a version chain and cannot be changed.
-type UpdateAgentPromptRequest struct {
-	// Human-readable name of the prompt
-	DisplayName interface{} `json:"display_name,omitempty"`
-	// Prompt text
-	Prompt interface{} `json:"prompt,omitempty"`
-}
-
 // UpdateArtifactSchemaResponse represents the UpdateArtifactSchemaResponse type.
 type UpdateArtifactSchemaResponse struct {
 	Id string `json:"id"`
@@ -1272,12 +1326,6 @@ type UpdateBatchExecutionRequest struct {
 	// Overall error message
 	Error interface{} `json:"error,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
-}
-
-// UpdatePromptResponse represents the UpdatePromptResponse type.
-type UpdatePromptResponse struct {
-	Id string `json:"id"`
-	Version string `json:"version"`
 }
 
 // UpdateTagColumnsRequest Bulk update of column descriptions on a single table.
@@ -1336,74 +1384,6 @@ type PartialResponseEvent struct {
 type CompletionEvent struct {
 	Event string `json:"event"`
 	Data string `json:"data"`
-}
-
-// AgentIdentityContext Identifies the agent, workflow, and tool context that produced the scored output.
-type AgentIdentityContext struct {
-	// Your customer identifier.
-	CustomerId string `json:"customer_id"`
-	// The project this scoring job belongs to.
-	ProjectId string `json:"project_id"`
-	// Name of the agent that produced the scored output.
-	AgentName interface{} `json:"agent_name,omitempty"`
-	// Version of the agent that produced the scored output.
-	AgentVersion interface{} `json:"agent_version,omitempty"`
-	// Unique identifier for the agent session that produced the scored output.
-	AgentSessionId interface{} `json:"agent_session_id,omitempty"`
-	// Name of the workflow the agent is part of, if applicable.
-	AgentWorkflowName interface{} `json:"agent_workflow_name,omitempty"`
-	// Version of the workflow the agent is part of.
-	AgentWorkflowVersion interface{} `json:"agent_workflow_version,omitempty"`
-	// Unique identifier for the workflow session, if the agent runs within a workflow.
-	AgentWorkflowSessionId interface{} `json:"agent_workflow_session_id,omitempty"`
-	// Identifier of the tool that produced the scored output, if applicable.
-	ToolId interface{} `json:"tool_id,omitempty"`
-	// Identifier of the specific tool instance.
-	ToolInstanceId interface{} `json:"tool_instance_id,omitempty"`
-	// Unique identifier for the tool execution that produced the scored output.
-	ToolExecutionId interface{} `json:"tool_execution_id,omitempty"`
-}
-
-// ScoreSummary Aggregated summary of scoring jobs matching one or two identity context filters.
-type ScoreSummary struct {
-	// The identity context field used as the primary filter (e.g. "agent_name").
-	PrimaryField string `json:"primary_field"`
-	// The value matched by the primary filter.
-	PrimaryValue string `json:"primary_value"`
-	// An optional second identity context field used to further narrow results.
-	SecondaryField interface{} `json:"secondary_field,omitempty"`
-	// The value matched by the secondary filter.
-	SecondaryValue interface{} `json:"secondary_value,omitempty"`
-	// Overall status across the matched scoring jobs. Null if no jobs matched the filters.
-	Status interface{} `json:"status,omitempty"`
-	// Average score across all completed jobs matching the filters.
-	AggregateScore interface{} `json:"aggregate_score,omitempty"`
-	// Average score per scoring module, keyed by module name.
-	ModuleScores interface{} `json:"module_scores,omitempty"`
-	// Number of completed scoring jobs per module.
-	NJobsPerModule interface{} `json:"n_jobs_per_module,omitempty"`
-	// The individual scoring job records matching the filters.
-	Jobs interface{} `json:"jobs,omitempty"`
-}
-
-// ScoringJobRecord A single confidence scoring job and its result.
-type ScoringJobRecord struct {
-	// Unique identifier for this scoring job.
-	JobId string `json:"job_id"`
-	// The agent, workflow, and tool context that produced the scored output.
-	AgentIdentityContext AgentIdentityContext `json:"agent_identity_context"`
-	// The scoring module used to evaluate the output. Judge-based modules (e.g. correctness, coherence, faithfulness) produce scores on a 0–10 scale. Statistical modules (e.g. observed_consistency, data_grounding) produce scores on a 0.0–1.0 scale.
-	Module string `json:"module"`
-	// Configuration parameters for the scoring module. Structure varies by module.
-	ScoringConfig *string `json:"scoring_config,omitempty"`
-	// The input that was provided to the agent or tool being scored.
-	InputValue string `json:"input_value"`
-	// The output produced by the agent or tool that was evaluated.
-	OutputValue string `json:"output_value"`
-	// Current status of the scoring job: submitted, in_progress, completed, failed, or not_run.
-	Status string `json:"status"`
-	// The computed confidence score, or null if the job has not completed. Range depends on the module: 0–10 (integer) for judge-based modules, 0.0–1.0 for statistical modules.
-	Score interface{} `json:"score,omitempty"`
 }
 
 // ContentItem A single file in a datasource's content store.
@@ -1514,28 +1494,12 @@ type MetadataModelCatalogEntry struct {
 type BodyUploadContent struct {
 	// One or more files to upload
 	Files [][]byte `json:"files"`
-	// ID of an existing datasource to upload to. Provide this or name.
-	DatasourceId *string `json:"datasource_id,omitempty"`
-	// Name for a new datasource to create. Provide this or datasource_id.
-	Name *string `json:"name,omitempty"`
-	// Description of the new datasource (only used when creating with name).
-	Description *string `json:"description,omitempty"`
-	MetadataConfig *MetadataConfigRequest `json:"metadata_config,omitempty"`
 }
 
 // BodyUploadAndListContent represents the Body_uploadAndListContent type.
 type BodyUploadAndListContent struct {
 	// One or more files to upload
 	Files [][]byte `json:"files"`
-	// ID of an existing datasource to upload to. Provide this or name.
-	DatasourceId *string `json:"datasource_id,omitempty"`
-	// Name for a new datasource to create. Provide this or datasource_id.
-	Name *string `json:"name,omitempty"`
-	// Description of the new datasource (only used when creating with name).
-	Description *string `json:"description,omitempty"`
-	MetadataConfig *MetadataConfigRequest `json:"metadata_config,omitempty"`
-	// Start ingestion after upload completes. Returns ingest_url to poll for status.
-	TriggerIngest *bool `json:"trigger_ingest,omitempty"`
 }
 
 // BodyParseDocument represents the Body_parseDocument type.
