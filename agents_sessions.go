@@ -26,6 +26,29 @@ type AgentsSessionsListOptions struct {
 	Status interface{}
 }
 
+// CreateByName Create Session By Name
+//
+// Start a session against the latest published version of an agent by name.
+// 
+// Resolves the current latest published version at runtime — callers do not
+// need to track a specific agent ID or version. Returns 404 if no published
+// version exists for the given agent name.
+func (s *AgentsSessionsService) CreateByName(ctx context.Context, name string, body *interface{}) (*CreateSessionResponse, error) {
+	path := "/agents/name/" + fmt.Sprintf("%v", name) + "/sessions"
+
+	var result CreateSessionResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "POST",
+		Path:   path,
+		Body:   body,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 // List List Sessions
 func (s *AgentsSessionsService) List(ctx context.Context, agentId string, opts *AgentsSessionsListOptions) *PageIterator[SessionSummary] {
 	path := "/agents/" + fmt.Sprintf("%v", agentId) + "/sessions"

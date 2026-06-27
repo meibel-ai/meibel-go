@@ -97,3 +97,39 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Co
 
 	return &result, nil
 }
+
+// GetAgentScoringSummary Get agent scoring summary
+//
+// Get an aggregated summary of confidence scores for a specific agent.
+func (s *ConfidenceScoringService) GetAgentScoringSummary(ctx context.Context, agentName string) (*ScoreSummary, error) {
+	path := "/confidence-scoring/summary/agent/" + fmt.Sprintf("%v", agentName)
+
+	var result ScoreSummary
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// GetAgentSessionScoringSummary Get agent session scoring summary
+//
+// Get an aggregated summary of confidence scores for a specific agent session.
+func (s *ConfidenceScoringService) GetAgentSessionScoringSummary(ctx context.Context, agentName string, sessionId string) (*ScoreSummary, error) {
+	path := "/confidence-scoring/summary/agent/" + fmt.Sprintf("%v", agentName) + "/session/" + fmt.Sprintf("%v", sessionId)
+
+	var result ScoreSummary
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
