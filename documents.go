@@ -27,6 +27,14 @@ type DocumentsGetResultOptions struct {
 	Format *string
 }
 
+// DocumentsListDeepTransformsOptions contains optional parameters for ListDeepTransforms.
+type DocumentsListDeepTransformsOptions struct {
+	// Number of jobs to skip
+	Offset *int64
+	// Maximum number of jobs to return
+	Limit *int64
+}
+
 // Parse Parse a document (async)
 //
 // Upload a document for asynchronous parsing. Returns a job ID to track progress.
@@ -273,6 +281,160 @@ func (s *DocumentsService) SubmitTransform(ctx context.Context, opts DocumentsSu
 	}, []UploadField{
 		{FieldName: "file", Reader: f, FileName: filepath.Base(opts.File)},
 	}, formFields, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// ListDeepTransforms List deep-transform jobs
+//
+// List the calling customer's deep-transform jobs, newest first. Scoped to the customer (and project, when a project header is set). Paginated via `offset`/`limit`.
+func (s *DocumentsService) ListDeepTransforms(ctx context.Context, opts *DocumentsListDeepTransformsOptions) *PageIterator[DeepTransformJob] {
+	path := "/documents/deep-transform"
+	query := url.Values{}
+	if opts != nil && opts.Offset != nil {
+		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
+	}
+	if opts != nil && opts.Limit != nil {
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
+	}
+
+	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[DeepTransformJob], error) {
+		if cursor != "" {
+			query.Set("offset", cursor)
+		}
+
+		var resp struct {
+			Jobs []DeepTransformJob `json:"jobs"`
+			NextCursor string `json:"next_cursor"`
+		}
+
+		err := s.client.http.Do(ctx, RequestOptions{
+			Method: "GET",
+			Path:   path,
+			Query:  query,
+		}, &resp)
+		if err != nil {
+			return nil, err
+		}
+
+		return &Page[DeepTransformJob]{
+			Items:      resp.Jobs,
+			NextCursor: resp.NextCursor,
+		}, nil
+	})
+}
+
+// DocumentsSubmitDeepTransformOptions contains parameters for SubmitDeepTransform.
+type DocumentsSubmitDeepTransformOptions struct {
+	// Document file to extract from
+	File string
+	// JSON Schema (as a JSON string) of the entities to extract
+	Schema interface{}
+	// Name of the root entity in the schema. Optional: resolved from the schema's title or inferred when omitted.
+	RootName *string
+	// Optional domain guidance for the extraction
+	Guidance *string
+	// Optional cap on the number of pages to process
+	MaxPages *int64
+}
+
+// SubmitDeepTransform Submit a deep-transform extraction from a file upload (async)
+//
+// Upload a document and submit an extraction against a JSON schema, returning immediately with a job id. To reuse an already-parsed document instead of uploading, use POST /documents/deep-transform/from-document. Poll status via GET /documents/deep-transform/{job_id} and download artifacts once it succeeds. Submission is idempotent on the (document, schema) pair.
+func (s *DocumentsService) SubmitDeepTransform(ctx context.Context, opts DocumentsSubmitDeepTransformOptions) (*SubmitDeepTransformResponse, error) {
+	path := "/documents/deep-transform"
+	var err error
+
+	schemaResolved, err := resolveSchema(opts.Schema)
+	if err != nil {
+		return nil, err
+	}
+
+	f, err := os.Open(opts.File)
+	if err != nil {
+		return nil, fmt.Errorf("opening file: %w", err)
+	}
+	defer f.Close()
+
+	formFields := map[string]string{}
+	switch sv := schemaResolved.(type) {
+	case string:
+		formFields["schema"] = sv
+	case nil:
+		// skip
+	default:
+		b, _ := json.Marshal(sv)
+		formFields["schema"] = string(b)
+	}
+	formFields["root_name"] = fmt.Sprintf("%v", opts.RootName)
+	formFields["guidance"] = fmt.Sprintf("%v", opts.Guidance)
+	formFields["max_pages"] = fmt.Sprintf("%v", opts.MaxPages)
+
+	var result SubmitDeepTransformResponse
+	err = s.client.http.DoUpload(ctx, RequestOptions{
+		Method: "POST",
+		Path:   path,
+	}, []UploadField{
+		{FieldName: "file", Reader: f, FileName: filepath.Base(opts.File)},
+	}, formFields, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// GetDeepTransformStatus Get deep-transform job status
+//
+// Check status and, once succeeded, the list of downloadable artifacts.
+func (s *DocumentsService) GetDeepTransformStatus(ctx context.Context, jobId string) (*DeepTransformJob, error) {
+	path := "/documents/deep-transform/" + fmt.Sprintf("%v", jobId)
+
+	var result DeepTransformJob
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// DownloadDeepTransformArtifact Download a deep-transform artifact
+//
+// Download a named artifact (e.g. output.json) produced by a succeeded job. Ownership is verified against the customer header before any bytes are returned.
+func (s *DocumentsService) DownloadDeepTransformArtifact(ctx context.Context, jobId string, name string) (*string, error) {
+	path := "/documents/deep-transform/" + fmt.Sprintf("%v", jobId) + "/artifact/" + fmt.Sprintf("%v", name)
+
+	var result string
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "GET",
+		Path:   path,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+// SubmitDeepTransformFrom Submit a deep-transform extraction reusing a parsed document (async)
+//
+// Submit an extraction that reuses an already-parsed document (by `document_job_id` from POST /documents) instead of re-parsing an upload. Returns immediately with a job id. Poll status via GET /documents/deep-transform/{job_id} and download artifacts once it succeeds. Submission is idempotent on the (document, schema) pair.
+func (s *DocumentsService) SubmitDeepTransformFrom(ctx context.Context, body SubmitDeepTransformFromDocument) (*SubmitDeepTransformResponse, error) {
+	path := "/documents/deep-transform/from-document"
+
+	var result SubmitDeepTransformResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "POST",
+		Path:   path,
+		Body:   body,
+	}, &result)
 	if err != nil {
 		return nil, err
 	}

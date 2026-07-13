@@ -6,7 +6,7 @@ import (
 )
 
 // Version is the SDK version string.
-const Version = "2.0.3"
+const Version = "2.0.4"
 
 // MeibelClient is the main client for the meibel-ai-api API.
 type MeibelClient struct {
@@ -18,6 +18,7 @@ type MeibelClient struct {
 	ConfidenceScoring *ConfidenceScoringService
 	Datasources *DatasourcesService
 	Documents *DocumentsService
+	ExecutionPolicies *ExecutionPoliciesService
 	MetadataModelCatalog *MetadataModelCatalogService
 	Sessions *SessionsService
 }
@@ -106,6 +107,7 @@ func NewClient(opts ...ClientOption) *MeibelClient {
 	c.ConfidenceScoring = &ConfidenceScoringService{client: c}
 	c.Datasources = &DatasourcesService{client: c}
 	c.Documents = &DocumentsService{client: c}
+	c.ExecutionPolicies = &ExecutionPoliciesService{client: c}
 	c.MetadataModelCatalog = &MetadataModelCatalogService{client: c}
 	c.Sessions = &SessionsService{client: c}
 	c.Agents.Sessions = &AgentsSessionsService{client: c}

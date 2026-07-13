@@ -27,6 +27,9 @@ type AgentDetailResponse struct {
 	Icon interface{} `json:"icon,omitempty"`
 	CreatedBy interface{} `json:"created_by,omitempty"`
 	CreatedAt interface{} `json:"created_at,omitempty"`
+	// Execution policy applied to this agent's sessions.
+	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
 	LastExecutionStatus interface{} `json:"last_execution_status,omitempty"`
 	LastExecutionTime interface{} `json:"last_execution_time,omitempty"`
 }
@@ -239,6 +242,8 @@ type BatchDefinitionResponse struct {
 	RetryLimit int64 `json:"retry_limit"`
 	RecurrenceCron interface{} `json:"recurrence_cron,omitempty"`
 	Description interface{} `json:"description,omitempty"`
+	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	CreatedBy string `json:"created_by"`
 	DeletedAt interface{} `json:"deleted_at,omitempty"`
@@ -468,6 +473,10 @@ type CreateAgentDefinitionRequest struct {
 	Tags interface{} `json:"tags,omitempty"`
 	// UI icon identifier
 	Icon interface{} `json:"icon,omitempty"`
+	// Inline execution policy constraints (datasources, tools)
+	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	// IDs of stored ExecutionPolicies to compose
+	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
@@ -504,6 +513,10 @@ type CreateBatchDefinitionRequest struct {
 	// Cron expression validated by croniter; not yet scheduled in DEL-1376.
 	RecurrenceCron interface{} `json:"recurrence_cron,omitempty"`
 	Description interface{} `json:"description,omitempty"`
+	// Inline execution policy constraints (datasources, tools)
+	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	// IDs of stored ExecutionPolicies to compose
+	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
 }
 
 // CreateBatchDefinitionResponse Compact post-create payload mirroring CreateAgentDefinitionResponse.
@@ -531,11 +544,26 @@ type CreateDatasourceRequest struct {
 	MetadataConfig interface{} `json:"metadata_config,omitempty"`
 }
 
+// CreateExecutionPolicyRequest CreateExecutionPolicyRequest
+type CreateExecutionPolicyRequest struct {
+	// Policy name (unique within tenant)
+	Name string `json:"name"`
+	// Human-readable description
+	Description interface{} `json:"description,omitempty"`
+	// ExecutionPolicy payload (datasources, tools)
+	ExecutionPolicy ExecutionPolicy `json:"execution_policy"`
+}
+
 // CreateSessionRequest represents the CreateSessionRequest type.
 type CreateSessionRequest struct {
 	Prompt interface{} `json:"prompt,omitempty"`
 	InitialContext interface{} `json:"initial_context,omitempty"`
-	MaxIterationsPerUserMessage interface{} `json:"max_iterations_per_user_message,omitempty"`
+	MaxIterationsPerUserMessage *int64 `json:"max_iterations_per_user_message,omitempty"`
+	MessageWaitTimeoutSeconds *int64 `json:"message_wait_timeout_seconds,omitempty"`
+	// IDs of stored ExecutionPolicies to compose into this session.
+	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
+	// Inline session-level access constraints (hardrails). Controls which datasources and tools the agent can use, and what data is accessible within each. Composed with any stored policies referenced by execution_policy_ids.
+	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
 }
 
 // CreateSessionResponse represents the CreateSessionResponse type.
@@ -629,6 +657,70 @@ type DatasourceResponse struct {
 	Tables interface{} `json:"tables,omitempty"`
 }
 
+// DatasourceView Access controls for a single datasource.  Each datasource can be entirely disabled, or selectively constrained via TAG (SQL) and/or RAG (vector search) filters. Keyed by datasource_id in ``ExecutionPolicy.datasources``.
+type DatasourceView struct {
+	// When true, the datasource is entirely inaccessible for this session. All queries against it will be blocked.
+	Disabled interface{} `json:"disabled,omitempty"`
+	// TAG (SQL/database) constraints. Controls table/row access and column redaction.
+	Tables interface{} `json:"tables,omitempty"`
+	// RAG (vector search) constraints. Controls which documents can be retrieved.
+	Documents interface{} `json:"documents,omitempty"`
+}
+
+// DeepTransformJob represents the DeepTransformJob type.
+type DeepTransformJob struct {
+	// Deep-transform job id
+	JobId string `json:"job_id"`
+	// queued | running | succeeded | failed
+	Status string `json:"status"`
+	// Names of the artifacts available for download once the job succeeds
+	Artifacts []string `json:"artifacts,omitempty"`
+	// Run metrics (timing, counts)
+	Metrics interface{} `json:"metrics,omitempty"`
+	// Extraction quality (AEQ) summary
+	Aeq interface{} `json:"aeq,omitempty"`
+	// Failure reason when status is failed
+	Error interface{} `json:"error,omitempty"`
+}
+
+// DeepTransformJobList represents the DeepTransformJobList type.
+type DeepTransformJobList struct {
+	// The customer's deep-transform jobs, newest first
+	Jobs []DeepTransformJob `json:"jobs,omitempty"`
+	// Applied page size
+	Limit int64 `json:"limit"`
+	// Applied offset
+	Offset int64 `json:"offset"`
+	// Offset for the next page, or null when this was the last page
+	NextOffset interface{} `json:"next_offset,omitempty"`
+}
+
+// DeepTransformMetrics Public run metrics. Mirrors heron's RunMetrics minus internal cost fields (`cost_*_usd`),
+//
+// which are dropped: Pydantic ignores unknown keys, so any cost field heron sends is discarded.
+type DeepTransformMetrics struct {
+	// Total wall-clock time of the run
+	WallMs interface{} `json:"wall_ms,omitempty"`
+	// Minimum achievable time given dependencies
+	FloorMs interface{} `json:"floor_ms,omitempty"`
+	// Peak concurrent LLM calls
+	LlmConcurrencyPeak interface{} `json:"llm_concurrency_peak,omitempty"`
+	// Fraction of entities resolved to an identity
+	IdentityResolutionRate interface{} `json:"identity_resolution_rate,omitempty"`
+	// Entities with no incoming references
+	OrphanCount interface{} `json:"orphan_count,omitempty"`
+	// Edges pointing at a missing entity
+	DanglingEdgeCount interface{} `json:"dangling_edge_count,omitempty"`
+	// Entities split across fragments
+	FragmentedCount interface{} `json:"fragmented_count,omitempty"`
+	// Scalar conflicts shipped un-arbitrated (DEGRADED resolution)
+	ScalarConflictsUnresolved interface{} `json:"scalar_conflicts_unresolved,omitempty"`
+	// Entities not covered by the extraction
+	UncoveredEntityCount interface{} `json:"uncovered_entity_count,omitempty"`
+	// Work units that failed during the run
+	FailedUnitCount interface{} `json:"failed_unit_count,omitempty"`
+}
+
 // DocumentChild Child document from container (ZIP/TAR/EML).
 type DocumentChild struct {
 	JobId string `json:"job_id"`
@@ -687,6 +779,26 @@ type DownloadJobResponse struct {
 type ExecuteBatchDefinitionResponse struct {
 	ExecutionId string `json:"execution_id"`
 	WorkflowId string `json:"workflow_id"`
+}
+
+// ExecutionPolicy Session-level access constraints (hardrails) for data and tools.  Controls what data an agent session can access and what tools it can use. Constraints are enforced by the platform at runtime — the agent cannot bypass them.  Multiple policies can be composed: stored policies (by ID) and/or an inline policy are structurally merged. Overlapping datasource or tool entries are combined with ``$and`` (intersection semantics).  All filter fields use MongoDB-style constraint operators. Plain values are automatically normalized to ``{"$eq": value}``.
+type ExecutionPolicy struct {
+	// Per-datasource access controls, keyed by datasource_id. Each entry can disable the datasource entirely or apply TAG/RAG filters to restrict which data is accessible.
+	Datasources interface{} `json:"datasources,omitempty"`
+	// Per-tool access controls, keyed by tool instance name. Each entry can disable the tool entirely or constrain its parameters to specific values or ranges.
+	Tools interface{} `json:"tools,omitempty"`
+}
+
+// ExecutionPolicyResponse ExecutionPolicyResponse
+type ExecutionPolicyResponse struct {
+	Id string `json:"id"`
+	CustomerId string `json:"customer_id"`
+	ProjectId string `json:"project_id"`
+	Name string `json:"name"`
+	Description interface{} `json:"description,omitempty"`
+	ExecutionPolicy ExecutionPolicy `json:"execution_policy"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // FieldSummary represents the FieldSummary type.
@@ -748,6 +860,12 @@ type GetBatchDefinitionsResponse struct {
 // GetBatchExecutionsResponse Response model for listing batch executions.
 type GetBatchExecutionsResponse struct {
 	Data []BatchExecutionResponse `json:"data"`
+	Pagination PaginationMeta `json:"pagination"`
+}
+
+// GetExecutionPoliciesResponse GetExecutionPoliciesResponse
+type GetExecutionPoliciesResponse struct {
+	Data []ExecutionPolicyResponse `json:"data"`
 	Pagination PaginationMeta `json:"pagination"`
 }
 
@@ -991,6 +1109,12 @@ type PublishAgentDefinitionResponse struct {
 	PublishedBy interface{} `json:"published_by,omitempty"`
 }
 
+// RagConstraints Constraints for RAG (vector search) queries within a datasource.  Controls which documents the agent can retrieve via vector search.  Filters use MongoDB-style constraint dicts. Plain values are automatically normalized to ``{"$eq": value}`` on construction.  Built-in fields:   - ``data_element.__id__``: scope by data element ID   - ``data_element.__name__``: scope by original filename  Custom indexed metadata fields (e.g., ``author``, ``document_type``) are also supported when configured on the datasource.  Supported operators:   - Comparison: ``$eq``, ``$ne``, ``$gt``, ``$gte``, ``$lt``, ``$lte``   - Set: ``$in``, ``$nin``   - Logical: ``$and``, ``$or``, ``$not``
+type RagConstraints struct {
+	// Optional override for the tool's parameters schema
+	Filter interface{} `json:"filter,omitempty"`
+}
+
 // ScoreSummary Aggregated summary of scoring jobs matching identity context filters.
 type ScoreSummary struct {
 	// Overall status across the matched scoring jobs. Null if no jobs matched the filters.
@@ -1071,6 +1195,12 @@ type Source struct {
 	RelevanceScore interface{} `json:"relevance_score,omitempty"`
 }
 
+// SubmitDeepTransformResponse represents the SubmitDeepTransformResponse type.
+type SubmitDeepTransformResponse struct {
+	// Poll status via GET /documents/deep-transform/{job_id}
+	JobId string `json:"job_id"`
+}
+
 // SubmitDocumentTransformResponse represents the SubmitDocumentTransformResponse type.
 type SubmitDocumentTransformResponse struct {
 	// Poll via client.sessions.get(execution_id)
@@ -1133,6 +1263,16 @@ type TagColumnUpdateItem struct {
 	Description string `json:"description"`
 }
 
+// TagConstraints Constraints for TAG (SQL/database) queries within a datasource.  Controls which tables and rows the agent can access, and which columns are redacted from query output.  Filters use MongoDB-style constraint dicts. Plain values are automatically normalized to ``{"$eq": value}`` on construction.  Supported operators:   - Comparison: ``$eq``, ``$ne``, ``$gt``, ``$gte``, ``$lt``, ``$lte``   - Set: ``$in``, ``$nin``   - Logical: ``$and``, ``$or``, ``$not``
+type TagConstraints struct {
+	// Optional override for the tool's parameters schema
+	Filter interface{} `json:"filter,omitempty"`
+	// Per-table column names to redact from query output. Keyed by table name; values are lists of column names. Columns remain usable in WHERE/JOIN — only the final result values are stripped.
+	HiddenColumns interface{} `json:"hidden_columns,omitempty"`
+	// Table names whose columns are fully redacted from query output. Tables remain queryable in WHERE/JOIN — only SELECT output is stripped.
+	HiddenTables interface{} `json:"hidden_tables,omitempty"`
+}
+
 // TagTable A table on a structured datasource, with its description and optionally its columns.
 type TagTable struct {
 	// Table name as defined on the datasource
@@ -1175,6 +1315,14 @@ type ToolCallInfo struct {
 	Arguments interface{} `json:"arguments"`
 	Sequence interface{} `json:"sequence"`
 	Timestamp interface{} `json:"timestamp"`
+}
+
+// ToolConfig Access controls for a single tool instance.  Tools can be entirely disabled, or have their parameters constrained to specific values or ranges. Keyed by tool instance name in ``ExecutionPolicy.tools``.  Variable constraints use the same MongoDB-style operators as datasource filters. Plain values are automatically normalized to ``{"$eq": value}`` on construction. All constraints are:   1. Annotated in the tool's parameter schema (visible to the LLM)   2. Validated at execution time (enforced by the platform)  Supported operators:   - Comparison: ``$eq``, ``$ne``, ``$gt``, ``$gte``, ``$lt``, ``$lte``   - Set: ``$in``, ``$nin``   - Logical: ``$and``, ``$or``, ``$not``
+type ToolConfig struct {
+	// When true, the tool is removed from the agent's toolkit for this session. The agent will not be able to invoke it.
+	Disabled interface{} `json:"disabled,omitempty"`
+	// Optional override for the tool's parameters schema
+	Variables interface{} `json:"variables,omitempty"`
 }
 
 // ToolResultInfo ToolResultInfo
@@ -1267,6 +1415,10 @@ type UpdateAgentDefinitionRequest struct {
 	Tags interface{} `json:"tags,omitempty"`
 	// UI icon identifier
 	Icon interface{} `json:"icon,omitempty"`
+	// Inline execution policy constraints (datasources, tools)
+	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	// IDs of stored ExecutionPolicies to compose
+	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
 }
 
 // UpdateAgentDefinitionResponse Response model for updating an agent definition.
@@ -1298,6 +1450,10 @@ type UpdateBatchDefinitionRequest struct {
 	RetryLimit interface{} `json:"retry_limit,omitempty"`
 	RecurrenceCron interface{} `json:"recurrence_cron,omitempty"`
 	Description interface{} `json:"description,omitempty"`
+	// Inline execution policy constraints (datasources, tools)
+	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	// IDs of stored ExecutionPolicies to compose
+	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
 }
 
 // UpdateBatchDefinitionResponse New version metadata returned after a successful update fork.
@@ -1326,6 +1482,16 @@ type UpdateBatchExecutionRequest struct {
 	// Overall error message
 	Error interface{} `json:"error,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
+}
+
+// UpdateExecutionPolicyRequest UpdateExecutionPolicyRequest
+type UpdateExecutionPolicyRequest struct {
+	// Updated policy name
+	Name interface{} `json:"name,omitempty"`
+	// Updated description
+	Description interface{} `json:"description,omitempty"`
+	// Updated ExecutionPolicy payload
+	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
 }
 
 // UpdateTagColumnsRequest Bulk update of column descriptions on a single table.
@@ -1490,6 +1656,20 @@ type MetadataModelCatalogEntry struct {
 	Fields []MetadataField `json:"fields"`
 }
 
+// SubmitDeepTransformFromDocument Reuse an already-parsed document instead of re-parsing an upload.
+type SubmitDeepTransformFromDocument struct {
+	// A document job id returned by POST /documents. Reuses that parse so the document is not parsed again. The document must belong to the calling customer.
+	DocumentJobId string `json:"document_job_id"`
+	// JSON Schema of the entities to extract
+	Schema map[string]interface{} `json:"schema"`
+	// Name of the root entity in the schema. Optional: when omitted it is resolved from the schema's `title` or inferred during extraction.
+	RootName interface{} `json:"root_name,omitempty"`
+	// Optional domain guidance for the extraction
+	Guidance interface{} `json:"guidance,omitempty"`
+	// Optional cap on the number of pages to process
+	MaxPages interface{} `json:"max_pages,omitempty"`
+}
+
 // BodyUploadContent represents the Body_uploadContent type.
 type BodyUploadContent struct {
 	// One or more files to upload
@@ -1544,4 +1724,18 @@ type BodySubmitDocumentTransform struct {
 	PromptId *string `json:"prompt_id,omitempty"`
 	// Max wait time in seconds (sync only)
 	TimeoutSeconds *int64 `json:"timeout_seconds,omitempty"`
+}
+
+// BodySubmitDeepTransform represents the Body_submitDeepTransform type.
+type BodySubmitDeepTransform struct {
+	// Document file to extract from
+	File []byte `json:"file"`
+	// JSON Schema (as a JSON string) of the entities to extract
+	Schema string `json:"schema"`
+	// Name of the root entity in the schema. Optional: resolved from the schema's title or inferred when omitted.
+	RootName *string `json:"root_name,omitempty"`
+	// Optional domain guidance for the extraction
+	Guidance *string `json:"guidance,omitempty"`
+	// Optional cap on the number of pages to process
+	MaxPages *int64 `json:"max_pages,omitempty"`
 }
