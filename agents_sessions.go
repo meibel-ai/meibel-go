@@ -17,7 +17,7 @@ type AgentsSessionsListOptions struct {
 	// Number of items to skip
 	Offset *int64
 	// Maximum number of items to return
-	Limit interface{}
+	Limit *int64
 	// Field to sort by: start_time, status
 	SortBy *string
 	// Sort order: asc or desc
@@ -57,7 +57,7 @@ func (s *AgentsSessionsService) List(ctx context.Context, agentId string, opts *
 		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
 	}
 	if opts != nil && opts.Limit != nil {
-		query.Set("limit", fmt.Sprintf("%v", opts.Limit))
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
 	}
 	if opts != nil && opts.SortBy != nil {
 		query.Set("sort_by", fmt.Sprintf("%v", *opts.SortBy))

@@ -83,13 +83,19 @@ type AgentIdentityContext struct {
 type AgentListResponse struct {
 	Data []AgentSummary `json:"data"`
 	Total int64 `json:"total"`
+	Offset int64 `json:"offset"`
+	Limit interface{} `json:"limit,omitempty"`
 }
 
 // AgentSummary represents the AgentSummary type.
 type AgentSummary struct {
 	Id string `json:"id"`
+	Name string `json:"name"`
 	DisplayName string `json:"display_name"`
 	Description interface{} `json:"description,omitempty"`
+	Version string `json:"version"`
+	// Lifecycle state of the returned version: "draft" or "published".
+	Type string `json:"type"`
 	LlmModel string `json:"llm_model"`
 	ToolCount int64 `json:"tool_count"`
 	DatasourceCount int64 `json:"datasource_count"`
@@ -123,6 +129,8 @@ type AgentToolDefinition struct {
 type AgentVersionListResponse struct {
 	Data []AgentVersionSummary `json:"data"`
 	Total int64 `json:"total"`
+	Offset int64 `json:"offset"`
+	Limit interface{} `json:"limit,omitempty"`
 }
 
 // AgentVersionSummary represents the AgentVersionSummary type.
@@ -1057,6 +1065,37 @@ const (
 	MetadataFieldTypeListString MetadataFieldType = "list[string]"
 )
 
+// MoveDocumentsRequest Move documents into a datasource.
+//
+// 
+// The documents are referenced by the job IDs returned when they were parsed
+// (e.g. the job_id from `parseDocument` / `client.documents.parse(...)`),
+// not by object-storage paths.
+// 
+// Either target an existing datasource with datasource_id, or create a new
+// one by supplying new_datasource_name. Customer and project context are
+// injected from request headers, not the body.
+type MoveDocumentsRequest struct {
+	// Job IDs of the documents to move (e.g. the job_id returned by parseDocument)
+	Documents []string `json:"documents"`
+	// Existing datasource to move documents into. Mutually exclusive with new_datasource_name.
+	DatasourceId interface{} `json:"datasource_id,omitempty"`
+	// Name for a new datasource created to hold the documents. Mutually exclusive with datasource_id.
+	NewDatasourceName interface{} `json:"new_datasource_name,omitempty"`
+	// Optional metadata extraction config applied to a newly created datasource. Ignored when datasource_id is set.
+	MetadataConfig interface{} `json:"metadata_config,omitempty"`
+}
+
+// MoveDocumentsResponse Result of starting an asynchronous document move workflow.
+type MoveDocumentsResponse struct {
+	// ID of the datasource the documents are being moved into
+	DatasourceId string `json:"datasource_id"`
+	// ID of the move workflow - poll for completion
+	WorkflowId string `json:"workflow_id"`
+	// Number of documents submitted for move
+	DocumentsCount int64 `json:"documents_count"`
+}
+
 // PaginationMeta Pagination metadata included in list responses.
 type PaginationMeta struct {
 	// Total number of items matching the query
@@ -1151,6 +1190,8 @@ type ScoringJobResponse struct {
 type SessionListResponse struct {
 	Data []SessionSummary `json:"data"`
 	Total int64 `json:"total"`
+	Offset int64 `json:"offset"`
+	Limit interface{} `json:"limit,omitempty"`
 }
 
 // SessionMessageItem represents the SessionMessageItem type.
@@ -1193,6 +1234,20 @@ type Source struct {
 	Snippet interface{} `json:"snippet,omitempty"`
 	DataElementId interface{} `json:"data_element_id,omitempty"`
 	RelevanceScore interface{} `json:"relevance_score,omitempty"`
+}
+
+// SubmitDeepTransformFromDocument Reuse an already-parsed document instead of re-parsing an upload.
+type SubmitDeepTransformFromDocument struct {
+	// A document job id returned by POST /documents. Reuses that parse so the document is not parsed again. The document must belong to the calling customer.
+	DocumentJobId string `json:"document_job_id"`
+	// JSON Schema of the entities to extract
+	Schema map[string]interface{} `json:"schema"`
+	// Name of the root entity in the schema. Optional: when omitted it is resolved from the schema's `title` or inferred during extraction.
+	RootName interface{} `json:"root_name,omitempty"`
+	// Optional domain guidance for the extraction
+	Guidance interface{} `json:"guidance,omitempty"`
+	// Optional cap on the number of pages to process
+	MaxPages interface{} `json:"max_pages,omitempty"`
 }
 
 // SubmitDeepTransformResponse represents the SubmitDeepTransformResponse type.
@@ -1552,6 +1607,309 @@ type CompletionEvent struct {
 	Data string `json:"data"`
 }
 
+// ParseStructuredDocument The final output of the pipeline: a fully structured document.
+type ParseStructuredDocument struct {
+	// Aggregate confidence scores across all pages.
+	Confidence ParseConfidenceScores `json:"confidence"`
+	// Detected input format (e.g. "pdf", "docx", "markdown"). `None` for documents processed before this field was added.
+	Format *string `json:"format,omitempty"`
+	// Total GPU inference time in milliseconds across all stages (layout detection + table encoder + table decoder + OCR). Zero for non-PDF formats that don't use the ML pipeline.
+	GpuMs *int64 `json:"gpu_ms,omitempty"`
+	// Number of pages in the source document.
+	NumPages int64 `json:"num_pages"`
+	// Number of pages that required OCR (had no extractable text).
+	OcrPages *int64 `json:"ocr_pages,omitempty"`
+	// Number of pages where orientation detection applied a non-zero rotation.
+	OrientationPages *int64 `json:"orientation_pages,omitempty"`
+	// Per-page structured content.
+	Pages []ParseStructuredPage `json:"pages"`
+	// Number of regions dispatched to remote endpoints (charts, formulas, seals).
+	RemoteRegions *int64 `json:"remote_regions,omitempty"`
+}
+
+// ParseAffineFit Linear fit `value = slope * pixel_pos + intercept` (on log10(value) for Log10, on unix-timestamp for DateTime). `r_squared` retained to warn on weak fits.
+type ParseAffineFit struct {
+	Intercept float64 `json:"intercept"`
+	RSquared float64 `json:"r_squared"`
+	Slope float64 `json:"slope"`
+}
+
+// ParseAxisCalibration represents the ParseAxisCalibration type.
+type ParseAxisCalibration struct {
+	DataRange []float64 `json:"data_range"`
+	PixelToData ParseAffineFit `json:"pixel_to_data"`
+	Scale ParseAxisScale `json:"scale"`
+	Ticks []ParseTickMark `json:"ticks"`
+	Title *string `json:"title,omitempty"`
+	Unit *string `json:"unit,omitempty"`
+}
+
+// ParseAxisScale represents the possible values for ParseAxisScale.
+type ParseAxisScale string
+
+const (
+	ParseAxisScaleLinear ParseAxisScale = "Linear"
+	ParseAxisScaleLog10 ParseAxisScale = "Log10"
+	ParseAxisScaleCategorical ParseAxisScale = "Categorical"
+	ParseAxisScaleDateTime ParseAxisScale = "DateTime"
+)
+
+// ParseBBox Axis-aligned bounding box.
+type ParseBBox struct {
+	X0 float64 `json:"x0"`
+	X1 float64 `json:"x1"`
+	Y0 float64 `json:"y0"`
+	Y1 float64 `json:"y1"`
+}
+
+// ParseChartData represents the ParseChartData type.
+type ParseChartData struct {
+	Categories []string `json:"categories"`
+	ChartType ParseChartType `json:"chart_type"`
+	Modality ParseModality `json:"modality"`
+	OverallConfidence float64 `json:"overall_confidence"`
+	PlotArea ParseDualBBox `json:"plot_area"`
+	Series []ParseSeries `json:"series"`
+	Title *string `json:"title,omitempty"`
+	Warnings []string `json:"warnings"`
+	XAxis ParseAxisCalibration `json:"x_axis"`
+	YAxisLeft interface{} `json:"y_axis_left,omitempty"`
+	YAxisRight interface{} `json:"y_axis_right,omitempty"`
+}
+
+// ParseChartText One recognized text run on a chart, with dual-space position and provenance.
+type ParseChartText struct {
+	Bbox ParseDualBBox `json:"bbox"`
+	Confidence float64 `json:"confidence"`
+	Source ParseChartTextSource `json:"source"`
+	Text string `json:"text"`
+}
+
+// ParseChartTextSource represents the possible values for ParseChartTextSource.
+type ParseChartTextSource string
+
+const (
+	ParseChartTextSourcePdfText ParseChartTextSource = "PdfText"
+	ParseChartTextSourceOcr ParseChartTextSource = "Ocr"
+)
+
+// ParseChartType represents the possible values for ParseChartType.
+type ParseChartType string
+
+const (
+	ParseChartTypeLine ParseChartType = "Line"
+	ParseChartTypeScatter ParseChartType = "Scatter"
+	ParseChartTypeBar ParseChartType = "Bar"
+	ParseChartTypeArea ParseChartType = "Area"
+	ParseChartTypePie ParseChartType = "Pie"
+	ParseChartTypeMixed ParseChartType = "Mixed"
+	ParseChartTypeUnknown ParseChartType = "Unknown"
+)
+
+// ParseConfidenceScores Aggregate confidence scores for the document.
+type ParseConfidenceScores struct {
+	// Mean layout detection confidence across all elements.
+	MeanLayoutConfidence float64 `json:"mean_layout_confidence"`
+	// Minimum layout detection confidence across all elements.
+	MinLayoutConfidence float64 `json:"min_layout_confidence"`
+	// Total number of layout elements detected.
+	NumElements int64 `json:"num_elements"`
+	// Number of tables recognized.
+	NumTables int64 `json:"num_tables"`
+}
+
+// ParseDataPoint One digitized data value. `x` is in data units after inversion; when `x_is_category` it is the float index into `ChartData::categories`; for a DateTime axis it is a unix timestamp (seconds).
+type ParseDataPoint struct {
+	Bbox ParseDualBBox `json:"bbox"`
+	Confidence float64 `json:"confidence"`
+	Source ParseValueSource `json:"source"`
+	X float64 `json:"x"`
+	XIsCategory bool `json:"x_is_category"`
+	Y float64 `json:"y"`
+}
+
+// ParseDocumentElement A single document element (text block, table, figure, etc.) in reading order.
+type ParseDocumentElement struct {
+	// Bounding box in pixel coordinates (top-left origin). Normalized to [0,1] for annotated export.
+	Bbox ParseBBox `json:"bbox"`
+	// If this is a Chart element, the digitized plot data.
+	ChartData interface{} `json:"chart_data,omitempty"`
+	// Confidence score from the layout model.
+	Confidence float64 `json:"confidence"`
+	// Heading level (1-6) for Title/SectionHeader elements. Determined by font-size clustering: largest font → H1, decreasing → H2-H6. `None` for non-heading elements.
+	HeadingLevel *int64 `json:"heading_level,omitempty"`
+	// Layout label from the detection model.
+	Label ParseLayoutLabel `json:"label"`
+	// Recognized text on a Chart region, with positions and provenance. Sibling to `chart_data` so it survives when chart_data is None.
+	OcrText []ParseChartText `json:"ocr_text,omitempty"`
+	// Position in reading order (0-indexed within page).
+	ReadingOrder int64 `json:"reading_order"`
+	// If this is a Table element, the recognized table structure.
+	Table interface{} `json:"table,omitempty"`
+	// Text content (assembled from cells within this region).
+	Text string `json:"text"`
+}
+
+// ParseDualBBox A bbox in both coordinate spaces. `pixel` = rendered-image space (top-left origin); `pdf` = page points (bottom-left origin, BOTTOMLEFT).
+type ParseDualBBox struct {
+	Pdf ParseBBox `json:"pdf"`
+	Pixel ParseBBox `json:"pixel"`
+}
+
+// ParseLayoutLabel represents the possible values for ParseLayoutLabel.
+type ParseLayoutLabel string
+
+const (
+	ParseLayoutLabelCaption ParseLayoutLabel = "Caption"
+	ParseLayoutLabelChart ParseLayoutLabel = "Chart"
+	ParseLayoutLabelFootnote ParseLayoutLabel = "Footnote"
+	ParseLayoutLabelFormula ParseLayoutLabel = "Formula"
+	ParseLayoutLabelListItem ParseLayoutLabel = "ListItem"
+	ParseLayoutLabelPageFooter ParseLayoutLabel = "PageFooter"
+	ParseLayoutLabelPageHeader ParseLayoutLabel = "PageHeader"
+	ParseLayoutLabelPicture ParseLayoutLabel = "Picture"
+	ParseLayoutLabelSeal ParseLayoutLabel = "Seal"
+	ParseLayoutLabelSectionHeader ParseLayoutLabel = "SectionHeader"
+	ParseLayoutLabelTable ParseLayoutLabel = "Table"
+	ParseLayoutLabelText ParseLayoutLabel = "Text"
+	ParseLayoutLabelTitle ParseLayoutLabel = "Title"
+	ParseLayoutLabelDocumentIndex ParseLayoutLabel = "DocumentIndex"
+	ParseLayoutLabelCode ParseLayoutLabel = "Code"
+	ParseLayoutLabelCheckboxSelected ParseLayoutLabel = "CheckboxSelected"
+	ParseLayoutLabelCheckboxUnselected ParseLayoutLabel = "CheckboxUnselected"
+	ParseLayoutLabelForm ParseLayoutLabel = "Form"
+	ParseLayoutLabelKeyValueRegion ParseLayoutLabel = "KeyValueRegion"
+)
+
+// ParseModality represents the possible values for ParseModality.
+type ParseModality string
+
+const (
+	ParseModalityVector ParseModality = "Vector"
+	ParseModalityRaster ParseModality = "Raster"
+)
+
+// ParseSeries represents the ParseSeries type.
+type ParseSeries struct {
+	Color []int64 `json:"color,omitempty"`
+	// PDF dash array identifying the series alongside color. `Some(vec![])` = solid. Distinguishes monochrome series (Apple 10-K case). `None` = unknown (raster).
+	DashPattern []float64 `json:"dash_pattern,omitempty"`
+	Name *string `json:"name,omitempty"`
+	Points []ParseDataPoint `json:"points"`
+	Style ParseSeriesStyle `json:"style"`
+	YAxis ParseYAxisRef `json:"y_axis"`
+}
+
+// ParseSeriesStyle represents the possible values for ParseSeriesStyle.
+type ParseSeriesStyle string
+
+const (
+	ParseSeriesStyleLine ParseSeriesStyle = "Line"
+	ParseSeriesStyleScatter ParseSeriesStyle = "Scatter"
+	ParseSeriesStyleBar ParseSeriesStyle = "Bar"
+	ParseSeriesStyleArea ParseSeriesStyle = "Area"
+	ParseSeriesStylePieSlice ParseSeriesStyle = "PieSlice"
+)
+
+// ParseStructuredPage Structured content for a single page.
+type ParseStructuredPage struct {
+	// Document elements in reading order.
+	Elements []ParseDocumentElement `json:"elements"`
+	// The page number printed on the mini-page itself ("Page 62"): read off the page by the grid detector when legible, inferred from the confirmed reading order when obscured.
+	ExtractedPageNo *int64 `json:"extracted_page_no,omitempty"`
+	// Image dimensions in pixels (if a page image was provided).
+	ImageSize []int64 `json:"image_size,omitempty"`
+	// Whether OCR was applied to this page.
+	OcrApplied *bool `json:"ocr_applied,omitempty"`
+	// Adaptive OCR rendering DPI used for this page (150-600, computed from page size). Only present when OCR was applied.
+	OcrDpi *int64 `json:"ocr_dpi,omitempty"`
+	// OCR detection signal breakdown (e.g. "enc=0.85(majority_bad), font=0.15(rich_fonts), ...").
+	OcrReason *string `json:"ocr_reason,omitempty"`
+	// OCR detection composite score (0.0 = definitely has text, 1.0 = definitely needs OCR). Present even when OCR was not applied.
+	OcrScore *float64 `json:"ocr_score,omitempty"`
+	// Orientation correction applied to this page in degrees (0, 90, 180, 270). 0 means no correction was needed or orientation detection was disabled.
+	OrientationDegrees *int64 `json:"orientation_degrees,omitempty"`
+	// Page dimensions in PDF points (bottom-left origin).
+	PageBbox ParseBBox `json:"page_bbox"`
+	// Page number (0-indexed).
+	PageNumber int64 `json:"page_number"`
+	// 0-based index of the physical PDF page this output page came from.
+	PhysicalPage *int64 `json:"physical_page,omitempty"`
+	// Which grid cell of the physical page this output page is, numbered in reading order.
+	Quadrant *int64 `json:"quadrant,omitempty"`
+	// Rectangle this output page occupies on the physical page, in the physical page's coordinate space. The viewer uses this to reassemble split pages onto the source PDF.
+	SheetRect interface{} `json:"sheet_rect,omitempty"`
+	// Present when the page was detected as a line-numbered legal transcript. The gutter numbers are stripped from body text and kept here so page:line citations remain resolvable.
+	TranscriptLines []ParseTranscriptLine `json:"transcript_lines,omitempty"`
+}
+
+// ParseTable A recognized table structure on a page. Produced by the table structure recognition model (TableFormer via ONNX).
+type ParseTable struct {
+	// Bounding box of the entire table.
+	Bbox ParseBBox `json:"bbox"`
+	// Table cells (not to be confused with TextCell — these are table grid cells).
+	Cells []ParseTableCell `json:"cells"`
+	// Number of columns.
+	NumCols int64 `json:"num_cols"`
+	// Number of rows.
+	NumRows int64 `json:"num_rows"`
+	// Page number this table belongs to (0-indexed).
+	PageNumber int64 `json:"page_number"`
+}
+
+// ParseTableCell A single cell in a recognized table.
+type ParseTableCell struct {
+	// Bounding box of this table cell.
+	Bbox ParseBBox `json:"bbox"`
+	// Column index (0-indexed).
+	Col int64 `json:"col"`
+	// Number of columns this cell spans (1 = no spanning).
+	ColSpan int64 `json:"col_span"`
+	// Whether this is a header cell.
+	IsHeader bool `json:"is_header"`
+	// Row index (0-indexed).
+	Row int64 `json:"row"`
+	// Number of rows this cell spans (1 = no spanning).
+	RowSpan int64 `json:"row_span"`
+	// Text content of this cell (assembled from text cells within the bbox).
+	Text string `json:"text"`
+}
+
+// ParseTickMark represents the ParseTickMark type.
+type ParseTickMark struct {
+	LabelBbox ParseDualBBox `json:"label_bbox"`
+	PixelPos float64 `json:"pixel_pos"`
+	Source ParseValueSource `json:"source"`
+	Value float64 `json:"value"`
+}
+
+// ParseTranscriptLine A transcript gutter line number stripped from the text flow.
+type ParseTranscriptLine struct {
+	// Bounding box of the number in pixel coordinates (top-left origin).
+	Bbox ParseBBox `json:"bbox"`
+	// The printed line number (1-25/26).
+	Number int64 `json:"number"`
+}
+
+// ParseValueSource represents the possible values for ParseValueSource.
+type ParseValueSource string
+
+const (
+	ParseValueSourceVectorPath ParseValueSource = "VectorPath"
+	ParseValueSourceRasterMask ParseValueSource = "RasterMask"
+	ParseValueSourceRasterMarker ParseValueSource = "RasterMarker"
+	ParseValueSourceVlmAdjudicated ParseValueSource = "VlmAdjudicated"
+)
+
+// ParseYAxisRef represents the possible values for ParseYAxisRef.
+type ParseYAxisRef string
+
+const (
+	ParseYAxisRefLeft ParseYAxisRef = "Left"
+	ParseYAxisRefRight ParseYAxisRef = "Right"
+	ParseYAxisRefAmbiguous ParseYAxisRef = "Ambiguous"
+)
+
 // ContentItem A single file in a datasource's content store.
 type ContentItem struct {
 	// Filename
@@ -1656,20 +2014,6 @@ type MetadataModelCatalogEntry struct {
 	Fields []MetadataField `json:"fields"`
 }
 
-// SubmitDeepTransformFromDocument Reuse an already-parsed document instead of re-parsing an upload.
-type SubmitDeepTransformFromDocument struct {
-	// A document job id returned by POST /documents. Reuses that parse so the document is not parsed again. The document must belong to the calling customer.
-	DocumentJobId string `json:"document_job_id"`
-	// JSON Schema of the entities to extract
-	Schema map[string]interface{} `json:"schema"`
-	// Name of the root entity in the schema. Optional: when omitted it is resolved from the schema's `title` or inferred during extraction.
-	RootName interface{} `json:"root_name,omitempty"`
-	// Optional domain guidance for the extraction
-	Guidance interface{} `json:"guidance,omitempty"`
-	// Optional cap on the number of pages to process
-	MaxPages interface{} `json:"max_pages,omitempty"`
-}
-
 // BodyUploadContent represents the Body_uploadContent type.
 type BodyUploadContent struct {
 	// One or more files to upload
@@ -1680,6 +2024,20 @@ type BodyUploadContent struct {
 type BodyUploadAndListContent struct {
 	// One or more files to upload
 	Files [][]byte `json:"files"`
+}
+
+// BodySubmitDeepTransform represents the Body_submitDeepTransform type.
+type BodySubmitDeepTransform struct {
+	// Document file to extract from
+	File []byte `json:"file"`
+	// JSON Schema (as a JSON string) of the entities to extract
+	Schema string `json:"schema"`
+	// Name of the root entity in the schema. Optional: resolved from the schema's title or inferred when omitted.
+	RootName *string `json:"root_name,omitempty"`
+	// Optional domain guidance for the extraction
+	Guidance *string `json:"guidance,omitempty"`
+	// Optional cap on the number of pages to process
+	MaxPages *int64 `json:"max_pages,omitempty"`
 }
 
 // BodyParseDocument represents the Body_parseDocument type.
@@ -1724,18 +2082,4 @@ type BodySubmitDocumentTransform struct {
 	PromptId *string `json:"prompt_id,omitempty"`
 	// Max wait time in seconds (sync only)
 	TimeoutSeconds *int64 `json:"timeout_seconds,omitempty"`
-}
-
-// BodySubmitDeepTransform represents the Body_submitDeepTransform type.
-type BodySubmitDeepTransform struct {
-	// Document file to extract from
-	File []byte `json:"file"`
-	// JSON Schema (as a JSON string) of the entities to extract
-	Schema string `json:"schema"`
-	// Name of the root entity in the schema. Optional: resolved from the schema's title or inferred when omitted.
-	RootName *string `json:"root_name,omitempty"`
-	// Optional domain guidance for the extraction
-	Guidance *string `json:"guidance,omitempty"`
-	// Optional cap on the number of pages to process
-	MaxPages *int64 `json:"max_pages,omitempty"`
 }

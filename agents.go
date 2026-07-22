@@ -17,7 +17,17 @@ type AgentsListOptions struct {
 	// Number of items to skip
 	Offset *int64
 	// Maximum number of items to return
-	Limit interface{}
+	Limit *int64
+	// Field to sort by: created_at, name, display_name
+	SortBy *string
+	// Sort order: asc or desc
+	SortOrder *string
+	// If true, return only published agents (latest published version per name)
+	PublishedOnly *bool
+	// Return only agents whose latest version uses this datasource ID
+	DatasourceId interface{}
+	// Return only agents whose latest version produces this artifact (catalog URN)
+	ArtifactSchemaId interface{}
 }
 
 // AgentsPublishOptions contains optional parameters for Publish.
@@ -44,7 +54,22 @@ func (s *AgentsService) List(ctx context.Context, opts *AgentsListOptions) *Page
 		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
 	}
 	if opts != nil && opts.Limit != nil {
-		query.Set("limit", fmt.Sprintf("%v", opts.Limit))
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
+	}
+	if opts != nil && opts.SortBy != nil {
+		query.Set("sort_by", fmt.Sprintf("%v", *opts.SortBy))
+	}
+	if opts != nil && opts.SortOrder != nil {
+		query.Set("sort_order", fmt.Sprintf("%v", *opts.SortOrder))
+	}
+	if opts != nil && opts.PublishedOnly != nil {
+		query.Set("published_only", fmt.Sprintf("%v", *opts.PublishedOnly))
+	}
+	if opts != nil && opts.DatasourceId != nil {
+		query.Set("datasource_id", fmt.Sprintf("%v", opts.DatasourceId))
+	}
+	if opts != nil && opts.ArtifactSchemaId != nil {
+		query.Set("artifact_schema_id", fmt.Sprintf("%v", opts.ArtifactSchemaId))
 	}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[AgentSummary], error) {

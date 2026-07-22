@@ -6,7 +6,7 @@ import (
 )
 
 // Version is the SDK version string.
-const Version = "2.0.4"
+const Version = "2.0.5"
 
 // MeibelClient is the main client for the meibel-ai-api API.
 type MeibelClient struct {
