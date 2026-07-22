@@ -39,7 +39,7 @@ func NewHTTPClient(config HTTPClientConfig) *HTTPClient {
 	headers := make(map[string]string)
 	headers["Content-Type"] = "application/json"
 	headers["Accept"] = "application/json"
-	headers["User-Agent"] = "meibel-go/2.0.5"
+	headers["User-Agent"] = "meibel-go/2.0.6"
 	for k, v := range config.Headers {
 		headers[k] = v
 	}
