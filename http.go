@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -39,7 +40,7 @@ func NewHTTPClient(config HTTPClientConfig) *HTTPClient {
 	headers := make(map[string]string)
 	headers["Content-Type"] = "application/json"
 	headers["Accept"] = "application/json"
-	headers["User-Agent"] = "meibel-go/2.0.7"
+	headers["User-Agent"] = "meibel-go/2.0.11"
 	for k, v := range config.Headers {
 		headers[k] = v
 	}
@@ -79,11 +80,46 @@ func (c *HTTPClient) Do(ctx context.Context, opts RequestOptions, result interfa
 		return err
 	}
 
+	return decodeResponse(resp, result)
+}
+
+// decodeResponse reads a successful response into result.
+//
+// Some endpoints negotiate their representation — /documents/{id}/result serves
+// text/plain markdown by default and application/json for ?format=json — so a
+// string target receives the body verbatim instead of being decoded. That keeps a
+// single generated signature correct for every format.
+func decodeResponse(resp *http.Response, result interface{}) error {
 	if result == nil || resp.StatusCode == http.StatusNoContent {
 		return nil
 	}
 
+	if s, ok := result.(*string); ok {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return &NetworkError{Err: err}
+		}
+		*s = string(body)
+		return nil
+	}
+
+	// Decoding a non-JSON body into a struct otherwise fails with an opaque syntax
+	// error naming the first byte of the payload; say what actually happened.
+	if ct := resp.Header.Get("Content-Type"); ct != "" && !isJSONContentType(ct) {
+		return fmt.Errorf("unexpected response content type %q (expected JSON)", ct)
+	}
+
 	return json.NewDecoder(resp.Body).Decode(result)
+}
+
+// isJSONContentType reports whether a Content-Type denotes JSON, tolerating
+// parameters and the +json structured suffix.
+func isJSONContentType(ct string) bool {
+	if i := strings.IndexByte(ct, ';'); i >= 0 {
+		ct = ct[:i]
+	}
+	ct = strings.ToLower(strings.TrimSpace(ct))
+	return ct == "application/json" || strings.HasSuffix(ct, "+json")
 }
 
 // DoStream performs an HTTP request and returns the response body for streaming.
@@ -181,11 +217,7 @@ func (c *HTTPClient) DoUpload(ctx context.Context, opts RequestOptions, files []
 		return err
 	}
 
-	if result == nil || resp.StatusCode == http.StatusNoContent {
-		return nil
-	}
-
-	return json.NewDecoder(resp.Body).Decode(result)
+	return decodeResponse(resp, result)
 }
 
 // DoUploadStream performs a multipart file upload and returns the raw streaming
