@@ -12,10 +12,10 @@ type ArtifactOption func(*artifactConfig)
 
 type artifactConfig struct {
 	artifactType    ArtifactType
-	description     interface{}
-	required        interface{}
-	maxSizeBytes    interface{}
-	storageStrategy interface{}
+	description     *string
+	required        *bool
+	maxSizeBytes    *int64
+	storageStrategy *ArtifactStorageStrategy
 }
 
 func defaultArtifactConfig() *artifactConfig {
@@ -31,22 +31,22 @@ func WithArtifactType(t ArtifactType) ArtifactOption {
 
 // WithArtifactDescription sets the artifact description.
 func WithArtifactDescription(d string) ArtifactOption {
-	return func(c *artifactConfig) { c.description = d }
+	return func(c *artifactConfig) { c.description = &d }
 }
 
 // WithArtifactRequired sets whether the agent must produce this artifact.
 func WithArtifactRequired(r bool) ArtifactOption {
-	return func(c *artifactConfig) { c.required = r }
+	return func(c *artifactConfig) { c.required = &r }
 }
 
 // WithArtifactMaxSizeBytes sets the maximum artifact size in bytes.
 func WithArtifactMaxSizeBytes(n int64) ArtifactOption {
-	return func(c *artifactConfig) { c.maxSizeBytes = n }
+	return func(c *artifactConfig) { c.maxSizeBytes = &n }
 }
 
 // WithArtifactStorageStrategy sets the storage strategy (inline, gcs, auto).
 func WithArtifactStorageStrategy(s ArtifactStorageStrategy) ArtifactOption {
-	return func(c *artifactConfig) { c.storageStrategy = s }
+	return func(c *artifactConfig) { c.storageStrategy = &s }
 }
 
 // ArtifactSchemaFromStruct converts a Go struct type into a CreateAgentArtifactRequest.

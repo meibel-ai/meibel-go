@@ -25,9 +25,9 @@ type AgentsListOptions struct {
 	// If true, return only published agents (latest published version per name)
 	PublishedOnly *bool
 	// Return only agents whose latest version uses this datasource ID
-	DatasourceId interface{}
+	DatasourceId *string
 	// Return only agents whose latest version produces this artifact (catalog URN)
-	ArtifactSchemaId interface{}
+	ArtifactSchemaId *string
 }
 
 // AgentsPublishOptions contains optional parameters for Publish.
@@ -39,11 +39,11 @@ type AgentsPublishOptions struct {
 // AgentsListVersionsOptions contains optional parameters for ListVersions.
 type AgentsListVersionsOptions struct {
 	// If true, return only published versions. If omitted, return all versions.
-	Published interface{}
+	Published *bool
 	// Number of items to skip
 	Offset *int64
 	// Maximum number of items to return
-	Limit interface{}
+	Limit *int64
 }
 
 // List List Agents
@@ -66,10 +66,10 @@ func (s *AgentsService) List(ctx context.Context, opts *AgentsListOptions) *Page
 		query.Set("published_only", fmt.Sprintf("%v", *opts.PublishedOnly))
 	}
 	if opts != nil && opts.DatasourceId != nil {
-		query.Set("datasource_id", fmt.Sprintf("%v", opts.DatasourceId))
+		query.Set("datasource_id", fmt.Sprintf("%v", *opts.DatasourceId))
 	}
 	if opts != nil && opts.ArtifactSchemaId != nil {
-		query.Set("artifact_schema_id", fmt.Sprintf("%v", opts.ArtifactSchemaId))
+		query.Set("artifact_schema_id", fmt.Sprintf("%v", *opts.ArtifactSchemaId))
 	}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[AgentSummary], error) {
@@ -190,13 +190,13 @@ func (s *AgentsService) ListVersions(ctx context.Context, agentId string, opts *
 	path := "/agents/" + fmt.Sprintf("%v", agentId) + "/versions"
 	query := url.Values{}
 	if opts != nil && opts.Published != nil {
-		query.Set("published", fmt.Sprintf("%v", opts.Published))
+		query.Set("published", fmt.Sprintf("%v", *opts.Published))
 	}
 	if opts != nil && opts.Offset != nil {
 		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
 	}
 	if opts != nil && opts.Limit != nil {
-		query.Set("limit", fmt.Sprintf("%v", opts.Limit))
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
 	}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[AgentVersionSummary], error) {

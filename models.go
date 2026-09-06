@@ -11,9 +11,9 @@ type AgentDetailResponse struct {
 	DisplayName string `json:"display_name"`
 	CatalogUrn string `json:"catalog_urn"`
 	Version string `json:"version"`
-	ParentVersion interface{} `json:"parent_version,omitempty"`
+	ParentVersion *string `json:"parent_version,omitempty"`
 	Type string `json:"type"`
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	LlmModel string `json:"llm_model"`
 	FallbackModels []string `json:"fallback_models"`
 	Datasources []string `json:"datasources"`
@@ -22,27 +22,27 @@ type AgentDetailResponse struct {
 	Artifacts []string `json:"artifacts"`
 	ConfidenceConfigs []string `json:"confidence_configs"`
 	Temperature interface{} `json:"temperature"`
-	MaxTokens interface{} `json:"max_tokens,omitempty"`
+	MaxTokens *int64 `json:"max_tokens,omitempty"`
 	Tags []string `json:"tags"`
-	Icon interface{} `json:"icon,omitempty"`
-	CreatedBy interface{} `json:"created_by,omitempty"`
-	CreatedAt interface{} `json:"created_at,omitempty"`
+	Icon *string `json:"icon,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// Execution policy applied to this agent's sessions.
-	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
-	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
-	LastExecutionStatus interface{} `json:"last_execution_status,omitempty"`
-	LastExecutionTime interface{} `json:"last_execution_time,omitempty"`
+	ExecutionPolicy *ExecutionPolicy `json:"execution_policy,omitempty"`
+	ExecutionPolicyIds []string `json:"execution_policy_ids,omitempty"`
+	LastExecutionStatus *string `json:"last_execution_status,omitempty"`
+	LastExecutionTime *time.Time `json:"last_execution_time,omitempty"`
 }
 
 // AgentExecutionDetailsResponse AgentExecutionDetailsResponse
 type AgentExecutionDetailsResponse struct {
-	AgentId interface{} `json:"agent_id"`
-	AgentName interface{} `json:"agent_name"`
-	Version interface{} `json:"version"`
+	AgentId string `json:"agent_id"`
+	AgentName string `json:"agent_name"`
+	Version string `json:"version"`
 	Status string `json:"status"`
 	Messages []MessageEntry `json:"messages"`
 	ToolActivity []ToolActivityEntry `json:"tool_activity"`
-	TokenUsage []interface{} `json:"token_usage"`
+	TokenUsage []map[string]interface{} `json:"token_usage"`
 	FileParsing []FileParseEntry `json:"file_parsing"`
 	Result []ArtifactEntry `json:"result"`
 }
@@ -54,29 +54,29 @@ type AgentIdentityContext struct {
 	// The project this scoring job belongs to.
 	ProjectId string `json:"project_id"`
 	// Name of the agent that produced the scored output.
-	AgentName interface{} `json:"agent_name,omitempty"`
+	AgentName *string `json:"agent_name,omitempty"`
 	// Version of the agent that produced the scored output.
-	AgentVersion interface{} `json:"agent_version,omitempty"`
+	AgentVersion *string `json:"agent_version,omitempty"`
 	// Unique identifier for the agent session that produced the scored output.
-	AgentSessionId interface{} `json:"agent_session_id,omitempty"`
+	AgentSessionId *string `json:"agent_session_id,omitempty"`
 	// The agent turn number within the session, if applicable.
-	AgentTurn interface{} `json:"agent_turn,omitempty"`
+	AgentTurn *int64 `json:"agent_turn,omitempty"`
 	// Name of the workflow the agent is part of, if applicable.
-	AgentWorkflowName interface{} `json:"agent_workflow_name,omitempty"`
+	AgentWorkflowName *string `json:"agent_workflow_name,omitempty"`
 	// Version of the workflow the agent is part of.
-	AgentWorkflowVersion interface{} `json:"agent_workflow_version,omitempty"`
+	AgentWorkflowVersion *string `json:"agent_workflow_version,omitempty"`
 	// Unique identifier for the workflow session, if the agent runs within a workflow.
-	AgentWorkflowSessionId interface{} `json:"agent_workflow_session_id,omitempty"`
+	AgentWorkflowSessionId *string `json:"agent_workflow_session_id,omitempty"`
 	// Identifier of the batch definition this job belongs to, if applicable.
-	BatchDefinitionId interface{} `json:"batch_definition_id,omitempty"`
+	BatchDefinitionId *string `json:"batch_definition_id,omitempty"`
 	// Identifier of the batch execution this job belongs to, if applicable.
-	BatchExecutionId interface{} `json:"batch_execution_id,omitempty"`
+	BatchExecutionId *string `json:"batch_execution_id,omitempty"`
 	// Identifier of the tool that produced the scored output, if applicable.
-	ToolId interface{} `json:"tool_id,omitempty"`
+	ToolId *string `json:"tool_id,omitempty"`
 	// Identifier of the specific tool instance.
-	ToolInstanceId interface{} `json:"tool_instance_id,omitempty"`
+	ToolInstanceId *string `json:"tool_instance_id,omitempty"`
 	// Unique identifier for the tool execution that produced the scored output.
-	ToolExecutionId interface{} `json:"tool_execution_id,omitempty"`
+	ToolExecutionId *string `json:"tool_execution_id,omitempty"`
 }
 
 // AgentListResponse represents the AgentListResponse type.
@@ -84,7 +84,7 @@ type AgentListResponse struct {
 	Data []AgentSummary `json:"data"`
 	Total int64 `json:"total"`
 	Offset int64 `json:"offset"`
-	Limit interface{} `json:"limit,omitempty"`
+	Limit *int64 `json:"limit,omitempty"`
 }
 
 // AgentSummary represents the AgentSummary type.
@@ -92,15 +92,15 @@ type AgentSummary struct {
 	Id string `json:"id"`
 	Name string `json:"name"`
 	DisplayName string `json:"display_name"`
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	Version string `json:"version"`
 	// Lifecycle state of the returned version: "draft" or "published".
 	Type string `json:"type"`
 	LlmModel string `json:"llm_model"`
 	ToolCount int64 `json:"tool_count"`
 	DatasourceCount int64 `json:"datasource_count"`
-	LastExecutionStatus interface{} `json:"last_execution_status,omitempty"`
-	LastExecutionTime interface{} `json:"last_execution_time,omitempty"`
+	LastExecutionStatus *string `json:"last_execution_status,omitempty"`
+	LastExecutionTime *time.Time `json:"last_execution_time,omitempty"`
 }
 
 // AgentToolDefinition AgentToolDefinition
@@ -110,19 +110,19 @@ type AgentToolDefinition struct {
 	// Tool type: rag_search, database_query, etc.
 	Type string `json:"type"`
 	// Description shown to LLM
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Tool config passed to activity via tool_context (datasource_id, base_prompt, etc.)
-	Config interface{} `json:"config,omitempty"`
+	Config map[string]interface{} `json:"config,omitempty"`
 	// Optional override for the tool's parameters schema
-	ParametersSchema interface{} `json:"parameters_schema,omitempty"`
+	ParametersSchema map[string]interface{} `json:"parameters_schema,omitempty"`
 	// When to use this tool (injected into system prompt)
-	UseFor interface{} `json:"use_for,omitempty"`
+	UseFor []string `json:"use_for,omitempty"`
 	// When NOT to use this tool (injected into system prompt)
-	AvoidFor interface{} `json:"avoid_for,omitempty"`
+	AvoidFor []string `json:"avoid_for,omitempty"`
 	// If true, workflow pauses for human approval before executing this tool
-	RequireApproval interface{} `json:"require_approval,omitempty"`
+	RequireApproval *bool `json:"require_approval,omitempty"`
 	// Message to display when requesting approval (supports {{variable}} templates)
-	ApprovalMessage interface{} `json:"approval_message,omitempty"`
+	ApprovalMessage *string `json:"approval_message,omitempty"`
 }
 
 // AgentVersionListResponse represents the AgentVersionListResponse type.
@@ -130,7 +130,7 @@ type AgentVersionListResponse struct {
 	Data []AgentVersionSummary `json:"data"`
 	Total int64 `json:"total"`
 	Offset int64 `json:"offset"`
-	Limit interface{} `json:"limit,omitempty"`
+	Limit *int64 `json:"limit,omitempty"`
 }
 
 // AgentVersionSummary represents the AgentVersionSummary type.
@@ -138,14 +138,14 @@ type AgentVersionSummary struct {
 	Id string `json:"id"`
 	DisplayName string `json:"display_name"`
 	Version string `json:"version"`
-	ParentVersion interface{} `json:"parent_version,omitempty"`
-	Description interface{} `json:"description,omitempty"`
+	ParentVersion *string `json:"parent_version,omitempty"`
+	Description *string `json:"description,omitempty"`
 	LlmModel string `json:"llm_model"`
-	CreatedAt interface{} `json:"created_at,omitempty"`
-	CreatedBy interface{} `json:"created_by,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
 	IsPublished bool `json:"is_published"`
-	PublishedAt interface{} `json:"published_at,omitempty"`
-	CommitMessage interface{} `json:"commit_message,omitempty"`
+	PublishedAt *time.Time `json:"published_at,omitempty"`
+	CommitMessage *string `json:"commit_message,omitempty"`
 }
 
 // Artifact A generated artifact/file from the chat agent.
@@ -153,17 +153,17 @@ type Artifact struct {
 	ArtifactId string `json:"artifact_id"`
 	Filename string `json:"filename"`
 	MimeType string `json:"mime_type"`
-	Content interface{} `json:"content,omitempty"`
-	StorageUrl interface{} `json:"storage_url,omitempty"`
-	SizeBytes interface{} `json:"size_bytes,omitempty"`
-	CreatedAt interface{} `json:"created_at,omitempty"`
+	Content *string `json:"content,omitempty"`
+	StorageUrl *string `json:"storage_url,omitempty"`
+	SizeBytes *int64 `json:"size_bytes,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
 }
 
 // ArtifactEntry ArtifactEntry
 type ArtifactEntry struct {
 	Name string `json:"name"`
-	Content interface{} `json:"content,omitempty"`
-	FileType interface{} `json:"file_type"`
+	Content *string `json:"content,omitempty"`
+	FileType string `json:"file_type"`
 }
 
 // ArtifactSchemaListResponse represents the ArtifactSchemaListResponse type.
@@ -178,15 +178,15 @@ type ArtifactSchemaResponse struct {
 	Name string `json:"name"`
 	DisplayName string `json:"display_name"`
 	Version string `json:"version"`
-	ParentVersion interface{} `json:"parent_version,omitempty"`
+	ParentVersion *string `json:"parent_version,omitempty"`
 	Type string `json:"type"`
 	Description string `json:"description"`
 	Required bool `json:"required"`
 	SchemaDef map[string]interface{} `json:"schema_def"`
-	MaxSizeBytes interface{} `json:"max_size_bytes,omitempty"`
+	MaxSizeBytes *int64 `json:"max_size_bytes,omitempty"`
 	StorageStrategy string `json:"storage_strategy"`
-	CreatedBy interface{} `json:"created_by,omitempty"`
-	CreatedAt interface{} `json:"created_at,omitempty"`
+	CreatedBy *string `json:"created_by,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
 }
 
 // ArtifactSchemaSummary represents the ArtifactSchemaSummary type.
@@ -223,11 +223,11 @@ const (
 // BatchDefinitionFilters Recipe-level filters. element_ids belongs here; per-execution overrides use BatchInputOverrides on the execution row.
 type BatchDefinitionFilters struct {
 	// Filter Data Elements by name pattern (regex)
-	Regex interface{} `json:"regex,omitempty"`
+	Regex *string `json:"regex,omitempty"`
 	// Filter Data Elements by content type
-	MediaTypes interface{} `json:"media_types,omitempty"`
+	MediaTypes []string `json:"media_types,omitempty"`
 	// Recipe-pinned subset of Data Element IDs.
-	ElementIds interface{} `json:"element_ids,omitempty"`
+	ElementIds []string `json:"element_ids,omitempty"`
 }
 
 // BatchDefinitionResponse Full BatchDefinition snapshot.
@@ -237,24 +237,24 @@ type BatchDefinitionResponse struct {
 	ProjectId string `json:"project_id"`
 	Name string `json:"name"`
 	Version string `json:"version"`
-	ParentVersion interface{} `json:"parent_version"`
+	ParentVersion string `json:"parent_version"`
 	CatalogUrn string `json:"catalog_urn"`
 	AgentUrn string `json:"agent_urn"`
 	AgentSpecJson map[string]interface{} `json:"agent_spec_json"`
 	InputDatasourceId string `json:"input_datasource_id"`
 	// Optional override for the tool's parameters schema
-	Filters interface{} `json:"filters,omitempty"`
-	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
-	UserMessage interface{} `json:"user_message,omitempty"`
+	Filters map[string]interface{} `json:"filters,omitempty"`
+	OutputDatasourceId *string `json:"output_datasource_id,omitempty"`
+	UserMessage *string `json:"user_message,omitempty"`
 	Concurrency int64 `json:"concurrency"`
 	RetryLimit int64 `json:"retry_limit"`
-	RecurrenceCron interface{} `json:"recurrence_cron,omitempty"`
-	Description interface{} `json:"description,omitempty"`
-	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
-	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
+	RecurrenceCron *string `json:"recurrence_cron,omitempty"`
+	Description *string `json:"description,omitempty"`
+	ExecutionPolicy *ExecutionPolicy `json:"execution_policy,omitempty"`
+	ExecutionPolicyIds []string `json:"execution_policy_ids,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 	CreatedBy string `json:"created_by"`
-	DeletedAt interface{} `json:"deleted_at,omitempty"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
 
 // BatchExecutionResponse Response shape for a single batch execution. The legacy `batch_spec_json` / `agent_spec_json` / `agent_urn` / `input_datasource_id` fields are kept for client compatibility (DEL-1376 §5.5) — they are reconstructed from the linked BatchDefinition by the router, not stored on the execution row.
@@ -265,24 +265,24 @@ type BatchExecutionResponse struct {
 	BatchDefinitionId string `json:"batch_definition_id"`
 	CustomerId string `json:"customer_id"`
 	ProjectId string `json:"project_id"`
-	AgentUrn interface{} `json:"agent_urn,omitempty"`
+	AgentUrn *string `json:"agent_urn,omitempty"`
 	// Optional override for the tool's parameters schema
-	BatchSpecJson interface{} `json:"batch_spec_json,omitempty"`
-	AgentSpecJson interface{} `json:"agent_spec_json,omitempty"`
-	InputDatasourceId interface{} `json:"input_datasource_id,omitempty"`
-	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
+	BatchSpecJson map[string]interface{} `json:"batch_spec_json,omitempty"`
+	AgentSpecJson map[string]interface{} `json:"agent_spec_json,omitempty"`
+	InputDatasourceId *string `json:"input_datasource_id,omitempty"`
+	OutputDatasourceId *string `json:"output_datasource_id,omitempty"`
 	// Optional override for the tool's parameters schema
-	InputOverrides interface{} `json:"input_overrides,omitempty"`
-	TotalItems interface{} `json:"total_items,omitempty"`
-	Succeeded interface{} `json:"succeeded,omitempty"`
-	Failed interface{} `json:"failed,omitempty"`
+	InputOverrides map[string]interface{} `json:"input_overrides,omitempty"`
+	TotalItems *int64 `json:"total_items,omitempty"`
+	Succeeded *int64 `json:"succeeded,omitempty"`
+	Failed *int64 `json:"failed,omitempty"`
 	StartTime time.Time `json:"start_time"`
-	EndTime interface{} `json:"end_time,omitempty"`
+	EndTime *time.Time `json:"end_time,omitempty"`
 	Status string `json:"status"`
 	// Overall error message
-	Error interface{} `json:"error,omitempty"`
+	Error *string `json:"error,omitempty"`
 	// Per-item results (populated on completion by status callback)
-	Items interface{} `json:"items,omitempty"`
+	Items []BatchItemResult `json:"items,omitempty"`
 }
 
 // BatchItemResult Per-item result from the Temporal workflow.
@@ -290,18 +290,28 @@ type BatchItemResult struct {
 	InputDataElementId string `json:"input_data_element_id"`
 	Filename string `json:"filename"`
 	Status string `json:"status"`
-	Error interface{} `json:"error,omitempty"`
-	OutputArtifacts interface{} `json:"output_artifacts,omitempty"`
-	Attempts interface{} `json:"attempts,omitempty"`
+	Error *string `json:"error,omitempty"`
+	OutputArtifacts []map[string]interface{} `json:"output_artifacts,omitempty"`
+	Attempts *int64 `json:"attempts,omitempty"`
 }
 
 // BodySendChatMessageStream represents the Body_sendChatMessageStream type.
 type BodySendChatMessageStream struct {
-	UserMessage interface{} `json:"user_message,omitempty"`
-	TimeoutSeconds interface{} `json:"timeout_seconds,omitempty"`
-	IncludeThinking interface{} `json:"include_thinking,omitempty"`
-	IncludeToolActivity interface{} `json:"include_tool_activity,omitempty"`
-	Files interface{} `json:"files,omitempty"`
+	UserMessage *string `json:"user_message,omitempty"`
+	TimeoutSeconds *int64 `json:"timeout_seconds,omitempty"`
+	IncludeThinking *bool `json:"include_thinking,omitempty"`
+	IncludeToolActivity *bool `json:"include_tool_activity,omitempty"`
+	Files []string `json:"files,omitempty"`
+}
+
+// BodySendRunStream represents the Body_sendRunStream type.
+type BodySendRunStream struct {
+	UserMessage *string `json:"user_message,omitempty"`
+	TimeoutSeconds *int64 `json:"timeout_seconds,omitempty"`
+	IncludeThinking *bool `json:"include_thinking,omitempty"`
+	IncludeToolActivity *bool `json:"include_tool_activity,omitempty"`
+	StreamDeltas *bool `json:"stream_deltas,omitempty"`
+	Files []string `json:"files,omitempty"`
 }
 
 // BoundingBox represents the BoundingBox type.
@@ -318,7 +328,7 @@ type CallToAction struct {
 	Label string `json:"label"`
 	Action string `json:"action"`
 	// Optional override for the tool's parameters schema
-	ActionData interface{} `json:"action_data,omitempty"`
+	ActionData map[string]interface{} `json:"action_data,omitempty"`
 }
 
 // ChatMessageRequest Request body for chat message endpoints.
@@ -326,11 +336,11 @@ type ChatMessageRequest struct {
 	// The user's chat message
 	UserMessage string `json:"user_message"`
 	// Maximum time to wait for response (seconds)
-	TimeoutSeconds interface{} `json:"timeout_seconds,omitempty"`
+	TimeoutSeconds *int64 `json:"timeout_seconds,omitempty"`
 	// Whether to include thinking content in response
-	IncludeThinking interface{} `json:"include_thinking,omitempty"`
+	IncludeThinking *bool `json:"include_thinking,omitempty"`
 	// Whether to include tool call/result activity
-	IncludeToolActivity interface{} `json:"include_tool_activity,omitempty"`
+	IncludeToolActivity *bool `json:"include_tool_activity,omitempty"`
 }
 
 // ChatMessageResponse Response from the non-streaming chat endpoint.
@@ -342,20 +352,20 @@ type ChatMessageResponse struct {
 	// The assistant response in text-format
 	AssistantResponse string `json:"assistant_response"`
 	// Tool calls made during response generation
-	ToolActivity interface{} `json:"tool_activity,omitempty"`
+	ToolActivity []ToolActivity `json:"tool_activity,omitempty"`
 	// LLM thinking/reasoning content
-	Thinking interface{} `json:"thinking,omitempty"`
+	Thinking *string `json:"thinking,omitempty"`
 	// Token usage statistics
-	TokenUsage interface{} `json:"token_usage,omitempty"`
+	TokenUsage map[string]int64 `json:"token_usage,omitempty"`
 }
 
 // ChatResponse The structured chat response.
 type ChatResponse struct {
-	Message interface{} `json:"message,omitempty"`
-	Sources interface{} `json:"sources,omitempty"`
-	FollowUpQuestions interface{} `json:"follow_up_questions,omitempty"`
-	CallToActions interface{} `json:"call_to_actions,omitempty"`
-	Artifacts interface{} `json:"artifacts,omitempty"`
+	Message *string `json:"message,omitempty"`
+	Sources []Source `json:"sources,omitempty"`
+	FollowUpQuestions []string `json:"follow_up_questions,omitempty"`
+	CallToActions []CallToAction `json:"call_to_actions,omitempty"`
+	Artifacts []Artifact `json:"artifacts,omitempty"`
 }
 
 // CloudStorageConnector Connect to a cloud storage bucket.
@@ -365,11 +375,11 @@ type CloudStorageConnector struct {
 	// Bucket name
 	Bucket string `json:"bucket"`
 	// Key prefix to scope the datasource
-	Prefix interface{} `json:"prefix,omitempty"`
+	Prefix *string `json:"prefix,omitempty"`
 	// AWS IAM role ARN (S3 only)
-	RoleArn interface{} `json:"role_arn,omitempty"`
+	RoleArn *string `json:"role_arn,omitempty"`
 	// AWS region (S3 only)
-	Region interface{} `json:"region,omitempty"`
+	Region *string `json:"region,omitempty"`
 }
 
 // CloudStorageConnectorProvider represents the possible values for provider.
@@ -398,9 +408,9 @@ const (
 type ConnectorConfig struct {
 	// Connector type — set the matching config object: 'database' → database, 'cloud_storage' → cloud_storage, 'web_crawl' → web_crawl
 	Type string `json:"type"`
-	Database interface{} `json:"database,omitempty"`
-	CloudStorage interface{} `json:"cloud_storage,omitempty"`
-	WebCrawl interface{} `json:"web_crawl,omitempty"`
+	Database *DatabaseConnector `json:"database,omitempty"`
+	CloudStorage *CloudStorageConnector `json:"cloud_storage,omitempty"`
+	WebCrawl *WebCrawlConnector `json:"web_crawl,omitempty"`
 }
 
 // ConnectorConfigType represents the possible values for type.
@@ -419,8 +429,8 @@ const (
 type ConnectorSummary struct {
 	// Connector type
 	Type string `json:"type"`
-	CloudStorage interface{} `json:"cloud_storage,omitempty"`
-	WebCrawl interface{} `json:"web_crawl,omitempty"`
+	CloudStorage *CloudStorageConnectorSummary `json:"cloud_storage,omitempty"`
+	WebCrawl *WebCrawlConnector `json:"web_crawl,omitempty"`
 }
 
 // ConnectorSummaryType represents the possible values for type.
@@ -439,15 +449,15 @@ type CreateAgentArtifactRequest struct {
 	// Artifact type (json, markdown, csv, yaml, text, html, pdf)
 	Type ArtifactType `json:"type"`
 	// Description of the artifact
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Whether agent must produce this artifact
-	Required interface{} `json:"required,omitempty"`
+	Required *bool `json:"required,omitempty"`
 	// Schema definition
 	SchemaDef map[string]interface{} `json:"schema_def"`
 	// Maximum artifact size in bytes
-	MaxSizeBytes interface{} `json:"max_size_bytes,omitempty"`
+	MaxSizeBytes *int64 `json:"max_size_bytes,omitempty"`
 	// Storage strategy (inline, gcs, auto)
-	StorageStrategy interface{} `json:"storage_strategy,omitempty"`
+	StorageStrategy *ArtifactStorageStrategy `json:"storage_strategy,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
@@ -458,33 +468,33 @@ type CreateAgentDefinitionRequest struct {
 	// System prompt/instructions for the agent
 	Instructions string `json:"instructions"`
 	// Agent type
-	Type interface{} `json:"type,omitempty"`
+	Type *string `json:"type,omitempty"`
 	// Description of the agent
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// LLM model to use
-	LlmModel interface{} `json:"llm_model,omitempty"`
+	LlmModel *string `json:"llm_model,omitempty"`
 	// List of fallback models
-	FallbackModels interface{} `json:"fallback_models,omitempty"`
+	FallbackModels []string `json:"fallback_models,omitempty"`
 	// Datasource IDs the agent has access to
-	Datasources interface{} `json:"datasources,omitempty"`
+	Datasources []string `json:"datasources,omitempty"`
 	// Tools configuration
-	Tools interface{} `json:"tools,omitempty"`
+	Tools []AgentToolDefinition `json:"tools,omitempty"`
 	// Catalog URNs of artifacts the agent produces
-	Artifacts interface{} `json:"artifacts,omitempty"`
+	Artifacts []string `json:"artifacts,omitempty"`
 	// Confidence scoring module names to apply during execution
-	ConfidenceConfigs interface{} `json:"confidence_configs,omitempty"`
+	ConfidenceConfigs []string `json:"confidence_configs,omitempty"`
 	// LLM temperature
 	Temperature interface{} `json:"temperature,omitempty"`
 	// Maximum tokens in response
-	MaxTokens interface{} `json:"max_tokens,omitempty"`
+	MaxTokens *int64 `json:"max_tokens,omitempty"`
 	// Tags for categorization
-	Tags interface{} `json:"tags,omitempty"`
+	Tags []string `json:"tags,omitempty"`
 	// UI icon identifier
-	Icon interface{} `json:"icon,omitempty"`
+	Icon *string `json:"icon,omitempty"`
 	// Inline execution policy constraints (datasources, tools)
-	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	ExecutionPolicy *ExecutionPolicy `json:"execution_policy,omitempty"`
 	// IDs of stored ExecutionPolicies to compose
-	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
+	ExecutionPolicyIds []string `json:"execution_policy_ids,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
@@ -512,19 +522,19 @@ type CreateBatchDefinitionRequest struct {
 	AgentId string `json:"agent_id"`
 	// Datasource holding the input Data Elements
 	InputDatasourceId string `json:"input_datasource_id"`
-	Filters interface{} `json:"filters,omitempty"`
+	Filters *BatchDefinitionFilters `json:"filters,omitempty"`
 	// Pinned output sink. NULL = workflow auto-creates per execution.
-	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
-	UserMessage interface{} `json:"user_message,omitempty"`
-	Concurrency interface{} `json:"concurrency,omitempty"`
-	RetryLimit interface{} `json:"retry_limit,omitempty"`
+	OutputDatasourceId *string `json:"output_datasource_id,omitempty"`
+	UserMessage *string `json:"user_message,omitempty"`
+	Concurrency *int64 `json:"concurrency,omitempty"`
+	RetryLimit *int64 `json:"retry_limit,omitempty"`
 	// Cron expression validated by croniter; not yet scheduled in DEL-1376.
-	RecurrenceCron interface{} `json:"recurrence_cron,omitempty"`
-	Description interface{} `json:"description,omitempty"`
+	RecurrenceCron *string `json:"recurrence_cron,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Inline execution policy constraints (datasources, tools)
-	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	ExecutionPolicy *ExecutionPolicy `json:"execution_policy,omitempty"`
 	// IDs of stored ExecutionPolicies to compose
-	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
+	ExecutionPolicyIds []string `json:"execution_policy_ids,omitempty"`
 }
 
 // CreateBatchDefinitionResponse Compact post-create payload mirroring CreateAgentDefinitionResponse.
@@ -547,9 +557,9 @@ type CreateDatasourceRequest struct {
 	// What this datasource contains
 	Description *string `json:"description,omitempty"`
 	// Connection configuration — omit for file-upload datasources
-	Connector interface{} `json:"connector,omitempty"`
+	Connector *ConnectorConfig `json:"connector,omitempty"`
 	// Optional metadata extraction config to apply after creation
-	MetadataConfig interface{} `json:"metadata_config,omitempty"`
+	MetadataConfig *MetadataConfigRequest `json:"metadata_config,omitempty"`
 }
 
 // CreateExecutionPolicyRequest CreateExecutionPolicyRequest
@@ -557,21 +567,21 @@ type CreateExecutionPolicyRequest struct {
 	// Policy name (unique within tenant)
 	Name string `json:"name"`
 	// Human-readable description
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// ExecutionPolicy payload (datasources, tools)
 	ExecutionPolicy ExecutionPolicy `json:"execution_policy"`
 }
 
 // CreateSessionRequest represents the CreateSessionRequest type.
 type CreateSessionRequest struct {
-	Prompt interface{} `json:"prompt,omitempty"`
-	InitialContext interface{} `json:"initial_context,omitempty"`
+	Prompt *string `json:"prompt,omitempty"`
+	InitialContext map[string]interface{} `json:"initial_context,omitempty"`
 	MaxIterationsPerUserMessage *int64 `json:"max_iterations_per_user_message,omitempty"`
 	MessageWaitTimeoutSeconds *int64 `json:"message_wait_timeout_seconds,omitempty"`
 	// IDs of stored ExecutionPolicies to compose into this session.
-	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
+	ExecutionPolicyIds []string `json:"execution_policy_ids,omitempty"`
 	// Inline session-level access constraints (hardrails). Controls which datasources and tools the agent can use, and what data is accessible within each. Composed with any stored policies referenced by execution_policy_ids.
-	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	ExecutionPolicy *ExecutionPolicy `json:"execution_policy,omitempty"`
 }
 
 // CreateSessionResponse represents the CreateSessionResponse type.
@@ -584,7 +594,7 @@ type DataElementListResponse struct {
 	// Page of data elements
 	Items []DataElementResponse `json:"items"`
 	// Pass to the next request as `cursor` to fetch the next page. Null when there are no more pages
-	NextCursor interface{} `json:"next_cursor,omitempty"`
+	NextCursor *string `json:"next_cursor,omitempty"`
 	// True if more pages are available
 	HasNext *bool `json:"has_next,omitempty"`
 }
@@ -598,23 +608,23 @@ type DataElementResponse struct {
 	// Data element name
 	Name string `json:"name"`
 	// Human-authored description
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// MIME type of the underlying content
-	MediaType interface{} `json:"media_type,omitempty"`
+	MediaType *string `json:"media_type,omitempty"`
 	// Arbitrary metadata key-value pairs
-	Metadata interface{} `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 	// ISO 8601 creation timestamp
-	CreatedAt interface{} `json:"created_at,omitempty"`
+	CreatedAt *string `json:"created_at,omitempty"`
 	// ISO 8601 last-update timestamp
-	UpdatedAt interface{} `json:"updated_at,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
 }
 
 // DataElementSearchRequest Body for searching data elements on a datasource.
 type DataElementSearchRequest struct {
 	// Regex pattern to filter by name
-	RegexFilter interface{} `json:"regex_filter,omitempty"`
+	RegexFilter *string `json:"regex_filter,omitempty"`
 	// Filter by MIME types
-	MediaTypeFilters interface{} `json:"media_type_filters,omitempty"`
+	MediaTypeFilters []string `json:"media_type_filters,omitempty"`
 }
 
 // DatabaseConnector Connect to a relational database.
@@ -626,7 +636,7 @@ type DatabaseConnector struct {
 	// Database name
 	Database string `json:"database"`
 	// Schema name (defaults to public)
-	SchemaName interface{} `json:"schema_name,omitempty"`
+	SchemaName *string `json:"schema_name,omitempty"`
 }
 
 // DatasourceListResponse List of datasources visible to the caller.
@@ -650,29 +660,29 @@ type DatasourceResponse struct {
 	// ISO 8601 last-update timestamp
 	UpdatedAt string `json:"updated_at"`
 	// ISO 8601 timestamp of the most recent ingest run
-	LastSyncAt interface{} `json:"last_sync_at,omitempty"`
+	LastSyncAt *string `json:"last_sync_at,omitempty"`
 	// Status of the most recent ingest run (e.g. 'completed', 'failed')
-	LastSyncStatus interface{} `json:"last_sync_status,omitempty"`
+	LastSyncStatus *string `json:"last_sync_status,omitempty"`
 	// Total number of files ingested across all runs
-	TotalIngestedFiles interface{} `json:"total_ingested_files,omitempty"`
+	TotalIngestedFiles *int64 `json:"total_ingested_files,omitempty"`
 	// Current metadata extraction configuration
-	MetadataConfig interface{} `json:"metadata_config,omitempty"`
+	MetadataConfig *MetadataConfigResponse `json:"metadata_config,omitempty"`
 	// File counts for the datasource
-	Files interface{} `json:"files,omitempty"`
+	Files *FilesSummaryResponse `json:"files,omitempty"`
 	// Per-method counts from the latest ingest run
-	IngestCounts interface{} `json:"ingest_counts,omitempty"`
+	IngestCounts *IngestCountsResponse `json:"ingest_counts,omitempty"`
 	// Tables discovered on a structured datasource — only populated when include_tables=true
-	Tables interface{} `json:"tables,omitempty"`
+	Tables []TableSummaryResponse `json:"tables,omitempty"`
 }
 
 // DatasourceView Access controls for a single datasource.  Each datasource can be entirely disabled, or selectively constrained via TAG (SQL) and/or RAG (vector search) filters. Keyed by datasource_id in ``ExecutionPolicy.datasources``.
 type DatasourceView struct {
 	// When true, the datasource is entirely inaccessible for this session. All queries against it will be blocked.
-	Disabled interface{} `json:"disabled,omitempty"`
+	Disabled *bool `json:"disabled,omitempty"`
 	// TAG (SQL/database) constraints. Controls table/row access and column redaction.
-	Tables interface{} `json:"tables,omitempty"`
+	Tables *TagConstraints `json:"tables,omitempty"`
 	// RAG (vector search) constraints. Controls which documents can be retrieved.
-	Documents interface{} `json:"documents,omitempty"`
+	Documents *RagConstraints `json:"documents,omitempty"`
 }
 
 // DeepTransformJob represents the DeepTransformJob type.
@@ -684,11 +694,11 @@ type DeepTransformJob struct {
 	// Names of the artifacts available for download once the job succeeds
 	Artifacts []string `json:"artifacts,omitempty"`
 	// Run metrics (timing, counts)
-	Metrics interface{} `json:"metrics,omitempty"`
+	Metrics *DeepTransformMetrics `json:"metrics,omitempty"`
 	// Extraction quality (AEQ) summary
-	Aeq interface{} `json:"aeq,omitempty"`
+	Aeq map[string]interface{} `json:"aeq,omitempty"`
 	// Failure reason when status is failed
-	Error interface{} `json:"error,omitempty"`
+	Error *string `json:"error,omitempty"`
 }
 
 // DeepTransformJobList represents the DeepTransformJobList type.
@@ -700,7 +710,7 @@ type DeepTransformJobList struct {
 	// Applied offset
 	Offset int64 `json:"offset"`
 	// Offset for the next page, or null when this was the last page
-	NextOffset interface{} `json:"next_offset,omitempty"`
+	NextOffset *int64 `json:"next_offset,omitempty"`
 }
 
 // DeepTransformMetrics Public run metrics. Mirrors heron's RunMetrics minus internal cost fields (`cost_*_usd`),
@@ -708,25 +718,25 @@ type DeepTransformJobList struct {
 // which are dropped: Pydantic ignores unknown keys, so any cost field heron sends is discarded.
 type DeepTransformMetrics struct {
 	// Total wall-clock time of the run
-	WallMs interface{} `json:"wall_ms,omitempty"`
+	WallMs *int64 `json:"wall_ms,omitempty"`
 	// Minimum achievable time given dependencies
-	FloorMs interface{} `json:"floor_ms,omitempty"`
+	FloorMs *int64 `json:"floor_ms,omitempty"`
 	// Peak concurrent LLM calls
-	LlmConcurrencyPeak interface{} `json:"llm_concurrency_peak,omitempty"`
+	LlmConcurrencyPeak *int64 `json:"llm_concurrency_peak,omitempty"`
 	// Fraction of entities resolved to an identity
-	IdentityResolutionRate interface{} `json:"identity_resolution_rate,omitempty"`
+	IdentityResolutionRate *float64 `json:"identity_resolution_rate,omitempty"`
 	// Entities with no incoming references
-	OrphanCount interface{} `json:"orphan_count,omitempty"`
+	OrphanCount *int64 `json:"orphan_count,omitempty"`
 	// Edges pointing at a missing entity
-	DanglingEdgeCount interface{} `json:"dangling_edge_count,omitempty"`
+	DanglingEdgeCount *int64 `json:"dangling_edge_count,omitempty"`
 	// Entities split across fragments
-	FragmentedCount interface{} `json:"fragmented_count,omitempty"`
+	FragmentedCount *int64 `json:"fragmented_count,omitempty"`
 	// Scalar conflicts shipped un-arbitrated (DEGRADED resolution)
-	ScalarConflictsUnresolved interface{} `json:"scalar_conflicts_unresolved,omitempty"`
+	ScalarConflictsUnresolved *int64 `json:"scalar_conflicts_unresolved,omitempty"`
 	// Entities not covered by the extraction
-	UncoveredEntityCount interface{} `json:"uncovered_entity_count,omitempty"`
+	UncoveredEntityCount *int64 `json:"uncovered_entity_count,omitempty"`
 	// Work units that failed during the run
-	FailedUnitCount interface{} `json:"failed_unit_count,omitempty"`
+	FailedUnitCount *int64 `json:"failed_unit_count,omitempty"`
 }
 
 // DocumentChild Child document from container (ZIP/TAR/EML).
@@ -741,13 +751,13 @@ type DocumentChild struct {
 type DocumentElement struct {
 	// heading | paragraph | table | list_item | image | code_block | ...
 	Type string `json:"type"`
-	Text interface{} `json:"text,omitempty"`
+	Text *string `json:"text,omitempty"`
 	// Heading level (1-6)
-	Level interface{} `json:"level,omitempty"`
-	Table interface{} `json:"table,omitempty"`
-	Bbox interface{} `json:"bbox,omitempty"`
-	Confidence interface{} `json:"confidence,omitempty"`
-	Page interface{} `json:"page,omitempty"`
+	Level *int64 `json:"level,omitempty"`
+	Table *Table `json:"table,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
+	Confidence *float64 `json:"confidence,omitempty"`
+	Page *int64 `json:"page,omitempty"`
 }
 
 // DocumentStatus Returned from GET /documents/{job_id}.
@@ -757,20 +767,20 @@ type DocumentStatus struct {
 	Status string `json:"status"`
 	// meibel | markdown | docling
 	Format string `json:"format"`
-	Pages interface{} `json:"pages,omitempty"`
-	Elements interface{} `json:"elements,omitempty"`
-	Tables interface{} `json:"tables,omitempty"`
-	Confidence interface{} `json:"confidence,omitempty"`
-	ProcessingTimeMs interface{} `json:"processing_time_ms,omitempty"`
-	Error interface{} `json:"error,omitempty"`
+	Pages *int64 `json:"pages,omitempty"`
+	Elements *int64 `json:"elements,omitempty"`
+	Tables *int64 `json:"tables,omitempty"`
+	Confidence *float64 `json:"confidence,omitempty"`
+	ProcessingTimeMs *int64 `json:"processing_time_ms,omitempty"`
+	Error *string `json:"error,omitempty"`
 }
 
 // DownloadJobRequest Body for creating a download job. Omit both fields to download all files.
 type DownloadJobRequest struct {
 	// Content to include: files, parsed_content, or files_and_parsed_content
-	Content interface{} `json:"content,omitempty"`
+	Content *string `json:"content,omitempty"`
 	// Specific data element IDs to include
-	DataElementIds interface{} `json:"data_element_ids,omitempty"`
+	DataElementIds []string `json:"data_element_ids,omitempty"`
 }
 
 // DownloadJobResponse Result of creating a download job.
@@ -792,9 +802,9 @@ type ExecuteBatchDefinitionResponse struct {
 // ExecutionPolicy Session-level access constraints (hardrails) for data and tools.  Controls what data an agent session can access and what tools it can use. Constraints are enforced by the platform at runtime — the agent cannot bypass them.  Multiple policies can be composed: stored policies (by ID) and/or an inline policy are structurally merged. Overlapping datasource or tool entries are combined with ``$and`` (intersection semantics).  All filter fields use MongoDB-style constraint operators. Plain values are automatically normalized to ``{"$eq": value}``.
 type ExecutionPolicy struct {
 	// Per-datasource access controls, keyed by datasource_id. Each entry can disable the datasource entirely or apply TAG/RAG filters to restrict which data is accessible.
-	Datasources interface{} `json:"datasources,omitempty"`
+	Datasources map[string]DatasourceView `json:"datasources,omitempty"`
 	// Per-tool access controls, keyed by tool instance name. Each entry can disable the tool entirely or constrain its parameters to specific values or ranges.
-	Tools interface{} `json:"tools,omitempty"`
+	Tools map[string]ToolConfig `json:"tools,omitempty"`
 }
 
 // ExecutionPolicyResponse ExecutionPolicyResponse
@@ -803,7 +813,7 @@ type ExecutionPolicyResponse struct {
 	CustomerId string `json:"customer_id"`
 	ProjectId string `json:"project_id"`
 	Name string `json:"name"`
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	ExecutionPolicy ExecutionPolicy `json:"execution_policy"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -817,26 +827,26 @@ type FieldSummary struct {
 
 // FileParseCompleteInfo FileParseCompleteInfo
 type FileParseCompleteInfo struct {
-	Status interface{} `json:"status"`
-	Error interface{} `json:"error,omitempty"`
-	BboxCount interface{} `json:"bbox_count"`
-	PageCount interface{} `json:"page_count"`
-	ContentType interface{} `json:"content_type"`
-	Timestamp interface{} `json:"timestamp"`
+	Status string `json:"status"`
+	Error *string `json:"error,omitempty"`
+	BboxCount int64 `json:"bbox_count"`
+	PageCount int64 `json:"page_count"`
+	ContentType string `json:"content_type"`
+	Timestamp string `json:"timestamp"`
 }
 
 // FileParseEntry FileParseEntry
 type FileParseEntry struct {
 	FileId string `json:"file_id"`
-	Filename interface{} `json:"filename"`
-	ParseStart interface{} `json:"parse_start"`
-	ParseComplete interface{} `json:"parse_complete"`
+	Filename string `json:"filename"`
+	ParseStart FileParseStartInfo `json:"parse_start"`
+	ParseComplete FileParseCompleteInfo `json:"parse_complete"`
 }
 
 // FileParseStartInfo FileParseStartInfo
 type FileParseStartInfo struct {
-	Attempt interface{} `json:"attempt"`
-	Timestamp interface{} `json:"timestamp"`
+	Attempt int64 `json:"attempt"`
+	Timestamp string `json:"timestamp"`
 }
 
 // FileUploadSyncResponse Result of a synchronous upload — waits until files are persisted, optionally triggers ingest, and returns the resulting content listing.
@@ -846,9 +856,9 @@ type FileUploadSyncResponse struct {
 	// Content items present on the datasource after the upload completes
 	Items []ContentItem `json:"items"`
 	// Set when the listing is truncated — pass to GET /datasources/{id}/content to fetch the rest
-	ContinuationToken interface{} `json:"continuation_token,omitempty"`
+	ContinuationToken *string `json:"continuation_token,omitempty"`
 	// URL to poll for ingest status. Only set when `trigger_ingest=true` was supplied
-	IngestUrl interface{} `json:"ingest_url,omitempty"`
+	IngestUrl *string `json:"ingest_url,omitempty"`
 }
 
 // FilesSummaryResponse File-count summary across the datasource's content.
@@ -856,7 +866,7 @@ type FilesSummaryResponse struct {
 	// Total files currently tracked on the datasource
 	Total int64 `json:"total"`
 	// Files that have been removed since the last ingest
-	Deleted interface{} `json:"deleted,omitempty"`
+	Deleted *int64 `json:"deleted,omitempty"`
 }
 
 // GetBatchDefinitionsResponse GetBatchDefinitionsResponse
@@ -885,11 +895,11 @@ type HttpValidationError struct {
 // IngestCountsResponse File counts broken down by ingest method for the latest run.
 type IngestCountsResponse struct {
 	// Counts for the RAG ingest method
-	Rag interface{} `json:"rag,omitempty"`
+	Rag *IngestMethodCountsResponse `json:"rag,omitempty"`
 	// Counts for the TAG (tables/columns) ingest method
-	Tag interface{} `json:"tag,omitempty"`
+	Tag *IngestMethodCountsResponse `json:"tag,omitempty"`
 	// Counts for the reference-graph ingest method
-	RefGraph interface{} `json:"ref_graph,omitempty"`
+	RefGraph *IngestMethodCountsResponse `json:"ref_graph,omitempty"`
 }
 
 // IngestMethodCountsResponse Per-method file counts produced by the latest ingest run.
@@ -897,9 +907,9 @@ type IngestMethodCountsResponse struct {
 	// Total files processed by this ingest method
 	Total int64 `json:"total"`
 	// Files newly added in this run
-	New interface{} `json:"new,omitempty"`
+	New *int64 `json:"new,omitempty"`
 	// Files re-processed because they changed
-	Updated interface{} `json:"updated,omitempty"`
+	Updated *int64 `json:"updated,omitempty"`
 }
 
 // IngestMethodSummary Per-method aggregate counts for the current ingest run.
@@ -941,48 +951,48 @@ type IngestStatusResponse struct {
 	// Overall run status
 	Status IngestStatus `json:"status"`
 	// ISO 8601 timestamp when this run started
-	StartedAt interface{} `json:"started_at,omitempty"`
+	StartedAt *string `json:"started_at,omitempty"`
 	// ISO 8601 timestamp when this run finished — null while still running
-	CompletedAt interface{} `json:"completed_at,omitempty"`
+	CompletedAt *string `json:"completed_at,omitempty"`
 	// Per-method progress and counts for this run
 	Methods []IngestMethodSummary `json:"methods,omitempty"`
 }
 
 // LegacyBatchExecutionParams LegacyBatchExecutionParams
 type LegacyBatchExecutionParams struct {
-	Concurrency interface{} `json:"concurrency,omitempty"`
-	RetryLimit interface{} `json:"retry_limit,omitempty"`
+	Concurrency *int64 `json:"concurrency,omitempty"`
+	RetryLimit *int64 `json:"retry_limit,omitempty"`
 }
 
 // LegacyBatchInputConfig LegacyBatchInputConfig
 type LegacyBatchInputConfig struct {
 	DatasourceId string `json:"datasource_id"`
-	Filters interface{} `json:"filters,omitempty"`
+	Filters *LegacyBatchInputFilters `json:"filters,omitempty"`
 }
 
 // LegacyBatchInputFilters LegacyBatchInputFilters
 type LegacyBatchInputFilters struct {
-	Regex interface{} `json:"regex,omitempty"`
-	MediaTypes interface{} `json:"media_types,omitempty"`
-	ElementIds interface{} `json:"element_ids,omitempty"`
+	Regex *string `json:"regex,omitempty"`
+	MediaTypes []string `json:"media_types,omitempty"`
+	ElementIds []string `json:"element_ids,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
 // LegacyBatchOutputConfig LegacyBatchOutputConfig
 type LegacyBatchOutputConfig struct {
-	DatasourceId interface{} `json:"datasource_id,omitempty"`
+	DatasourceId *string `json:"datasource_id,omitempty"`
 }
 
 // LegacyBatchSpecJson LegacyBatchSpecJson
 type LegacyBatchSpecJson struct {
 	Name string `json:"name"`
-	Version interface{} `json:"version,omitempty"`
+	Version *string `json:"version,omitempty"`
 	// AgentDefinition ID
 	Agent string `json:"agent"`
-	UserMessage interface{} `json:"user_message,omitempty"`
+	UserMessage *string `json:"user_message,omitempty"`
 	Input LegacyBatchInputConfig `json:"input"`
-	Output interface{} `json:"output,omitempty"`
-	Execution interface{} `json:"execution,omitempty"`
+	Output *LegacyBatchOutputConfig `json:"output,omitempty"`
+	Execution *LegacyBatchExecutionParams `json:"execution,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
@@ -991,14 +1001,14 @@ type MeibelDocumentResult struct {
 	Elements []DocumentElement `json:"elements"`
 	Pages int64 `json:"pages"`
 	Tables int64 `json:"tables"`
-	Metadata interface{} `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // MessageEntry MessageEntry
 type MessageEntry struct {
 	Role string `json:"role"`
 	Message string `json:"message"`
-	SignalId interface{} `json:"signal_id"`
+	SignalId string `json:"signal_id"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
@@ -1007,9 +1017,9 @@ type MetadataConfigRequest struct {
 	// Use 'catalog' to select a pre-built extraction model (set model_id); use 'custom' to define your own fields (set fields)
 	Type string `json:"type"`
 	// Pre-built model ID from the metadata model catalog — required when type is 'catalog'
-	ModelId interface{} `json:"model_id,omitempty"`
+	ModelId *string `json:"model_id,omitempty"`
 	// Custom field definitions to extract — required when type is 'custom'
-	Fields interface{} `json:"fields,omitempty"`
+	Fields []MetadataField `json:"fields,omitempty"`
 }
 
 // MetadataConfigRequestType represents the possible values for type.
@@ -1025,7 +1035,7 @@ type MetadataConfigResponse struct {
 	// 'catalog' = using a pre-built model, 'custom' = user-defined fields, 'default' = no extraction configured
 	Type string `json:"type"`
 	// Catalog model ID — only set when type is 'catalog'
-	ModelId interface{} `json:"model_id,omitempty"`
+	ModelId *string `json:"model_id,omitempty"`
 	// Resolved field definitions in effect. Empty when type is 'default'
 	Fields []MetadataField `json:"fields"`
 }
@@ -1079,11 +1089,11 @@ type MoveDocumentsRequest struct {
 	// Job IDs of the documents to move (e.g. the job_id returned by parseDocument)
 	Documents []string `json:"documents"`
 	// Existing datasource to move documents into. Mutually exclusive with new_datasource_name.
-	DatasourceId interface{} `json:"datasource_id,omitempty"`
+	DatasourceId *string `json:"datasource_id,omitempty"`
 	// Name for a new datasource created to hold the documents. Mutually exclusive with datasource_id.
-	NewDatasourceName interface{} `json:"new_datasource_name,omitempty"`
+	NewDatasourceName *string `json:"new_datasource_name,omitempty"`
 	// Optional metadata extraction config applied to a newly created datasource. Ignored when datasource_id is set.
-	MetadataConfig interface{} `json:"metadata_config,omitempty"`
+	MetadataConfig *MetadataConfigRequest `json:"metadata_config,omitempty"`
 }
 
 // MoveDocumentsResponse Result of starting an asynchronous document move workflow.
@@ -1103,7 +1113,7 @@ type PaginationMeta struct {
 	// Number of items skipped
 	Offset int64 `json:"offset"`
 	// Maximum number of items returned (None means no limit applied)
-	Limit interface{} `json:"limit,omitempty"`
+	Limit *int64 `json:"limit,omitempty"`
 }
 
 // ParseDocumentResponse Returned from POST /documents (async).
@@ -1145,29 +1155,29 @@ type PublishAgentDefinitionResponse struct {
 	// Timestamp of the publish event
 	PublishedAt time.Time `json:"published_at"`
 	// User who published
-	PublishedBy interface{} `json:"published_by,omitempty"`
+	PublishedBy *string `json:"published_by,omitempty"`
 }
 
 // RagConstraints Constraints for RAG (vector search) queries within a datasource.  Controls which documents the agent can retrieve via vector search.  Filters use MongoDB-style constraint dicts. Plain values are automatically normalized to ``{"$eq": value}`` on construction.  Built-in fields:   - ``data_element.__id__``: scope by data element ID   - ``data_element.__name__``: scope by original filename  Custom indexed metadata fields (e.g., ``author``, ``document_type``) are also supported when configured on the datasource.  Supported operators:   - Comparison: ``$eq``, ``$ne``, ``$gt``, ``$gte``, ``$lt``, ``$lte``   - Set: ``$in``, ``$nin``   - Logical: ``$and``, ``$or``, ``$not``
 type RagConstraints struct {
 	// Optional override for the tool's parameters schema
-	Filter interface{} `json:"filter,omitempty"`
+	Filter map[string]interface{} `json:"filter,omitempty"`
 }
 
 // ScoreSummary Aggregated summary of scoring jobs matching identity context filters.
 type ScoreSummary struct {
 	// Overall status across the matched scoring jobs. Null if no jobs matched the filters.
-	Status interface{} `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 	// Average score across all completed jobs matching the filters.
 	AggregateScore interface{} `json:"aggregate_score,omitempty"`
 	// Average score per scoring module, keyed by module name.
-	ModuleScores interface{} `json:"module_scores,omitempty"`
+	ModuleScores map[string]interface{} `json:"module_scores,omitempty"`
 	// Number of completed scoring jobs per module.
-	NJobsPerModule interface{} `json:"n_jobs_per_module,omitempty"`
+	NJobsPerModule map[string]int64 `json:"n_jobs_per_module,omitempty"`
 	// Job IDs matching the filters.
-	JobIds interface{} `json:"job_ids,omitempty"`
+	JobIds []string `json:"job_ids,omitempty"`
 	// Per-turn score breakdowns, ordered by turn number ascending with null-turn last.
-	Turns interface{} `json:"turns,omitempty"`
+	Turns []TurnSummary `json:"turns,omitempty"`
 }
 
 // ScoringJobResponse A confidence scoring job record with metadata and scores only.
@@ -1183,7 +1193,7 @@ type ScoringJobResponse struct {
 	// The computed confidence score, or null if the job has not completed. Range depends on the module: 0–10 (integer) for judge-based modules, 0.0–1.0 for statistical modules.
 	Score interface{} `json:"score,omitempty"`
 	// Human-readable explanation of the score.
-	Explanation interface{} `json:"explanation,omitempty"`
+	Explanation *string `json:"explanation,omitempty"`
 }
 
 // SessionListResponse represents the SessionListResponse type.
@@ -1191,26 +1201,26 @@ type SessionListResponse struct {
 	Data []SessionSummary `json:"data"`
 	Total int64 `json:"total"`
 	Offset int64 `json:"offset"`
-	Limit interface{} `json:"limit,omitempty"`
+	Limit *int64 `json:"limit,omitempty"`
 }
 
 // SessionMessageItem represents the SessionMessageItem type.
 type SessionMessageItem struct {
 	Type string `json:"type"`
-	Timestamp interface{} `json:"timestamp,omitempty"`
-	Message interface{} `json:"message,omitempty"`
-	SignalId interface{} `json:"signal_id,omitempty"`
-	ToolId interface{} `json:"tool_id,omitempty"`
-	ToolName interface{} `json:"tool_name,omitempty"`
-	Arguments interface{} `json:"arguments,omitempty"`
-	Result interface{} `json:"result,omitempty"`
+	Timestamp *string `json:"timestamp,omitempty"`
+	Message *string `json:"message,omitempty"`
+	SignalId *string `json:"signal_id,omitempty"`
+	ToolId *string `json:"tool_id,omitempty"`
+	ToolName *string `json:"tool_name,omitempty"`
+	Arguments map[string]interface{} `json:"arguments,omitempty"`
+	Result *string `json:"result,omitempty"`
 }
 
 // SessionMessagesResponse represents the SessionMessagesResponse type.
 type SessionMessagesResponse struct {
-	AgentId interface{} `json:"agent_id,omitempty"`
-	AgentName interface{} `json:"agent_name,omitempty"`
-	Version interface{} `json:"version,omitempty"`
+	AgentId *string `json:"agent_id,omitempty"`
+	AgentName *string `json:"agent_name,omitempty"`
+	Version *string `json:"version,omitempty"`
 	Messages []SessionMessageItem `json:"messages"`
 }
 
@@ -1219,20 +1229,20 @@ type SessionSummary struct {
 	SessionId string `json:"session_id"`
 	Status string `json:"status"`
 	StartTime time.Time `json:"start_time"`
-	EndTime interface{} `json:"end_time,omitempty"`
-	AgentName interface{} `json:"agent_name,omitempty"`
-	AgentVersion interface{} `json:"agent_version,omitempty"`
+	EndTime *time.Time `json:"end_time,omitempty"`
+	AgentName *string `json:"agent_name,omitempty"`
+	AgentVersion *string `json:"agent_version,omitempty"`
 	MessagesCount *int64 `json:"messages_count,omitempty"`
-	TokenUsage interface{} `json:"token_usage,omitempty"`
+	TokenUsage map[string]interface{} `json:"token_usage,omitempty"`
 	Result []map[string]interface{} `json:"result,omitempty"`
 }
 
 // Source A source/citation in the response.
 type Source struct {
 	Title string `json:"title"`
-	Url interface{} `json:"url,omitempty"`
-	Snippet interface{} `json:"snippet,omitempty"`
-	DataElementId interface{} `json:"data_element_id,omitempty"`
+	Url *string `json:"url,omitempty"`
+	Snippet *string `json:"snippet,omitempty"`
+	DataElementId *string `json:"data_element_id,omitempty"`
 	RelevanceScore interface{} `json:"relevance_score,omitempty"`
 }
 
@@ -1243,11 +1253,11 @@ type SubmitDeepTransformFromDocument struct {
 	// JSON Schema of the entities to extract
 	Schema map[string]interface{} `json:"schema"`
 	// Name of the root entity in the schema. Optional: when omitted it is resolved from the schema's `title` or inferred during extraction.
-	RootName interface{} `json:"root_name,omitempty"`
+	RootName *string `json:"root_name,omitempty"`
 	// Optional domain guidance for the extraction
-	Guidance interface{} `json:"guidance,omitempty"`
+	Guidance *string `json:"guidance,omitempty"`
 	// Optional cap on the number of pages to process
-	MaxPages interface{} `json:"max_pages,omitempty"`
+	MaxPages *int64 `json:"max_pages,omitempty"`
 }
 
 // SubmitDeepTransformResponse represents the SubmitDeepTransformResponse type.
@@ -1267,7 +1277,7 @@ type Table struct {
 	Cells []TableCell `json:"cells"`
 	Rows int64 `json:"rows"`
 	Cols int64 `json:"cols"`
-	Bbox interface{} `json:"bbox,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
 }
 
 // TableCell represents the TableCell type.
@@ -1277,7 +1287,7 @@ type TableCell struct {
 	Col int64 `json:"col"`
 	RowSpan *int64 `json:"row_span,omitempty"`
 	ColSpan *int64 `json:"col_span,omitempty"`
-	Bbox interface{} `json:"bbox,omitempty"`
+	Bbox *BoundingBox `json:"bbox,omitempty"`
 }
 
 // TableDescriptionUpdate A nested table-update entry used inside UpdateDatasourceRequest.tables.
@@ -1285,9 +1295,9 @@ type TableDescriptionUpdate struct {
 	// Name of the table to update
 	TableName string `json:"table_name"`
 	// Updated description for the table (omit to leave unchanged)
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Optional list of column-description updates for this table
-	Columns interface{} `json:"columns,omitempty"`
+	Columns []TagColumnUpdateItem `json:"columns,omitempty"`
 }
 
 // TableSummaryResponse Summary of a single table discovered on a structured datasource.
@@ -1295,7 +1305,7 @@ type TableSummaryResponse struct {
 	// Table name
 	Name string `json:"name"`
 	// Human-authored description of the table
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Number of columns on the table
 	ColumnCount int64 `json:"column_count"`
 }
@@ -1305,9 +1315,9 @@ type TagColumn struct {
 	// Column name as defined in the source table
 	ColumnName string `json:"column_name"`
 	// SQL data type of the column (e.g. 'varchar', 'integer')
-	Type interface{} `json:"type,omitempty"`
+	Type *string `json:"type,omitempty"`
 	// Human-authored description of what this column represents
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 // TagColumnUpdateItem A single column-description update entry within an UpdateTagColumnsRequest.
@@ -1321,11 +1331,11 @@ type TagColumnUpdateItem struct {
 // TagConstraints Constraints for TAG (SQL/database) queries within a datasource.  Controls which tables and rows the agent can access, and which columns are redacted from query output.  Filters use MongoDB-style constraint dicts. Plain values are automatically normalized to ``{"$eq": value}`` on construction.  Supported operators:   - Comparison: ``$eq``, ``$ne``, ``$gt``, ``$gte``, ``$lt``, ``$lte``   - Set: ``$in``, ``$nin``   - Logical: ``$and``, ``$or``, ``$not``
 type TagConstraints struct {
 	// Optional override for the tool's parameters schema
-	Filter interface{} `json:"filter,omitempty"`
+	Filter map[string]interface{} `json:"filter,omitempty"`
 	// Per-table column names to redact from query output. Keyed by table name; values are lists of column names. Columns remain usable in WHERE/JOIN — only the final result values are stripped.
-	HiddenColumns interface{} `json:"hidden_columns,omitempty"`
+	HiddenColumns map[string][]string `json:"hidden_columns,omitempty"`
 	// Table names whose columns are fully redacted from query output. Tables remain queryable in WHERE/JOIN — only SELECT output is stripped.
-	HiddenTables interface{} `json:"hidden_tables,omitempty"`
+	HiddenTables []string `json:"hidden_tables,omitempty"`
 }
 
 // TagTable A table on a structured datasource, with its description and optionally its columns.
@@ -1333,9 +1343,9 @@ type TagTable struct {
 	// Table name as defined on the datasource
 	TableName string `json:"table_name"`
 	// Human-authored description of what this table represents
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Columns on the table — only populated when explicitly requested via include_columns
-	Columns interface{} `json:"columns,omitempty"`
+	Columns []TagColumn `json:"columns,omitempty"`
 }
 
 // TagTableUpdateItem A single table-description update entry within an UpdateTagTablesRequest.
@@ -1352,40 +1362,40 @@ type ToolActivity struct {
 	ToolName string `json:"tool_name"`
 	Arguments map[string]interface{} `json:"arguments"`
 	// Optional override for the tool's parameters schema
-	Result interface{} `json:"result,omitempty"`
+	Result map[string]interface{} `json:"result,omitempty"`
 	Timestamp string `json:"timestamp"`
 }
 
 // ToolActivityEntry ToolActivityEntry
 type ToolActivityEntry struct {
 	ToolId string `json:"tool_id"`
-	ToolCall interface{} `json:"tool_call"`
-	ToolResult interface{} `json:"tool_result"`
+	ToolCall ToolCallInfo `json:"tool_call"`
+	ToolResult ToolResultInfo `json:"tool_result"`
 }
 
 // ToolCallInfo ToolCallInfo
 type ToolCallInfo struct {
-	ToolName interface{} `json:"tool_name"`
+	ToolName string `json:"tool_name"`
 	// Optional override for the tool's parameters schema
-	Arguments interface{} `json:"arguments"`
-	Sequence interface{} `json:"sequence"`
-	Timestamp interface{} `json:"timestamp"`
+	Arguments map[string]interface{} `json:"arguments"`
+	Sequence string `json:"sequence"`
+	Timestamp string `json:"timestamp"`
 }
 
 // ToolConfig Access controls for a single tool instance.  Tools can be entirely disabled, or have their parameters constrained to specific values or ranges. Keyed by tool instance name in ``ExecutionPolicy.tools``.  Variable constraints use the same MongoDB-style operators as datasource filters. Plain values are automatically normalized to ``{"$eq": value}`` on construction. All constraints are:   1. Annotated in the tool's parameter schema (visible to the LLM)   2. Validated at execution time (enforced by the platform)  Supported operators:   - Comparison: ``$eq``, ``$ne``, ``$gt``, ``$gte``, ``$lt``, ``$lte``   - Set: ``$in``, ``$nin``   - Logical: ``$and``, ``$or``, ``$not``
 type ToolConfig struct {
 	// When true, the tool is removed from the agent's toolkit for this session. The agent will not be able to invoke it.
-	Disabled interface{} `json:"disabled,omitempty"`
+	Disabled *bool `json:"disabled,omitempty"`
 	// Optional override for the tool's parameters schema
-	Variables interface{} `json:"variables,omitempty"`
+	Variables map[string]interface{} `json:"variables,omitempty"`
 }
 
 // ToolResultInfo ToolResultInfo
 type ToolResultInfo struct {
-	ToolName interface{} `json:"tool_name"`
-	Result interface{} `json:"result,omitempty"`
-	Sequence interface{} `json:"sequence"`
-	Timestamp interface{} `json:"timestamp"`
+	ToolName string `json:"tool_name"`
+	Result *string `json:"result,omitempty"`
+	Sequence string `json:"sequence"`
+	Timestamp string `json:"timestamp"`
 }
 
 // TransformDocumentResponse represents the TransformDocumentResponse type.
@@ -1395,7 +1405,7 @@ type TransformDocumentResponse struct {
 	// Extracted artifact data
 	Data map[string]interface{} `json:"data"`
 	// LLM token consumption
-	TokenUsage interface{} `json:"token_usage,omitempty"`
+	TokenUsage map[string]interface{} `json:"token_usage,omitempty"`
 }
 
 // TriggerIngestResponse Acknowledgement that ingest was kicked off for a datasource.
@@ -1409,71 +1419,71 @@ type TriggerIngestResponse struct {
 // TurnSummary Per-turn score aggregation.
 type TurnSummary struct {
 	// Agent turn number, or null for jobs without a turn assignment.
-	Turn interface{} `json:"turn,omitempty"`
+	Turn *int64 `json:"turn,omitempty"`
 	// Overall status for this turn's jobs.
-	Status interface{} `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 	// Average score across this turn's completed jobs.
 	AggregateScore interface{} `json:"aggregate_score,omitempty"`
 	// Average score per module for this turn.
-	ModuleScores interface{} `json:"module_scores,omitempty"`
+	ModuleScores map[string]interface{} `json:"module_scores,omitempty"`
 	// Job count per module for this turn.
-	NJobsPerModule interface{} `json:"n_jobs_per_module,omitempty"`
+	NJobsPerModule map[string]int64 `json:"n_jobs_per_module,omitempty"`
 	// Job IDs for this turn.
-	JobIds interface{} `json:"job_ids,omitempty"`
+	JobIds []string `json:"job_ids,omitempty"`
 }
 
 // UpdateAgentArtifactRequest Request model for updating an agent artifact. Name is intentionally excluded as it serves as the stable identifier for a version chain and cannot be changed.
 type UpdateAgentArtifactRequest struct {
 	// Human-readable name of the artifact
-	DisplayName interface{} `json:"display_name,omitempty"`
+	DisplayName *string `json:"display_name,omitempty"`
 	// Artifact type
-	Type interface{} `json:"type,omitempty"`
+	Type *ArtifactType `json:"type,omitempty"`
 	// Description of the artifact
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Whether agent must produce this artifact
-	Required interface{} `json:"required,omitempty"`
+	Required *bool `json:"required,omitempty"`
 	// Optional override for the tool's parameters schema
-	SchemaDef interface{} `json:"schema_def,omitempty"`
+	SchemaDef map[string]interface{} `json:"schema_def,omitempty"`
 	// Maximum artifact size in bytes
-	MaxSizeBytes interface{} `json:"max_size_bytes,omitempty"`
+	MaxSizeBytes *int64 `json:"max_size_bytes,omitempty"`
 	// Storage strategy
-	StorageStrategy interface{} `json:"storage_strategy,omitempty"`
+	StorageStrategy *ArtifactStorageStrategy `json:"storage_strategy,omitempty"`
 }
 
 // UpdateAgentDefinitionRequest Request model for updating an agent definition. Name is intentionally excluded as it serves as the stable identifier for a version chain and cannot be changed.
 type UpdateAgentDefinitionRequest struct {
 	// Human-readable name of the agent
-	DisplayName interface{} `json:"display_name,omitempty"`
+	DisplayName *string `json:"display_name,omitempty"`
 	// System prompt/instructions
-	Instructions interface{} `json:"instructions,omitempty"`
+	Instructions *string `json:"instructions,omitempty"`
 	// Agent type
-	Type interface{} `json:"type,omitempty"`
+	Type *string `json:"type,omitempty"`
 	// Description of the agent
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// LLM model to use
-	LlmModel interface{} `json:"llm_model,omitempty"`
+	LlmModel *string `json:"llm_model,omitempty"`
 	// List of fallback models
-	FallbackModels interface{} `json:"fallback_models,omitempty"`
+	FallbackModels []string `json:"fallback_models,omitempty"`
 	// Datasource IDs the agent has access to
-	Datasources interface{} `json:"datasources,omitempty"`
+	Datasources []string `json:"datasources,omitempty"`
 	// Tools configuration
-	Tools interface{} `json:"tools,omitempty"`
+	Tools []AgentToolDefinition `json:"tools,omitempty"`
 	// Catalog URNs of artifacts the agent produces
-	Artifacts interface{} `json:"artifacts,omitempty"`
+	Artifacts []string `json:"artifacts,omitempty"`
 	// Confidence scoring module names to apply during execution
-	ConfidenceConfigs interface{} `json:"confidence_configs,omitempty"`
+	ConfidenceConfigs []string `json:"confidence_configs,omitempty"`
 	// LLM temperature
 	Temperature interface{} `json:"temperature,omitempty"`
 	// Maximum tokens in response
-	MaxTokens interface{} `json:"max_tokens,omitempty"`
+	MaxTokens *int64 `json:"max_tokens,omitempty"`
 	// Tags for categorization
-	Tags interface{} `json:"tags,omitempty"`
+	Tags []string `json:"tags,omitempty"`
 	// UI icon identifier
-	Icon interface{} `json:"icon,omitempty"`
+	Icon *string `json:"icon,omitempty"`
 	// Inline execution policy constraints (datasources, tools)
-	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	ExecutionPolicy *ExecutionPolicy `json:"execution_policy,omitempty"`
 	// IDs of stored ExecutionPolicies to compose
-	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
+	ExecutionPolicyIds []string `json:"execution_policy_ids,omitempty"`
 }
 
 // UpdateAgentDefinitionResponse Response model for updating an agent definition.
@@ -1494,21 +1504,21 @@ type UpdateArtifactSchemaResponse struct {
 
 // UpdateBatchDefinitionRequest Patch a BatchDefinition; the service forks a new version row.
 type UpdateBatchDefinitionRequest struct {
-	Name interface{} `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 	// If set, re-resolves and re-pins the agent spec
-	AgentId interface{} `json:"agent_id,omitempty"`
-	InputDatasourceId interface{} `json:"input_datasource_id,omitempty"`
-	Filters interface{} `json:"filters,omitempty"`
-	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
-	UserMessage interface{} `json:"user_message,omitempty"`
-	Concurrency interface{} `json:"concurrency,omitempty"`
-	RetryLimit interface{} `json:"retry_limit,omitempty"`
-	RecurrenceCron interface{} `json:"recurrence_cron,omitempty"`
-	Description interface{} `json:"description,omitempty"`
+	AgentId *string `json:"agent_id,omitempty"`
+	InputDatasourceId *string `json:"input_datasource_id,omitempty"`
+	Filters *BatchDefinitionFilters `json:"filters,omitempty"`
+	OutputDatasourceId *string `json:"output_datasource_id,omitempty"`
+	UserMessage *string `json:"user_message,omitempty"`
+	Concurrency *int64 `json:"concurrency,omitempty"`
+	RetryLimit *int64 `json:"retry_limit,omitempty"`
+	RecurrenceCron *string `json:"recurrence_cron,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Inline execution policy constraints (datasources, tools)
-	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	ExecutionPolicy *ExecutionPolicy `json:"execution_policy,omitempty"`
 	// IDs of stored ExecutionPolicies to compose
-	ExecutionPolicyIds interface{} `json:"execution_policy_ids,omitempty"`
+	ExecutionPolicyIds []string `json:"execution_policy_ids,omitempty"`
 }
 
 // UpdateBatchDefinitionResponse New version metadata returned after a successful update fork.
@@ -1521,32 +1531,32 @@ type UpdateBatchDefinitionResponse struct {
 // UpdateBatchExecutionRequest Runtime-only patch fields. Identity, definition link, and overrides are immutable.
 type UpdateBatchExecutionRequest struct {
 	// Execution status
-	Status interface{} `json:"status,omitempty"`
+	Status *string `json:"status,omitempty"`
 	// Execution end time
-	EndTime interface{} `json:"end_time,omitempty"`
+	EndTime *time.Time `json:"end_time,omitempty"`
 	// Total items in batch
-	TotalItems interface{} `json:"total_items,omitempty"`
+	TotalItems *int64 `json:"total_items,omitempty"`
 	// Number of succeeded items
-	Succeeded interface{} `json:"succeeded,omitempty"`
+	Succeeded *int64 `json:"succeeded,omitempty"`
 	// Number of failed items
-	Failed interface{} `json:"failed,omitempty"`
+	Failed *int64 `json:"failed,omitempty"`
 	// Output datasource ID
-	OutputDatasourceId interface{} `json:"output_datasource_id,omitempty"`
+	OutputDatasourceId *string `json:"output_datasource_id,omitempty"`
 	// Per-item results
-	Items interface{} `json:"items,omitempty"`
+	Items []map[string]interface{} `json:"items,omitempty"`
 	// Overall error message
-	Error interface{} `json:"error,omitempty"`
+	Error *string `json:"error,omitempty"`
 	AdditionalProperties map[string]interface{} `json:"additional_properties,omitempty"`
 }
 
 // UpdateExecutionPolicyRequest UpdateExecutionPolicyRequest
 type UpdateExecutionPolicyRequest struct {
 	// Updated policy name
-	Name interface{} `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 	// Updated description
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Updated ExecutionPolicy payload
-	ExecutionPolicy interface{} `json:"execution_policy,omitempty"`
+	ExecutionPolicy *ExecutionPolicy `json:"execution_policy,omitempty"`
 }
 
 // UpdateTagColumnsRequest Bulk update of column descriptions on a single table.
@@ -1568,7 +1578,7 @@ type WebCrawlConnector struct {
 	// Enable JavaScript rendering
 	JavascriptRender *bool `json:"javascript_render,omitempty"`
 	// Per-domain include/exclude rules. If omitted, the crawler stays on the base_url's domain
-	Domains interface{} `json:"domains,omitempty"`
+	Domains []WebDomain `json:"domains,omitempty"`
 }
 
 // ConnectedEvent A server-sent event indicating the stream connection has been established
@@ -1597,6 +1607,12 @@ type ToolResultEvent struct {
 
 // PartialResponseEvent A server-sent event containing an incremental response from the agent
 type PartialResponseEvent struct {
+	Event string `json:"event"`
+	Data string `json:"data"`
+}
+
+// PartialDeltaJsonEvent A server-sent event carrying an incremental raw JSON string fragment of the agent's response. Concatenate `data.content` across events in sequence order to rebuild the full JSON payload (the same object delivered whole in the terminal completion event).
+type PartialDeltaJsonEvent struct {
 	Event string `json:"event"`
 	Data string `json:"data"`
 }
@@ -1673,8 +1689,8 @@ type ParseChartData struct {
 	Title *string `json:"title,omitempty"`
 	Warnings []string `json:"warnings"`
 	XAxis ParseAxisCalibration `json:"x_axis"`
-	YAxisLeft interface{} `json:"y_axis_left,omitempty"`
-	YAxisRight interface{} `json:"y_axis_right,omitempty"`
+	YAxisLeft *ParseAxisCalibration `json:"y_axis_left,omitempty"`
+	YAxisRight *ParseAxisCalibration `json:"y_axis_right,omitempty"`
 }
 
 // ParseChartText One recognized text run on a chart, with dual-space position and provenance.
@@ -1733,7 +1749,7 @@ type ParseDocumentElement struct {
 	// Bounding box in pixel coordinates (top-left origin). Normalized to [0,1] for annotated export.
 	Bbox ParseBBox `json:"bbox"`
 	// If this is a Chart element, the digitized plot data.
-	ChartData interface{} `json:"chart_data,omitempty"`
+	ChartData *ParseChartData `json:"chart_data,omitempty"`
 	// Confidence score from the layout model.
 	Confidence float64 `json:"confidence"`
 	// Heading level (1-6) for Title/SectionHeader elements. Determined by font-size clustering: largest font → H1, decreasing → H2-H6. `None` for non-heading elements.
@@ -1745,7 +1761,7 @@ type ParseDocumentElement struct {
 	// Position in reading order (0-indexed within page).
 	ReadingOrder int64 `json:"reading_order"`
 	// If this is a Table element, the recognized table structure.
-	Table interface{} `json:"table,omitempty"`
+	Table *ParseTable `json:"table,omitempty"`
 	// Text content (assembled from cells within this region).
 	Text string `json:"text"`
 }
@@ -1838,7 +1854,7 @@ type ParseStructuredPage struct {
 	// Which grid cell of the physical page this output page is, numbered in reading order.
 	Quadrant *int64 `json:"quadrant,omitempty"`
 	// Rectangle this output page occupies on the physical page, in the physical page's coordinate space. The viewer uses this to reassemble split pages onto the source PDF.
-	SheetRect interface{} `json:"sheet_rect,omitempty"`
+	SheetRect *ParseBBox `json:"sheet_rect,omitempty"`
 	// Present when the page was detected as a line-numbered legal transcript. The gutter numbers are stripped from body text and kept here so page:line citations remain resolvable.
 	TranscriptLines []ParseTranscriptLine `json:"transcript_lines,omitempty"`
 }
@@ -1917,15 +1933,15 @@ type ContentItem struct {
 	// Object-storage path to the file relative to the datasource
 	Path string `json:"path"`
 	// Object kind reported by storage (e.g. 'file', 'directory')
-	Type interface{} `json:"type,omitempty"`
+	Type *string `json:"type,omitempty"`
 	// File size in bytes
-	Size interface{} `json:"size,omitempty"`
+	Size *int64 `json:"size,omitempty"`
 	// MIME type of the file
-	MediaType interface{} `json:"media_type,omitempty"`
+	MediaType *string `json:"media_type,omitempty"`
 	// ISO 8601 timestamp of last modification in object storage
-	LastModified interface{} `json:"last_modified,omitempty"`
+	LastModified *string `json:"last_modified,omitempty"`
 	// Object-storage ETag for the file
-	Etag interface{} `json:"etag,omitempty"`
+	Etag *string `json:"etag,omitempty"`
 }
 
 // ListContentResponse Paginated list of files in a datasource's content store.
@@ -1933,7 +1949,7 @@ type ListContentResponse struct {
 	// Page of content items
 	Items []ContentItem `json:"items"`
 	// Pass to the next request as `continuation_token` to fetch the next page. Null when there are no more pages
-	ContinuationToken interface{} `json:"continuation_token,omitempty"`
+	ContinuationToken *string `json:"continuation_token,omitempty"`
 }
 
 // UploadContentResponse Result of an async upload — files are accepted and streamed asynchronously.
@@ -1949,19 +1965,19 @@ type UploadContentResponse struct {
 	// Server-sent-events URL to stream upload progress until 'stream_complete'
 	SseUrl string `json:"sse_url"`
 	// Number of files the server expects to process for this upload
-	EstimatedFiles interface{} `json:"estimated_files,omitempty"`
+	EstimatedFiles *int64 `json:"estimated_files,omitempty"`
 	// Total estimated size of the upload in bytes
-	EstimatedSize interface{} `json:"estimated_size,omitempty"`
+	EstimatedSize *int64 `json:"estimated_size,omitempty"`
 }
 
 // UpdateDataElementRequest Body for updating a data element. Omit a field to leave it unchanged.
 type UpdateDataElementRequest struct {
 	// Updated name
-	Name interface{} `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 	// Updated description
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Metadata key-value pairs — replaces all existing metadata
-	Metadata interface{} `json:"metadata,omitempty"`
+	Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // DeleteDatasourceResponse Result of deleting a datasource.
@@ -1973,15 +1989,15 @@ type DeleteDatasourceResponse struct {
 // UpdateDatasourceRequest Body for updating a datasource. Omit a field to leave it unchanged.
 type UpdateDatasourceRequest struct {
 	// Updated datasource name
-	Name interface{} `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 	// Updated description
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Updated connection configuration
-	Connector interface{} `json:"connector,omitempty"`
+	Connector *ConnectorConfig `json:"connector,omitempty"`
 	// Metadata extraction config — if changed, re-extraction triggers automatically
-	MetadataConfig interface{} `json:"metadata_config,omitempty"`
+	MetadataConfig *MetadataConfigRequest `json:"metadata_config,omitempty"`
 	// Table and column descriptions to update (structured datasources only)
-	Tables interface{} `json:"tables,omitempty"`
+	Tables []TableDescriptionUpdate `json:"tables,omitempty"`
 }
 
 // WebDomain An allowed domain for a web-crawl datasource, with include/exclude URL patterns.
@@ -2007,7 +2023,7 @@ type MetadataModelCatalogEntry struct {
 	// Human-readable model name
 	Name string `json:"name"`
 	// What this model is designed to extract
-	Description interface{} `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 	// Visibility of the model (e.g. 'global', 'customer', 'project')
 	Scope string `json:"scope"`
 	// Field definitions this model extracts

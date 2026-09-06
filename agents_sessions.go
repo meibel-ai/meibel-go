@@ -23,7 +23,7 @@ type AgentsSessionsListOptions struct {
 	// Sort order: asc or desc
 	SortOrder *string
 	// Filter by execution status: RUNNING, COMPLETED, FAILED, CANCELED, TERMINATED
-	Status interface{}
+	Status *string
 }
 
 // CreateByName Create Session By Name
@@ -33,7 +33,7 @@ type AgentsSessionsListOptions struct {
 // Resolves the current latest published version at runtime — callers do not
 // need to track a specific agent ID or version. Returns 404 if no published
 // version exists for the given agent name.
-func (s *AgentsSessionsService) CreateByName(ctx context.Context, name string, body *interface{}) (*CreateSessionResponse, error) {
+func (s *AgentsSessionsService) CreateByName(ctx context.Context, name string, body *CreateSessionRequest) (*CreateSessionResponse, error) {
 	path := "/agents/name/" + fmt.Sprintf("%v", name) + "/sessions"
 
 	var result CreateSessionResponse
@@ -66,7 +66,7 @@ func (s *AgentsSessionsService) List(ctx context.Context, agentId string, opts *
 		query.Set("sort_order", fmt.Sprintf("%v", *opts.SortOrder))
 	}
 	if opts != nil && opts.Status != nil {
-		query.Set("status", fmt.Sprintf("%v", opts.Status))
+		query.Set("status", fmt.Sprintf("%v", *opts.Status))
 	}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[SessionSummary], error) {
@@ -96,7 +96,7 @@ func (s *AgentsSessionsService) List(ctx context.Context, agentId string, opts *
 }
 
 // Create Create Session
-func (s *AgentsSessionsService) Create(ctx context.Context, agentId string, body *interface{}) (*CreateSessionResponse, error) {
+func (s *AgentsSessionsService) Create(ctx context.Context, agentId string, body *CreateSessionRequest) (*CreateSessionResponse, error) {
 	path := "/agents/" + fmt.Sprintf("%v", agentId) + "/sessions"
 
 	var result CreateSessionResponse
@@ -113,6 +113,8 @@ func (s *AgentsSessionsService) Create(ctx context.Context, agentId string, body
 }
 
 // SendChatMessage Send Chat Message
+//
+// DEPRECATED — use `POST /{session_id}/run`. Behavior is identical.
 func (s *AgentsSessionsService) SendChatMessage(ctx context.Context, sessionId string, body ChatMessageRequest) (*ChatMessageResponse, error) {
 	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/chat"
 
@@ -129,16 +131,79 @@ func (s *AgentsSessionsService) SendChatMessage(ctx context.Context, sessionId s
 	return &result, nil
 }
 
+// SendRun Send a message and wait for the complete agent run response
+//
+// Send a message to the session and wait for the complete structured response
+// (synchronous). Replaces the deprecated `POST /{session_id}/chat`.
+func (s *AgentsSessionsService) SendRun(ctx context.Context, sessionId string, body ChatMessageRequest) (*ChatMessageResponse, error) {
+	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/run"
+
+	var result ChatMessageResponse
+	err := s.client.http.Do(ctx, RequestOptions{
+		Method: "POST",
+		Path:   path,
+		Body:   body,
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 // SendChatMessageStream Send a chat message with file attachments and stream the response via SSE
-func (s *AgentsSessionsService) SendChatMessageStream(ctx context.Context, sessionId string, file io.Reader, fileName string, userMessage interface{}, timeoutSeconds interface{}, includeThinking interface{}, includeToolActivity interface{}, files interface{}) (*EventStream[interface{}], error) {
+//
+// DEPRECATED — streams accumulated chunks. Use `POST /{session_id}/run/stream`,
+// which streams incremental deltas by default. Behavior is unchanged from before.
+func (s *AgentsSessionsService) SendChatMessageStream(ctx context.Context, sessionId string, file io.Reader, fileName string, userMessage string, timeoutSeconds int64, includeThinking bool, includeToolActivity bool, files []string) (*EventStream[interface{}], error) {
 	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/chat/stream"
 
-	formFields := map[string]string{
-		"user_message": fmt.Sprintf("%v", userMessage),
-		"timeout_seconds": fmt.Sprintf("%v", timeoutSeconds),
-		"include_thinking": fmt.Sprintf("%v", includeThinking),
-		"include_tool_activity": fmt.Sprintf("%v", includeToolActivity),
-		"files": fmt.Sprintf("%v", files),
+	formFields := map[string]string{}
+	if userMessage != "" {
+		formFields["user_message"] = userMessage
+	}
+	if timeoutSeconds != 0 {
+		formFields["timeout_seconds"] = fmt.Sprintf("%v", timeoutSeconds)
+	}
+	formFields["include_thinking"] = fmt.Sprintf("%v", includeThinking)
+	formFields["include_tool_activity"] = fmt.Sprintf("%v", includeToolActivity)
+	if files != nil {
+		formFields["files"] = fmt.Sprintf("%v", files)
+	}
+
+	uploadFields := []UploadField{
+		{FieldName: "file", Reader: file, FileName: fileName},
+	}
+
+	resp, err := s.client.http.DoUploadStream(ctx, RequestOptions{
+		Method: "POST",
+		Path:   path,
+	}, uploadFields, formFields)
+	if err != nil {
+		return nil, err
+	}
+	return JSONEventStream[interface{}](resp), nil
+}
+
+// SendRunStream Send a message with file attachments and stream the agent run via SSE (incremental deltas)
+//
+// Stream the response as incremental deltas (partial chunks). `stream_deltas`
+// defaults to true and is overridable; pass false for accumulated chunks.
+func (s *AgentsSessionsService) SendRunStream(ctx context.Context, sessionId string, file io.Reader, fileName string, userMessage string, timeoutSeconds int64, includeThinking bool, includeToolActivity bool, streamDeltas bool, files []string) (*EventStream[interface{}], error) {
+	path := "/sessions/" + fmt.Sprintf("%v", sessionId) + "/run/stream"
+
+	formFields := map[string]string{}
+	if userMessage != "" {
+		formFields["user_message"] = userMessage
+	}
+	if timeoutSeconds != 0 {
+		formFields["timeout_seconds"] = fmt.Sprintf("%v", timeoutSeconds)
+	}
+	formFields["include_thinking"] = fmt.Sprintf("%v", includeThinking)
+	formFields["include_tool_activity"] = fmt.Sprintf("%v", includeToolActivity)
+	formFields["stream_deltas"] = fmt.Sprintf("%v", streamDeltas)
+	if files != nil {
+		formFields["files"] = fmt.Sprintf("%v", files)
 	}
 
 	uploadFields := []UploadField{

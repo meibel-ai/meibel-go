@@ -11,7 +11,7 @@ type DownloadsService struct {
 }
 
 // CreateJob Create Download Job (async)
-func (s *DownloadsService) CreateJob(ctx context.Context, datasourceId string, body *interface{}) (*DownloadJobResponse, error) {
+func (s *DownloadsService) CreateJob(ctx context.Context, datasourceId string, body *DownloadJobRequest) (*DownloadJobResponse, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/downloads"
 
 	var result DownloadJobResponse
@@ -59,7 +59,7 @@ func (s *DownloadsService) DownloadFile(ctx context.Context, jobId string, datas
 }
 
 // Process Process Download (sync)
-func (s *DownloadsService) Process(ctx context.Context, datasourceId string, body *interface{}) (*string, error) {
+func (s *DownloadsService) Process(ctx context.Context, datasourceId string, body *DownloadJobRequest) (*string, error) {
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/downloads/process"
 
 	var result string

@@ -13,7 +13,7 @@ type MetadataModelCatalogService struct {
 
 // MetadataModelCatalogListOptions contains optional parameters for List.
 type MetadataModelCatalogListOptions struct {
-	Scope interface{}
+	Scope *string
 }
 
 // List List Metadata Model Catalog
@@ -21,7 +21,7 @@ func (s *MetadataModelCatalogService) List(ctx context.Context, opts *MetadataMo
 	path := "/metadata-model-catalog"
 	query := url.Values{}
 	if opts != nil && opts.Scope != nil {
-		query.Set("scope", fmt.Sprintf("%v", opts.Scope))
+		query.Set("scope", fmt.Sprintf("%v", *opts.Scope))
 	}
 
 	var result ListMetadataModelCatalogResponse

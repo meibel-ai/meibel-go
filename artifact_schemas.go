@@ -16,11 +16,11 @@ type ArtifactSchemasListOptions struct {
 	// Number of items to skip
 	Offset *int64
 	// Maximum number of items to return
-	Limit interface{}
+	Limit *int64
 	// Field to sort by: created_at, name, display_name
-	SortBy interface{}
+	SortBy *string
 	// Sort order: asc or desc
-	SortOrder interface{}
+	SortOrder *string
 }
 
 // List List Artifact Schemas
@@ -31,13 +31,13 @@ func (s *ArtifactSchemasService) List(ctx context.Context, opts *ArtifactSchemas
 		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
 	}
 	if opts != nil && opts.Limit != nil {
-		query.Set("limit", fmt.Sprintf("%v", opts.Limit))
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
 	}
 	if opts != nil && opts.SortBy != nil {
-		query.Set("sort_by", fmt.Sprintf("%v", opts.SortBy))
+		query.Set("sort_by", fmt.Sprintf("%v", *opts.SortBy))
 	}
 	if opts != nil && opts.SortOrder != nil {
-		query.Set("sort_order", fmt.Sprintf("%v", opts.SortOrder))
+		query.Set("sort_order", fmt.Sprintf("%v", *opts.SortOrder))
 	}
 
 	return NewPageIterator(func(ctx context.Context, cursor string) (*Page[ArtifactSchemaSummary], error) {
@@ -73,15 +73,15 @@ type ArtifactSchemasCreateOptions struct {
 	// Artifact type (json, markdown, csv, yaml, text, html, pdf)
 	Type *ArtifactType
 	// Description of the artifact
-	Description interface{}
+	Description *string
 	// Whether agent must produce this artifact
-	Required interface{}
+	Required *bool
 	// Schema definition
 	Schema interface{}
 	// Maximum artifact size in bytes
-	MaxSizeBytes interface{}
+	MaxSizeBytes *int64
 	// Storage strategy (inline, gcs, auto)
-	StorageStrategy interface{}
+	StorageStrategy *ArtifactStorageStrategy
 	AdditionalProperties map[string]interface{}
 }
 

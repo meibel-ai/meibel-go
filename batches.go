@@ -21,7 +21,7 @@ type BatchesListOptions struct {
 // BatchesListVersionsOptions contains optional parameters for ListVersions.
 type BatchesListVersionsOptions struct {
 	Offset *int64
-	Limit interface{}
+	Limit *int64
 }
 
 // List List Batch Definitions
@@ -140,7 +140,7 @@ func (s *BatchesService) ListVersions(ctx context.Context, definitionId string, 
 		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
 	}
 	if opts != nil && opts.Limit != nil {
-		query.Set("limit", fmt.Sprintf("%v", opts.Limit))
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
 	}
 
 	var result GetBatchDefinitionsResponse

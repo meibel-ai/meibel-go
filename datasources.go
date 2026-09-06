@@ -45,7 +45,7 @@ type DatasourcesCreateOptions struct {
 	// What this datasource contains
 	Description *string
 	// Connection configuration — omit for file-upload datasources
-	Connector interface{}
+	Connector *ConnectorConfig
 	// Optional metadata extraction config to apply after creation
 	MetadataConfig interface{}
 }
@@ -60,11 +60,12 @@ func (s *DatasourcesService) Create(ctx context.Context, opts DatasourcesCreateO
 		return nil, err
 	}
 
+	metadataConfigTyped, _ := metadataConfigResolved.(*MetadataConfigRequest)
 	body := CreateDatasourceRequest{
 		Name: opts.Name,
 		Description: opts.Description,
 		Connector: opts.Connector,
-		MetadataConfig: metadataConfigResolved,
+		MetadataConfig: metadataConfigTyped,
 	}
 
 	var result DatasourceResponse

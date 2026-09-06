@@ -14,7 +14,7 @@ type DataElementsService struct {
 // DataElementsListOptions contains optional parameters for List.
 type DataElementsListOptions struct {
 	// Cursor for pagination
-	Cursor interface{}
+	Cursor *string
 	// Maximum items to return
 	Limit *int64
 }
@@ -22,7 +22,7 @@ type DataElementsListOptions struct {
 // DataElementsSearchOptions contains optional parameters for Search.
 type DataElementsSearchOptions struct {
 	// Cursor for pagination
-	Cursor interface{}
+	Cursor *string
 	// Maximum items to return
 	Limit *int64
 }
@@ -65,7 +65,7 @@ func (s *DataElementsService) List(ctx context.Context, datasourceId string, opt
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements"
 	query := url.Values{}
 	if opts != nil && opts.Cursor != nil {
-		query.Set("cursor", fmt.Sprintf("%v", opts.Cursor))
+		query.Set("cursor", fmt.Sprintf("%v", *opts.Cursor))
 	}
 	if opts != nil && opts.Limit != nil {
 		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
@@ -102,7 +102,7 @@ func (s *DataElementsService) Search(ctx context.Context, datasourceId string, b
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/data-elements/search"
 	query := url.Values{}
 	if opts != nil && opts.Cursor != nil {
-		query.Set("cursor", fmt.Sprintf("%v", opts.Cursor))
+		query.Set("cursor", fmt.Sprintf("%v", *opts.Cursor))
 	}
 	if opts != nil && opts.Limit != nil {
 		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))

@@ -15,9 +15,9 @@ type FileUploadsService struct {
 // FileUploadsListContentOptions contains optional parameters for ListContent.
 type FileUploadsListContentOptions struct {
 	// Filter content by path prefix
-	Prefix interface{}
+	Prefix *string
 	// Token for pagination
-	ContinuationToken interface{}
+	ContinuationToken *string
 	// Maximum items to return
 	Limit *int64
 }
@@ -33,10 +33,10 @@ func (s *FileUploadsService) ListContent(ctx context.Context, datasourceId strin
 	path := "/datasources/" + fmt.Sprintf("%v", datasourceId) + "/content"
 	query := url.Values{}
 	if opts != nil && opts.Prefix != nil {
-		query.Set("prefix", fmt.Sprintf("%v", opts.Prefix))
+		query.Set("prefix", fmt.Sprintf("%v", *opts.Prefix))
 	}
 	if opts != nil && opts.ContinuationToken != nil {
-		query.Set("continuation_token", fmt.Sprintf("%v", opts.ContinuationToken))
+		query.Set("continuation_token", fmt.Sprintf("%v", *opts.ContinuationToken))
 	}
 	if opts != nil && opts.Limit != nil {
 		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))

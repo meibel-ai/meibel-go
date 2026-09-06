@@ -14,23 +14,23 @@ type ConfidenceScoringService struct {
 // ConfidenceScoringListScoringJobsOptions contains optional parameters for ListScoringJobs.
 type ConfidenceScoringListScoringJobsOptions struct {
 	// Filter by agent name.
-	AgentName interface{}
+	AgentName *string
 	// Filter by agent version.
-	AgentVersion interface{}
+	AgentVersion *string
 	// Filter by agent session ID.
-	AgentSessionId interface{}
+	AgentSessionId *string
 	// Filter by workflow name.
-	AgentWorkflowName interface{}
+	AgentWorkflowName *string
 	// Filter by workflow version.
-	AgentWorkflowVersion interface{}
+	AgentWorkflowVersion *string
 	// Filter by workflow session ID.
-	AgentWorkflowSessionId interface{}
+	AgentWorkflowSessionId *string
 	// Filter by tool identifier.
-	ToolId interface{}
+	ToolId *string
 	// Filter by tool instance identifier.
-	ToolInstanceId interface{}
+	ToolInstanceId *string
 	// Filter by tool execution identifier.
-	ToolExecutionId interface{}
+	ToolExecutionId *string
 }
 
 // GetScoringJob Get a scoring job
@@ -58,31 +58,31 @@ func (s *ConfidenceScoringService) ListScoringJobs(ctx context.Context, opts *Co
 	path := "/confidence-scoring/jobs"
 	query := url.Values{}
 	if opts != nil && opts.AgentName != nil {
-		query.Set("agent_name", fmt.Sprintf("%v", opts.AgentName))
+		query.Set("agent_name", fmt.Sprintf("%v", *opts.AgentName))
 	}
 	if opts != nil && opts.AgentVersion != nil {
-		query.Set("agent_version", fmt.Sprintf("%v", opts.AgentVersion))
+		query.Set("agent_version", fmt.Sprintf("%v", *opts.AgentVersion))
 	}
 	if opts != nil && opts.AgentSessionId != nil {
-		query.Set("agent_session_id", fmt.Sprintf("%v", opts.AgentSessionId))
+		query.Set("agent_session_id", fmt.Sprintf("%v", *opts.AgentSessionId))
 	}
 	if opts != nil && opts.AgentWorkflowName != nil {
-		query.Set("agent_workflow_name", fmt.Sprintf("%v", opts.AgentWorkflowName))
+		query.Set("agent_workflow_name", fmt.Sprintf("%v", *opts.AgentWorkflowName))
 	}
 	if opts != nil && opts.AgentWorkflowVersion != nil {
-		query.Set("agent_workflow_version", fmt.Sprintf("%v", opts.AgentWorkflowVersion))
+		query.Set("agent_workflow_version", fmt.Sprintf("%v", *opts.AgentWorkflowVersion))
 	}
 	if opts != nil && opts.AgentWorkflowSessionId != nil {
-		query.Set("agent_workflow_session_id", fmt.Sprintf("%v", opts.AgentWorkflowSessionId))
+		query.Set("agent_workflow_session_id", fmt.Sprintf("%v", *opts.AgentWorkflowSessionId))
 	}
 	if opts != nil && opts.ToolId != nil {
-		query.Set("tool_id", fmt.Sprintf("%v", opts.ToolId))
+		query.Set("tool_id", fmt.Sprintf("%v", *opts.ToolId))
 	}
 	if opts != nil && opts.ToolInstanceId != nil {
-		query.Set("tool_instance_id", fmt.Sprintf("%v", opts.ToolInstanceId))
+		query.Set("tool_instance_id", fmt.Sprintf("%v", *opts.ToolInstanceId))
 	}
 	if opts != nil && opts.ToolExecutionId != nil {
-		query.Set("tool_execution_id", fmt.Sprintf("%v", opts.ToolExecutionId))
+		query.Set("tool_execution_id", fmt.Sprintf("%v", *opts.ToolExecutionId))
 	}
 
 	var result []ScoringJobResponse

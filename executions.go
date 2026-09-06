@@ -14,9 +14,9 @@ type ExecutionsService struct {
 // ExecutionsListOptions contains optional parameters for List.
 type ExecutionsListOptions struct {
 	// Filter by input datasource ID
-	InputDatasourceId interface{}
+	InputDatasourceId *string
 	Offset *int64
-	Limit interface{}
+	Limit *int64
 	// Field to sort by: start_time, status
 	SortBy *string
 	SortOrder *string
@@ -27,13 +27,13 @@ func (s *ExecutionsService) List(ctx context.Context, opts *ExecutionsListOption
 	path := "/batch-executions"
 	query := url.Values{}
 	if opts != nil && opts.InputDatasourceId != nil {
-		query.Set("input_datasource_id", fmt.Sprintf("%v", opts.InputDatasourceId))
+		query.Set("input_datasource_id", fmt.Sprintf("%v", *opts.InputDatasourceId))
 	}
 	if opts != nil && opts.Offset != nil {
 		query.Set("offset", fmt.Sprintf("%v", *opts.Offset))
 	}
 	if opts != nil && opts.Limit != nil {
-		query.Set("limit", fmt.Sprintf("%v", opts.Limit))
+		query.Set("limit", fmt.Sprintf("%v", *opts.Limit))
 	}
 	if opts != nil && opts.SortBy != nil {
 		query.Set("sort_by", fmt.Sprintf("%v", *opts.SortBy))
